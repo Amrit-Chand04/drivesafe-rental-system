@@ -143,7 +143,7 @@ fun AdminApp() {
             when (selectedIndex) {
                 0 -> AdminBody()
                 1 -> InboxScreen()
-                2 -> OffersScreen()
+                2 -> OffersScreen(onClick = {})
                 3 -> SettingsScreen()
             }
         }
@@ -175,8 +175,7 @@ fun AdminBody() {
         // Top bar
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp),
+                .fillMaxWidth(),
 
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -339,13 +338,6 @@ fun AdminCard(
 fun InboxScreen() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Inbox Screen")
-    }
-}
-
-@Composable
-fun OffersScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Offers Screen")
     }
 }
 
