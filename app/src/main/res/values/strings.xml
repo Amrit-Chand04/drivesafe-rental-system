@@ -3,4 +3,5 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_admin_dashboard">AdminDashboard</string>
     <string name="title_activity_offers">OffersActivity</string>
+    <string name="title_activity_forget_password">ForgetPassword</string>
 </resources>
