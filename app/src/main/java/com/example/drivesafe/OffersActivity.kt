@@ -17,10 +17,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
@@ -46,7 +48,9 @@ class OffersActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            OffersScreen(onClick = {})
+            OffersScreen(
+                onClick = {}
+            )
         }
     }
 }
@@ -60,136 +64,135 @@ fun OffersScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(Color(0xFFF8FAF8))
 
     ) {
 
-        // Top bar
-        Row(
+        // Blue top section
+        Box(
             modifier = Modifier
-                .fillMaxWidth(),
-
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth()
+                .height(115.dp)
+                .background(Color(0xFF3567BC))
+                .statusBarsPadding()
         ) {
 
-            Image(
-                painter = painterResource(R.drawable.logo_for_app),
-                contentDescription = "Logo",
-                modifier = Modifier.size(64.dp)
+            // Back arrow
+            IconButton(
+                onClick = { },
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            }
+
+            // Center title
+            Text(
+                text = "Create Offer",
+                color = Color(0xFFF8FAFC),
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(35.dp))
+
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+        ) {
+
+            Text(
+                text = "Offer Management",
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold
             )
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Spacer(modifier = Modifier.height(10.dp))
 
-                IconButton(onClick = {}) {
-                    Icon(
-                        Icons.Default.Notifications,
-                        contentDescription = "Notifications",
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+            Text(
+                text = "Create and manage promotional offers\nto boost your bookings.",
+                color = Color.Gray,
+                fontSize = 18.sp
+            )
 
-                Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                IconButton(onClick = {
-                }) {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = "Profile",
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
+            // Create Offer Button
+            ElevatedButton(
 
+                onClick = { },
 
-        }
-
-        Spacer(modifier = Modifier.height(41.dp))
-
-        Text(
-            text = "Offer Management",
-            fontSize = 36.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = "Create and manage promotional offers\nto boost your bookings.",
-            color = Color.Gray,
-            fontSize = 18.sp
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Create Offer Button
-        ElevatedButton(
-
-            onClick = { },
-
-            modifier = Modifier
-                .width(180.dp)
-                .height(50.dp)
-                .align(Alignment.End),
-
-            shape = RoundedCornerShape(10.dp),
-
-            elevation = ButtonDefaults.elevatedButtonElevation(
-                defaultElevation = 8.dp
-            ),
-
-            colors = ButtonDefaults.elevatedButtonColors(
-                containerColor = Color.Transparent
-            ),
-
-            contentPadding = PaddingValues()
-        ) {
-
-            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color(0xFF00C853), // fresh green
-                                Color(0xFF1E88E5)  // modern blue
-                            )
-                        )
-                    ),
+                    .fillMaxWidth(0.45f)
+                    .height(50.dp)
+                    .align(Alignment.End),
 
-                contentAlignment = Alignment.Center
+                shape = RoundedCornerShape(10.dp),
+
+                elevation = ButtonDefaults.elevatedButtonElevation(
+                    defaultElevation = 8.dp
+                ),
+
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = Color.Transparent
+                ),
+
+                contentPadding = PaddingValues()
             ) {
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color(0xFF00C853), // fresh green
+                                    Color(0xFF1E88E5)  // modern blue
+                                )
+                            )
+                        ),
+
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
 
-                    Text(
-                        text = "Create Offer",
-                        color = Color.White,
-                        fontSize = 20.sp
-                    )
+                        Spacer(modifier = Modifier.width(8.dp))
 
+                        Text(
+                            text = "Create Offer",
+                            color = Color.White,
+                            fontSize = 20.sp
+                        )
+
+                    }
                 }
             }
         }
+
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun OfferPreview() {
-    OffersScreen(onClick = {})
+    OffersScreen(
+        onClick = {}
+    )
 }

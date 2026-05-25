@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +37,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -79,6 +81,12 @@ fun AdminApp() {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFFF8FAF8),
+        contentWindowInsets =
+            if (selectedIndex == 2) {
+                WindowInsets(0)
+            } else {
+                ScaffoldDefaults.contentWindowInsets
+            },
 
         bottomBar = {
             NavigationBar(
@@ -143,7 +151,11 @@ fun AdminApp() {
             when (selectedIndex) {
                 0 -> AdminBody()
                 1 -> InboxScreen()
-                2 -> OffersScreen(onClick = {})
+                2 -> OffersScreen(
+                    onClick = {
+                        selectedIndex = 0
+                    }
+                )
                 3 -> SettingsScreen()
             }
         }
