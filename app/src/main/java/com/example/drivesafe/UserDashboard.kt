@@ -67,7 +67,7 @@ fun User() {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = Color(0xFFE3F2E6),
+        containerColor = Color(0xFFE8F5E9),
 
         bottomBar = {
             NavigationBar(
@@ -133,7 +133,10 @@ fun User() {
                 0 -> UserBody()
                 1 -> InboxScreen()
                 2 -> BookingScreen()
-                3 -> SettingsScreen()
+                3 -> SettingsScreen(
+                    userName = "User",
+                    userEmail = "user@gmail.com"
+                )
             }
         }
     }

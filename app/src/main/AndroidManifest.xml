@@ -12,6 +12,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DriveSafe">
         <activity
+            android:name=".SettingActivity"
+            android:exported="true"
+            android:label="@string/title_activity_setting"
+            android:theme="@style/Theme.DriveSafe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".UserDashboard"
             android:exported="true"
             android:label="@string/title_activity_user_dashboard"
