@@ -11,61 +11,55 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DriveSafe">
+
         <activity
             android:name=".ForgetPassword"
             android:exported="true"
             android:label="@string/title_activity_forget_password"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@style/Theme.DriveSafe" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity
+            android:name=".SettingActivity"
+            android:exported="true"
+            android:label="@string/title_activity_setting"
+            android:theme="@style/Theme.DriveSafe" />
+
         <activity
             android:name=".OffersActivity"
             android:exported="true"
             android:label="@string/title_activity_offers"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@style/Theme.DriveSafe" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".AdminDashboard"
             android:exported="true"
             android:label="@string/title_activity_admin_dashboard"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@style/Theme.DriveSafe" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity
+            android:name=".UserDashboard"
+            android:exported="true"
+            android:label="@string/title_activity_user_dashboard"
+            android:theme="@style/Theme.DriveSafe" />
+
         <activity
             android:name=".SplashActivity"
             android:exported="true"
             android:label="@string/title_activity_splash"
             android:theme="@style/Theme.DriveSafe">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@style/Theme.DriveSafe" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>
