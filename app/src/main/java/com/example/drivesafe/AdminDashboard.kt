@@ -150,13 +150,13 @@ fun AdminApp() {
 
             when (selectedIndex) {
                 0 -> AdminBody()
-                1 -> InboxScreen()
+                1 -> InboxScreen1()
                 2 -> OffersScreen(
                     onClick = {
                         selectedIndex = 0
                     }
                 )
-                3 -> SettingsScreen()
+                3 -> SettingsScreen1()
             }
         }
     }
@@ -347,14 +347,14 @@ fun AdminCard(
 
 
 @Composable
-fun InboxScreen() {
+fun InboxScreen1() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Inbox Screen")
     }
 }
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen1() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Settings Screen")
     }
