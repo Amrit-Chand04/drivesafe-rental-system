@@ -1,12 +1,11 @@
 <resources>
     <string name="app_name">DriveSafe</string>
-<<<<<<< HEAD
+
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_admin_dashboard">AdminDashboard</string>
     <string name="title_activity_offers">OffersActivity</string>
     <string name="title_activity_forget_password">ForgetPassword</string>
-=======
+
     <string name="title_activity_user_dashboard">UserDashboard</string>
     <string name="title_activity_setting">SettingActivity</string>
->>>>>>> aman
 </resources>
