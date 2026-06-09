@@ -31,7 +31,8 @@ class SettingActivity : ComponentActivity() {
             DriveSafeTheme {
                 SettingsScreen(
                     userName = "User",
-                    userEmail = "user@gmail.com"
+                    userEmail = "user@gmail.com",
+                    role = "user"
                 )
             }
         }
@@ -41,7 +42,8 @@ class SettingActivity : ComponentActivity() {
 @Composable
 fun SettingsScreen(
     userName: String,
-    userEmail: String
+    userEmail: String,
+    role: String
 ) {
 
     var showAppearance by remember { mutableStateOf(false) }
@@ -120,15 +122,17 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        SettingsItem(
-            title = "Favourite",
-            onClick = {}
-        )
+        if(role == "user"){
+            SettingsItem(
+                title = "Favourite",
+                onClick = {}
+            )
 
-        SettingsItem(
-            title = "Complete KYC",
-            onClick = {}
-        )
+            SettingsItem(
+                title = "Complete KYC",
+                onClick = {}
+            )
+        }
 
         // APPEARANCE
         SettingsItem(
@@ -247,6 +251,7 @@ fun SettingsItem(
 fun SettingsPreview() {
     SettingsScreen(
         userName = "User",
-        userEmail = "user@gmail.com"
+        userEmail = "user@gmail.com",
+        role = "user"
     )
 }

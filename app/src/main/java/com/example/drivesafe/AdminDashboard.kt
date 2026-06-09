@@ -156,7 +156,11 @@ fun AdminApp() {
                         selectedIndex = 0
                     }
                 )
-                3 -> SettingsScreen1()
+                3 -> SettingsScreen(
+                    userName = "Amrit",
+                    userEmail = "amrit@gmail.com",
+                    role = "admin"
+                )
             }
         }
     }

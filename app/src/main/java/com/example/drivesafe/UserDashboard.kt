@@ -138,7 +138,8 @@ fun User() {
                 2 -> BookingScreen()
                 3 -> SettingsScreen(
                     userName = "User",
-                    userEmail = "user@gmail.com"
+                    userEmail = "user@gmail.com",
+                    role = "user"
                 )
             }
         }
@@ -376,12 +377,6 @@ fun UserBody() {
         }
     }
 
-}
-@Composable
-fun SettingsScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Setting Screen")
-    }
 }
 @Composable
 fun InboxScreen() {
