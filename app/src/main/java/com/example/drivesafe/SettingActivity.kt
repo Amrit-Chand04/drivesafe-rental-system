@@ -6,28 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.drivesafe.ui.theme.AppThemeState
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 
 class SettingActivity : ComponentActivity() {
@@ -42,10 +28,12 @@ class SettingActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SettingsScreen(
-                userName = "User",
-                userEmail = "user@gmail.com"
-            )
+            DriveSafeTheme {
+                SettingsScreen(
+                    userName = "User",
+                    userEmail = "user@gmail.com"
+                )
+            }
         }
     }
 }
@@ -56,48 +44,52 @@ fun SettingsScreen(
     userEmail: String
 ) {
 
+    var showAppearance by remember { mutableStateOf(false) }
+    var selectedTheme by remember { mutableStateOf("System") }
+
+    fun onAppearanceClick() {
+        showAppearance = !showAppearance
+    }
+
     Column(
         modifier = Modifier
-            .fillMaxSize().background(Color(0xFFE8F5E9))
+            .fillMaxSize()
+            .background(Color(0xFFE8F5E9))
             .padding(16.dp)
     ) {
 
         Text(
             text = "Settings",
             fontSize = 32.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Profile Card
+        // PROFILE CARD
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color.White
+                containerColor = MaterialTheme.colorScheme.surface
             ),
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 6.dp
-            )
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp),
-
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
 
                     Icon(
                         imageVector = Icons.Default.Person,
-                        contentDescription = "Profile",
+                        contentDescription = null,
                         tint = Color(0xFF24C16B),
                         modifier = Modifier.size(60.dp)
                     )
@@ -109,19 +101,18 @@ fun SettingsScreen(
                         Text(
                             text = userName,
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         Text(
                             text = userEmail,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
 
-                ElevatedButton(
-                    onClick = { }
-                ) {
+                ElevatedButton(onClick = { }) {
                     Text("Edit")
                 }
             }
@@ -129,50 +120,109 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        SettingsItem(title = "Favourite")
+        SettingsItem(
+            title = "Favourite",
+            onClick = {}
+        )
 
-        SettingsItem(title = "Complete KYC")
+        SettingsItem(
+            title = "Complete KYC",
+            onClick = {}
+        )
 
-        SettingsItem(title = "Appearance")
+        // APPEARANCE
+        SettingsItem(
+            title = "Appearance",
+            onClick = {
+                onAppearanceClick()
+            }
+        )
 
-        SettingsItem(title = "Password Change")
+        // DROPDOWN
+        if (showAppearance) {
+
+            Column(modifier = Modifier.padding(start = 20.dp)) {
+
+                Text(
+                    "Light",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            selectedTheme = "Light"
+                            AppThemeState.theme.value = "Light"
+                            showAppearance = false
+                        }
+                        .padding(8.dp)
+                )
+
+                Text(
+                    "Dark",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            selectedTheme = "Dark"
+                            AppThemeState.theme.value = "Dark"
+                            showAppearance = false
+                        }
+                        .padding(8.dp)
+                )
+
+                Text(
+                    "System",
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            selectedTheme = "System"
+                            AppThemeState.theme.value = "System"
+                            showAppearance = false
+                        }
+                        .padding(8.dp)
+                )
+            }
+        }
+
+        SettingsItem(
+            title = "Password Change",
+            onClick = {}
+        )
 
         SettingsItem(
             title = "Log Out",
-            titleColor = Color.Red
+            titleColor = Color.Red,
+            onClick = {}
         )
-
     }
 }
 
 @Composable
 fun SettingsItem(
     title: String,
-    titleColor: Color = Color.Black
+    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    onClick: () -> Unit
 ) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable{},
+            .clickable { onClick() },
 
         shape = RoundedCornerShape(20.dp),
 
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ),
 
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp),
-
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -185,8 +235,8 @@ fun SettingsItem(
 
             Icon(
                 imageVector = Icons.Default.ArrowForward,
-                contentDescription = "Go",
-                tint = Color.Gray
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

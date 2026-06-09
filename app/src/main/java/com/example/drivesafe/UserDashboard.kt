@@ -29,6 +29,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -56,7 +57,9 @@ class UserDashboard : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-           User()
+            DriveSafeTheme {
+                User()
+            }
         }
     }
 }
@@ -201,7 +204,7 @@ fun UserBody() {
         Text(
             text = "Welcome back,",
             fontSize = 20.sp,
-            color = Color.Gray
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -209,7 +212,8 @@ fun UserBody() {
         Text(
             text = "User",
             fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -275,7 +279,7 @@ fun UserBody() {
                 ) {
 
                     Image(
-                        painter = painterResource(id = R.drawable.car),
+                        painter = painterResource(id = R.drawable.redcar),
                         contentDescription = "Vehicle",
                         modifier = Modifier.size(100.dp)
                     )
@@ -315,9 +319,9 @@ fun UserBody() {
                 ) {
 
                     Image(
-                        painter = painterResource(id = R.drawable.bike),
+                        painter = painterResource(id = R.drawable.bike1),
                         contentDescription = "Booking",
-                        modifier = Modifier.size(90.dp)
+                        modifier = Modifier.size(100.dp)
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -336,7 +340,8 @@ fun UserBody() {
         Text(
             text = "Why DriveSafe?",
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -348,16 +353,26 @@ fun UserBody() {
 
         ) {
 
-            Text("🛡️ Verified vehicles")
+            Text(
+                "🛡️ Verified vehicles",
+                color = MaterialTheme.colorScheme.onSurface
+            )
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text("⚡ Instant booking in seconds")
+            Text(
+                "⚡ Instant booking in seconds",
+                color = MaterialTheme.colorScheme.onSurface
+            )
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text("🔒 Secure online payments")
+            Text("🔒 Secure online payments",
+                color = MaterialTheme.colorScheme.onSurface
+            )
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text("🕓 24/7 support")
+            Text("🕓 24/7 support",
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 
