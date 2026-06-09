@@ -1,4 +1,4 @@
-package com.example.drivesafe
+package com.example.drivesafe.view
 
 import android.os.Bundle
 import android.widget.Toast
@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.drivesafe.R
 import com.example.drivesafe.model.UserModel
 import com.example.drivesafe.repo.UserRepoImpl
 import com.example.drivesafe.viewmodel.UserViewModel

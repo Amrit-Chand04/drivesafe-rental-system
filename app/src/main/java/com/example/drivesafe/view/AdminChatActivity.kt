@@ -1,17 +1,42 @@
-package com.example.drivesafe
+package com.example.drivesafe.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,45 +45,44 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.drivesafe.R
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 
-class CustomerReview : ComponentActivity() {
-
+class AdminChatActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
-
         setContent {
             DriveSafeTheme {
-                ReviewsBody()
+                AdminChatBody()
+
             }
         }
     }
 }
-
-data class ReviewModel(
-    val name: String,
-    val rating: String,
-    val review: String
-)
-
+    data class AdminChatModel(
+        val name: String,
+        val message: String,
+        val time: String,
+        val unread: String
+    )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReviewsBody() {
+fun AdminChatBody() {
 
     var selectedIndex by remember {
-        mutableStateOf(0)
+        mutableStateOf(1)
     }
 
-    val reviews = emptyList<ReviewModel>()
+
+    val chats = emptyList<AdminChatModel>()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Reviews",
+                        text = "Chats",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -87,10 +111,14 @@ fun ReviewsBody() {
             ) {
                 NavigationBarItem(
                     selected = selectedIndex == 0,
-                    onClick = { selectedIndex = 0 },
+                    onClick = {
+                        selectedIndex = 0
+                    },
                     icon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.baseline_home_24),
+                            painter = painterResource(
+                                id = R.drawable.baseline_home_24
+                            ),
                             contentDescription = "Home"
                         )
                     },
@@ -101,10 +129,14 @@ fun ReviewsBody() {
 
                 NavigationBarItem(
                     selected = selectedIndex == 1,
-                    onClick = { selectedIndex = 1 },
+                    onClick = {
+                        selectedIndex = 1
+                    },
                     icon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.baseline_inbox_24),
+                            painter = painterResource(
+                                id = R.drawable.baseline_inbox_24
+                            ),
                             contentDescription = "Inbox"
                         )
                     },
@@ -115,7 +147,9 @@ fun ReviewsBody() {
 
                 NavigationBarItem(
                     selected = selectedIndex == 2,
-                    onClick = { selectedIndex = 2 },
+                    onClick = {
+                        selectedIndex = 2
+                    },
                     icon = {
                         Icon(
                             painter = painterResource(
@@ -152,11 +186,12 @@ fun ReviewsBody() {
                 Spacer(modifier = Modifier.height(25.dp))
             }
 
-            items(reviews) { review ->
-                ReviewCard(
-                    name = review.name,
-                    rating = review.rating,
-                    review = review.review
+            items(chats) { chat ->
+                AdminChatCard(
+                    name = chat.name,
+                    message = chat.message,
+                    time = chat.time,
+                    unread = chat.unread
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -165,29 +200,29 @@ fun ReviewsBody() {
     }
 }
 
-@Composable
-fun ReviewCard(
-    name: String,
-    rating: String,
-    review: String
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 3.dp
-        )
+    @Composable
+    fun AdminChatCard(
+        name: String,
+        message: String,
+        time: String,
+        unread: String
     ) {
 
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 3.dp
+            )
         ) {
 
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -207,43 +242,66 @@ fun ReviewCard(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Column {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
 
                     Text(
                         text = name,
-                        fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
 
+                    Spacer(modifier = Modifier.height(4.dp))
+
                     Text(
-                        text = rating,
-                        color = Color.Gray,
-                        fontSize = 12.sp
+                        text = message,
+                        fontSize = 12.sp,
+                        color = Color.Gray
                     )
                 }
+
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+
+                    Text(
+                        text = time,
+                        fontSize = 11.sp,
+                        color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (unread != "") {
+                        Box(
+                            modifier = Modifier
+                                .size(22.dp)
+                                .background(Color(0xFF00A859), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = unread,
+                                fontSize = 11.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
             }
-
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Text(
-                text = review,
-                fontSize = 13.sp,
-                color = Color.DarkGray,
-                lineHeight = 20.sp
-            )
         }
     }
-}
 
-@Preview(
-    showBackground = true,
-    widthDp = 390,
-    heightDp = 800
-)
-@Composable
-fun ReviewsPreview() {
-    DriveSafeTheme {
-        ReviewsBody()
+    @Preview(
+        showBackground = true,
+        widthDp = 390,
+        heightDp = 800
+    )
+    @Composable
+    fun AdminChatPreview() {
+        DriveSafeTheme {
+            AdminChatBody()
+        }
     }
-}

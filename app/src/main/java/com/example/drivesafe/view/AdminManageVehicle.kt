@@ -1,4 +1,4 @@
-package com.example.drivesafe
+package com.example.drivesafe.view
 
 import android.os.Bundle
 import android.widget.Toast
@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.drivesafe.R
 import com.example.drivesafe.model.VehicleModel
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 import com.example.drivesafe.viewmodel.VehicleViewModel

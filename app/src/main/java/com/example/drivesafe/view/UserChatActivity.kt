@@ -1,4 +1,4 @@
-package com.example.drivesafe
+package com.example.drivesafe.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,43 +20,47 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.drivesafe.R
+import com.example.drivesafe.ui.theme.DriveSafeTheme
 
-class NotificationActivity : ComponentActivity() {
+class UserChatActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
 
         setContent {
-            NotificationBody()
+            DriveSafeTheme {
+                UserChatBody()
+            }
         }
     }
 }
 
-data class NotificationModel(
-    val title: String,
+data class UserChatModel(
+    val name: String,
     val message: String,
-    val time: String
+    val time: String,
+    val unread: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationBody() {
+fun UserChatBody() {
 
     var selectedIndex by remember {
         mutableStateOf(1)
     }
 
-    val notifications = emptyList<NotificationModel>()
+    val chats = emptyList<UserChatModel>()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Notification",
-                        fontSize = 20.sp,
+                        text = "Chats",
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
@@ -84,10 +88,14 @@ fun NotificationBody() {
             ) {
                 NavigationBarItem(
                     selected = selectedIndex == 0,
-                    onClick = { selectedIndex = 0 },
+                    onClick = {
+                        selectedIndex = 0
+                    },
                     icon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.baseline_home_24),
+                            painter = painterResource(
+                                id = R.drawable.baseline_home_24
+                            ),
                             contentDescription = "Home"
                         )
                     },
@@ -98,10 +106,14 @@ fun NotificationBody() {
 
                 NavigationBarItem(
                     selected = selectedIndex == 1,
-                    onClick = { selectedIndex = 1 },
+                    onClick = {
+                        selectedIndex = 1
+                    },
                     icon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.baseline_inbox_24),
+                            painter = painterResource(
+                                id = R.drawable.baseline_inbox_24
+                            ),
                             contentDescription = "Inbox"
                         )
                     },
@@ -112,7 +124,9 @@ fun NotificationBody() {
 
                 NavigationBarItem(
                     selected = selectedIndex == 2,
-                    onClick = { selectedIndex = 2 },
+                    onClick = {
+                        selectedIndex = 2
+                    },
                     icon = {
                         Icon(
                             painter = painterResource(
@@ -134,40 +148,41 @@ fun NotificationBody() {
                 .fillMaxSize()
                 .background(Color(0xFFF3F8F5))
                 .padding(paddingValues)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 14.dp),
             contentPadding = PaddingValues(bottom = 90.dp)
         ) {
 
             item {
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 HorizontalDivider(
                     thickness = 1.dp,
                     color = Color.LightGray
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(25.dp))
             }
 
-            items(notifications) { notification ->
-
-                NotificationCard(
-                    title = notification.title,
-                    message = notification.message,
-                    time = notification.time
+            items(chats) { chat ->
+                UserChatCard(
+                    name = chat.name,
+                    message = chat.message,
+                    time = chat.time,
+                    unread = chat.unread
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(14.dp))
             }
         }
     }
 }
 
 @Composable
-fun NotificationCard(
-    title: String,
+fun UserChatCard(
+    name: String,
     message: String,
-    time: String
+    time: String,
+    unread: String
 ) {
 
     Card(
@@ -185,25 +200,20 @@ fun NotificationCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(14.dp),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
             Box(
                 modifier = Modifier
-                    .size(45.dp)
-                    .background(
-                        Color(0xFFEAF7F0),
-                        CircleShape
-                    ),
+                    .size(48.dp)
+                    .background(Color(0xFFEAF7F0), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-
-                Icon(
-                    painter = painterResource(
-                        id = R.drawable.baseline_notifications_none_24
-                    ),
-                    contentDescription = null,
-                    tint = Color(0xFF00A859)
+                Text(
+                    text = name.first().toString(),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF00A859)
                 )
             }
 
@@ -213,32 +223,49 @@ fun NotificationCard(
                 modifier = Modifier.weight(1f)
             ) {
 
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                Text(
+                    text = name,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
 
-                    Text(
-                        text = title,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Text(
-                        text = time,
-                        color = Color.Gray,
-                        fontSize = 11.sp
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = message,
-                    color = Color.Gray,
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
+                    color = Color.Gray
                 )
+            }
+
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+
+                Text(
+                    text = time,
+                    fontSize = 11.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (unread != "") {
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .background(Color(0xFF00A859), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = unread,
+                            fontSize = 11.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
     }
@@ -250,6 +277,8 @@ fun NotificationCard(
     heightDp = 800
 )
 @Composable
-fun NotificationPreview() {
-    NotificationBody()
+fun UserChatPreview() {
+    DriveSafeTheme {
+        UserChatBody()
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.drivesafe
+package com.example.drivesafe.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -20,45 +20,46 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.drivesafe.R
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 
-class UserChatActivity : ComponentActivity() {
+class CustomerReview : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
 
         setContent {
             DriveSafeTheme {
-                UserChatBody()
+                ReviewsBody()
             }
         }
     }
 }
 
-data class UserChatModel(
+data class ReviewModel(
     val name: String,
-    val message: String,
-    val time: String,
-    val unread: String
+    val rating: String,
+    val review: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserChatBody() {
+fun ReviewsBody() {
 
     var selectedIndex by remember {
-        mutableStateOf(1)
+        mutableStateOf(0)
     }
 
-    val chats = emptyList<UserChatModel>()
+    val reviews = emptyList<ReviewModel>()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Chats",
+                        text = "Reviews",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -87,14 +88,10 @@ fun UserChatBody() {
             ) {
                 NavigationBarItem(
                     selected = selectedIndex == 0,
-                    onClick = {
-                        selectedIndex = 0
-                    },
+                    onClick = { selectedIndex = 0 },
                     icon = {
                         Icon(
-                            painter = painterResource(
-                                id = R.drawable.baseline_home_24
-                            ),
+                            painter = painterResource(id = R.drawable.baseline_home_24),
                             contentDescription = "Home"
                         )
                     },
@@ -105,14 +102,10 @@ fun UserChatBody() {
 
                 NavigationBarItem(
                     selected = selectedIndex == 1,
-                    onClick = {
-                        selectedIndex = 1
-                    },
+                    onClick = { selectedIndex = 1 },
                     icon = {
                         Icon(
-                            painter = painterResource(
-                                id = R.drawable.baseline_inbox_24
-                            ),
+                            painter = painterResource(id = R.drawable.baseline_inbox_24),
                             contentDescription = "Inbox"
                         )
                     },
@@ -123,9 +116,7 @@ fun UserChatBody() {
 
                 NavigationBarItem(
                     selected = selectedIndex == 2,
-                    onClick = {
-                        selectedIndex = 2
-                    },
+                    onClick = { selectedIndex = 2 },
                     icon = {
                         Icon(
                             painter = painterResource(
@@ -162,12 +153,11 @@ fun UserChatBody() {
                 Spacer(modifier = Modifier.height(25.dp))
             }
 
-            items(chats) { chat ->
-                UserChatCard(
-                    name = chat.name,
-                    message = chat.message,
-                    time = chat.time,
-                    unread = chat.unread
+            items(reviews) { review ->
+                ReviewCard(
+                    name = review.name,
+                    rating = review.rating,
+                    review = review.review
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -177,11 +167,10 @@ fun UserChatBody() {
 }
 
 @Composable
-fun UserChatCard(
+fun ReviewCard(
     name: String,
-    message: String,
-    time: String,
-    unread: String
+    rating: String,
+    review: String
 ) {
 
     Card(
@@ -195,77 +184,55 @@ fun UserChatCard(
         )
     ) {
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
 
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(Color(0xFFEAF7F0), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = name.first().toString(),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00A859)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-                Text(
-                    text = name,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color(0xFFEAF7F0), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = name.first().toString(),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF00A859)
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
-                Text(
-                    text = message,
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-            }
+                Column {
 
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
+                    Text(
+                        text = name,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = Color.Black
+                    )
 
-                Text(
-                    text = time,
-                    fontSize = 11.sp,
-                    color = Color.Gray
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                if (unread != "") {
-                    Box(
-                        modifier = Modifier
-                            .size(22.dp)
-                            .background(Color(0xFF00A859), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = unread,
-                            fontSize = 11.sp,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = rating,
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
                 }
             }
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            Text(
+                text = review,
+                fontSize = 13.sp,
+                color = Color.DarkGray,
+                lineHeight = 20.sp
+            )
         }
     }
 }
@@ -276,8 +243,8 @@ fun UserChatCard(
     heightDp = 800
 )
 @Composable
-fun UserChatPreview() {
+fun ReviewsPreview() {
     DriveSafeTheme {
-        UserChatBody()
+        ReviewsBody()
     }
 }

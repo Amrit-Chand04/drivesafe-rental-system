@@ -1,4 +1,4 @@
-package com.example.drivesafe
+package com.example.drivesafe.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,9 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.drivesafe.R
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 
-class BikeSearchPage : ComponentActivity() {
+class CarSearchPage : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,71 +34,84 @@ class BikeSearchPage : ComponentActivity() {
 
         setContent {
             DriveSafeTheme {
-                BikeSearchBody()
+                CarSearchBody()
             }
         }
     }
 }
 
-data class BikeModel(
+data class CarModel(
     val image: Int,
     val name: String,
+    val location: String,
     val price: String
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BikeSearchBody() {
+fun CarSearchBody() {
 
     var selectedIndex by remember {
         mutableStateOf(0)
     }
 
-    val bikes = emptyList<BikeModel>()
+    val cars = emptyList<CarModel>()
 
     Scaffold(
+
         topBar = {
+
             TopAppBar(
+
                 title = {
+
                     Text(
-                        text = "Bike Search",
-                        fontSize = 18.sp,
+                        text = "Car Search",
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
                 },
+
                 navigationIcon = {
+
                     IconButton(onClick = {}) {
+
                         Icon(
                             painter = painterResource(
                                 id = R.drawable.outline_arrow_back_ios_24
                             ),
-                            contentDescription = "Back",
+                            contentDescription = null,
                             tint = Color.Black
                         )
                     }
                 },
+
                 actions = {
+
                     IconButton(onClick = {}) {
+
                         Icon(
                             painter = painterResource(
                                 id = R.drawable.rounded_add_alert_24
                             ),
-                            contentDescription = "Notification",
+                            contentDescription = null,
                             tint = Color.Gray
                         )
                     }
 
                     IconButton(onClick = {}) {
+
                         Icon(
                             painter = painterResource(
                                 id = R.drawable.baseline_supervised_user_circle_24
                             ),
-                            contentDescription = "Profile",
+                            contentDescription = null,
                             tint = Color.Gray
                         )
                     }
                 },
+
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFF3F8F5)
                 )
@@ -105,15 +119,17 @@ fun BikeSearchBody() {
         },
 
         bottomBar = {
+
             NavigationBar(
                 containerColor = Color.White
             ) {
+
                 NavigationBarItem(
                     selected = selectedIndex == 0,
-                    onClick = {
-                        selectedIndex = 0
-                    },
+                    onClick = { selectedIndex = 0 },
+
                     icon = {
+
                         Icon(
                             painter = painterResource(
                                 id = R.drawable.baseline_home_24
@@ -121,17 +137,18 @@ fun BikeSearchBody() {
                             contentDescription = "Home"
                         )
                     },
+
                     label = {
-                        Text(text = "Home")
+                        Text("Home")
                     }
                 )
 
                 NavigationBarItem(
                     selected = selectedIndex == 1,
-                    onClick = {
-                        selectedIndex = 1
-                    },
+                    onClick = { selectedIndex = 1 },
+
                     icon = {
+
                         Icon(
                             painter = painterResource(
                                 id = R.drawable.baseline_inbox_24
@@ -139,17 +156,18 @@ fun BikeSearchBody() {
                             contentDescription = "Inbox"
                         )
                     },
+
                     label = {
-                        Text(text = "Inbox")
+                        Text("Inbox")
                     }
                 )
 
                 NavigationBarItem(
                     selected = selectedIndex == 2,
-                    onClick = {
-                        selectedIndex = 2
-                    },
+                    onClick = { selectedIndex = 2 },
+
                     icon = {
+
                         Icon(
                             painter = painterResource(
                                 id = R.drawable.baseline_supervised_user_circle_24
@@ -157,53 +175,70 @@ fun BikeSearchBody() {
                             contentDescription = "Profile"
                         )
                     },
+
                     label = {
-                        Text(text = "Profile")
+                        Text("Profile")
                     }
                 )
             }
         }
+
     ) { paddingValues ->
 
         LazyColumn(
+
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFF3F8F5))
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp),
+
             contentPadding = PaddingValues(bottom = 90.dp)
+
         ) {
 
             item {
+
+                Spacer(modifier = Modifier.height(20.dp))
+
                 HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 20.dp),
                     thickness = 1.dp,
                     color = Color.LightGray
                 )
 
-                Spacer(modifier = Modifier.height(25.dp))
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
             item {
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
+
                     Button(
                         onClick = {},
+
                         shape = CircleShape,
+
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White
                         ),
+
                         modifier = Modifier.size(55.dp),
+
                         contentPadding = PaddingValues(0.dp)
                     ) {
+
                         Image(
-                            painter = painterResource(id = R.drawable.filter),
+                            painter = painterResource(
+                                id = R.drawable.filter
+                            ),
+
                             contentDescription = "Filter",
+
                             modifier = Modifier.size(22.dp),
+
                             contentScale = ContentScale.Fit
                         )
                     }
@@ -212,49 +247,58 @@ fun BikeSearchBody() {
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            items(bikes) { bike ->
-                BikeCard(
-                    bikeImage = bike.image,
-                    name = bike.name,
-                    price = bike.price
-                )
 
-                Spacer(modifier = Modifier.height(14.dp))
+            if (cars.isNotEmpty()) {
+
+                items(cars) { car ->
+
+                    CarCard(car)
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
             }
         }
     }
 }
 
 @Composable
-fun BikeCard(
-    bikeImage: Int,
-    name: String,
-    price: String
-) {
+fun CarCard(car: CarModel) {
+
     Card(
+
         modifier = Modifier
             .fillMaxWidth()
             .height(120.dp),
+
         shape = RoundedCornerShape(18.dp),
+
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
+
         elevation = CardDefaults.cardElevation(
             defaultElevation = 3.dp
         )
     ) {
+
         Row(
+
             modifier = Modifier
                 .fillMaxSize()
                 .padding(12.dp),
+
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Image(
-                painter = painterResource(id = bikeImage),
-                contentDescription = name,
+                painter = painterResource(id = car.image),
+
+                contentDescription = null,
+
                 modifier = Modifier
                     .width(110.dp)
                     .height(80.dp),
+
                 contentScale = ContentScale.Fit
             )
 
@@ -263,28 +307,29 @@ fun BikeCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
+
                 Text(
-                    text = name,
-                    fontSize = 15.sp,
+                    text = car.name,
                     fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
                     color = Color.Black
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "Kathmandu, Nepal",
-                    fontSize = 12.sp,
-                    color = Color.Gray
+                    text = car.location,
+                    color = Color.Gray,
+                    fontSize = 12.sp
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = price,
-                    fontSize = 13.sp,
+                    text = car.price,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00A859)
+                    color = Color(0xFF00A859),
+                    fontSize = 13.sp
                 )
             }
         }
@@ -297,8 +342,9 @@ fun BikeCard(
     heightDp = 800
 )
 @Composable
-fun BikePreview() {
+fun PreviewCarSearchPage() {
+
     DriveSafeTheme {
-        BikeSearchBody()
+        CarSearchBody()
     }
 }
