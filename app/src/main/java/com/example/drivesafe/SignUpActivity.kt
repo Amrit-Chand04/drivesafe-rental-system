@@ -1,6 +1,7 @@
 package com.example.drivesafe
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -40,19 +42,23 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.drivesafe.model.UserModel
+import com.example.drivesafe.repo.UserRepoImpl
+import com.example.drivesafe.viewmodel.UserViewModel
+
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             SignUpScreen()
         }
     }
 }
 
-
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(enableBackend: Boolean = true) {
 
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -61,7 +67,13 @@ fun SignUpScreen() {
     var confirmPassword by remember { mutableStateOf("") }
 
     var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) } // ✅ FIXED
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val userViewModel = remember {
+        if (enableBackend) UserViewModel(UserRepoImpl()) else null
+    }
 
     Scaffold { padding ->
 
@@ -101,7 +113,6 @@ fun SignUpScreen() {
 
                 Spacer(modifier = Modifier.height(25.dp))
 
-                // FULL NAME
                 OutlinedTextField(
                     value = fullName,
                     onValueChange = { fullName = it },
@@ -113,7 +124,6 @@ fun SignUpScreen() {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // EMAIL
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -125,7 +135,6 @@ fun SignUpScreen() {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // PHONE
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
@@ -137,18 +146,15 @@ fun SignUpScreen() {
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // PASSWORD
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text("Password") },
                     singleLine = true,
-
                     visualTransformation =
                         if (passwordVisible) VisualTransformation.None
                         else PasswordVisualTransformation(),
-
                     trailingIcon = {
                         IconButton(onClick = {
                             passwordVisible = !passwordVisible
@@ -162,24 +168,20 @@ fun SignUpScreen() {
                             )
                         }
                     },
-
                     shape = RoundedCornerShape(15.dp)
                 )
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // CONFIRM PASSWORD
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text("Confirm Password") },
                     singleLine = true,
-
                     visualTransformation =
                         if (confirmPasswordVisible) VisualTransformation.None
                         else PasswordVisualTransformation(),
-
                     trailingIcon = {
                         IconButton(onClick = {
                             confirmPasswordVisible = !confirmPasswordVisible
@@ -193,31 +195,106 @@ fun SignUpScreen() {
                             )
                         }
                     },
-
                     shape = RoundedCornerShape(15.dp)
                 )
 
                 Spacer(modifier = Modifier.height(25.dp))
 
                 ElevatedButton(
+                    onClick = {
 
-                    onClick = { },
+                        if (!enableBackend) {
+                            return@ElevatedButton
+                        }
 
+                        if (
+                            fullName.isBlank() ||
+                            email.isBlank() ||
+                            phone.isBlank() ||
+                            password.isBlank() ||
+                            confirmPassword.isBlank()
+                        ) {
+                            Toast.makeText(
+                                context,
+                                "Please fill all fields",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else if (password != confirmPassword) {
+                            Toast.makeText(
+                                context,
+                                "Passwords do not match",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            userViewModel?.register(
+                                email = email,
+                                password = password
+                            ) { success, message, uid ->
+
+                                if (success) {
+
+                                    val user = UserModel(
+                                        uid = uid,
+                                        fullName = fullName,
+                                        email = email,
+                                        phone = phone
+                                    )
+
+                                    userViewModel.addUser(
+                                        id = uid,
+                                        model = user
+                                    ) { addSuccess, addMessage ->
+
+                                        if (addSuccess) {
+                                            Toast.makeText(
+                                                context,
+                                                "Signup Successful",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+
+                                            fullName = ""
+                                            email = ""
+                                            phone = ""
+                                            password = ""
+                                            confirmPassword = ""
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                addMessage,
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }
+
+                                } else {
+
+                                    val errorMessage =
+                                        if (message.contains("already", ignoreCase = true)) {
+                                            "Email already in use"
+                                        } else {
+                                            message
+                                        }
+
+                                    Toast.makeText(
+                                        context,
+                                        errorMessage,
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(58.dp),
-
                     shape = RoundedCornerShape(50.dp),
-
                     colors = ButtonDefaults.elevatedButtonColors(
                         containerColor = Color(0xFF2E7D32),
                         contentColor = Color.White
                     ),
-
                     elevation = ButtonDefaults.elevatedButtonElevation(
                         defaultElevation = 8.dp
                     )
-
                 ) {
 
                     Text(
@@ -234,5 +311,5 @@ fun SignUpScreen() {
 @Preview(showBackground = true)
 @Composable
 fun SignUpPreview() {
-    SignUpScreen()
+    SignUpScreen(enableBackend = false)
 }
