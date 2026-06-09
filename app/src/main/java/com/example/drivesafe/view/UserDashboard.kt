@@ -1,27 +1,22 @@
-package com.example.drivesafe
+package com.example.drivesafe.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -31,13 +26,15 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,45 +45,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.drivesafe.R
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 
-class AdminDashboard : ComponentActivity() {
+class UserDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AdminApp()
+            DriveSafeTheme {
+                User()
+            }
         }
     }
 }
-
-data class DashboardItem(
-    val title: String,
-    val icon: Int
-)
-
 @Composable
-fun AdminApp() {
+fun User() {
 
     var selectedIndex by remember { mutableStateOf(0) }
 
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = Color(0xFFF8FAF8),
-        contentWindowInsets =
-            if (selectedIndex == 2) {
-                WindowInsets(0)
-            } else {
-                ScaffoldDefaults.contentWindowInsets
-            },
+        containerColor = Color(0xFFE8F5E9),
 
         bottomBar = {
             NavigationBar(
@@ -101,7 +86,7 @@ fun AdminApp() {
                 val items = listOf(
                     "Home" to Icons.Default.Home,
                     "Inbox" to Icons.Default.Notifications,
-                    "Offers" to Icons.Default.Add,
+                    "Booking" to Icons.Default.Add,
                     "Settings" to Icons.Default.Settings
                 )
 
@@ -149,17 +134,13 @@ fun AdminApp() {
         ) {
 
             when (selectedIndex) {
-                0 -> AdminBody()
-                1 -> InboxScreen1()
-                2 -> OffersScreen(
-                    onClick = {
-                        selectedIndex = 0
-                    }
-                )
+                0 -> UserBody()
+                1 -> InboxScreen()
+                2 -> BookingScreen()
                 3 -> SettingsScreen(
-                    userName = "Amrit",
-                    userEmail = "amrit@gmail.com",
-                    role = "admin"
+                    userName = "User",
+                    userEmail = "user@gmail.com",
+                    role = "user"
                 )
             }
         }
@@ -167,19 +148,11 @@ fun AdminApp() {
 }
 
 
+
 @Composable
-fun AdminBody() {
+fun UserBody() {
 
-    var showProfileScreen by remember {
-        mutableStateOf(false)
-    }
-
-    val dashboardItems = listOf(
-        DashboardItem("Manage\nUsers", R.drawable.outline_emoji_people_24),
-        DashboardItem("Vehicles", R.drawable.outline_directions_car_24),
-        DashboardItem("Bookings", R.drawable.outline_calendar_month_24),
-        DashboardItem("KYC\nVerification", R.drawable.outline_verified_user_24)
-    )
+    var text by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -228,146 +201,200 @@ fun AdminBody() {
             }
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(25.dp))
 
         Text(
             text = "Welcome back,",
-            fontSize = 22.sp,
-            color = Color.Gray
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Admin",
-            fontSize = 36.sp,
-            fontWeight = FontWeight.Bold
+            text = "User",
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(modifier = Modifier.height(50.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        dashboardItems.chunked(2).forEach { rowItems ->
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            OutlinedTextField(
+                value = text ,
+                onValueChange = {text = it},
+                modifier = Modifier.weight(1f),
+                placeholder = {
+                    Text("Search vehicle")
+                },
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            ElevatedButton(onClick = { },
+                modifier = Modifier.size(width = 100.dp, height = 50.dp)) {
+                Text(
+                    text = "Search",
+                    fontSize = 16.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(30.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+
+            // First Card
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(180.dp)
+                    .clickable { },
+
+
+                shape = RoundedCornerShape(18.dp),
+
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
+
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 6.dp
+                )
             ) {
 
-                rowItems.forEach { item ->
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
 
-                    AdminCard(
-                        title = item.title,
-                        icon = item.icon,
-                        modifier = Modifier.weight(1f)
+                    Image(
+                        painter = painterResource(id = R.drawable.redcar),
+                        contentDescription = "Vehicle",
+                        modifier = Modifier.size(100.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "CAR",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
-        }
-    }
-}
+            // Second Card
+            Card(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(180.dp)
+                    .clickable { },
 
-@Composable
-fun AdminCard(
-    title: String,
-    icon: Int,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
-) {
+                shape = RoundedCornerShape(18.dp),
 
-    var pressed by remember {
-        mutableStateOf(false)
-    }
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
 
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.97f else 1f,
-        label = ""
-    )
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 6.dp
+                )
+            ) {
 
-    Card(
-        modifier = modifier
-            .aspectRatio(1f)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.bike1),
+                        contentDescription = "Booking",
+                        modifier = Modifier.size(100.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "BIKE",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
+        }
 
-            .clickable {
-                pressed = true
-                onClick()
-                pressed = false
-            },
+        Spacer(modifier = Modifier.height(40.dp))
 
-        shape = RoundedCornerShape(24.dp),
-
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
+        Text(
+            text = "Why DriveSafe?",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
         )
-    ) {
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
+                .fillMaxWidth()
 
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+
         ) {
 
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFEAF8EF)),
-
-                contentAlignment = Alignment.Center
-            ) {
-
-                Icon(
-                    painter = painterResource(id = icon),
-                    contentDescription = null,
-                    tint = Color(0xFF24C16B),
-                    modifier = Modifier.size(32.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "🛡️ Verified vehicles",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = title,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
+                "⚡ Instant booking in seconds",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text("🔒 Secure online payments",
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text("🕓 24/7 support",
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
+
 }
-
-
-
 @Composable
-fun InboxScreen1() {
+fun InboxScreen() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Inbox Screen")
     }
 }
 
 @Composable
-fun SettingsScreen1() {
+fun BookingScreen() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Settings Screen")
+        Text("Booking Screen")
     }
 }
 
-
-
 @Preview(showBackground = true)
 @Composable
-fun PreviewAdminDashboard() {
-    AdminApp()
+fun PreviewUser() {
+    User()
 }

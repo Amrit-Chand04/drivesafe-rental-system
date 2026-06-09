@@ -13,37 +13,37 @@
         android:theme="@style/Theme.DriveSafe">
 
         <activity
-            android:name=".ForgetPassword"
+            android:name=".view.ForgetPassword"
             android:exported="true"
             android:label="@string/title_activity_forget_password"
             android:theme="@style/Theme.DriveSafe" />
 
         <activity
-            android:name=".SettingActivity"
+            android:name=".view.SettingActivity"
             android:exported="true"
             android:label="@string/title_activity_setting"
             android:theme="@style/Theme.DriveSafe" />
 
         <activity
-            android:name=".OffersActivity"
+            android:name=".view.OffersActivity"
             android:exported="true"
             android:label="@string/title_activity_offers"
             android:theme="@style/Theme.DriveSafe" />
 
         <activity
-            android:name=".AdminDashboard"
+            android:name=".view.AdminDashboard"
             android:exported="true"
             android:label="@string/title_activity_admin_dashboard"
             android:theme="@style/Theme.DriveSafe" />
 
         <activity
-            android:name=".UserDashboard"
+            android:name=".view.UserDashboard"
             android:exported="true"
             android:label="@string/title_activity_user_dashboard"
             android:theme="@style/Theme.DriveSafe" />
 
         <activity
-            android:name=".SplashActivity"
+            android:name=".view.SplashActivity"
             android:exported="true"
             android:label="@string/title_activity_splash"
             android:theme="@style/Theme.DriveSafe">
