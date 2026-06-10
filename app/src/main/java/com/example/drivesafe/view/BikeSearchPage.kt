@@ -1,13 +1,16 @@
-package com.example.drivesafe
+package com.example.drivesafe.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,12 +20,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.drivesafe.model.VehicleModel
 import com.example.drivesafe.ui.theme.DriveSafeTheme
+import com.example.drivesafe.viewmodel.VehicleViewModel
+import com.example.drivesafe.R
+
 
 class BikeSearchPage : ComponentActivity() {
 
@@ -49,11 +58,106 @@ data class BikeModel(
 @Composable
 fun BikeSearchBody() {
 
+    val context = LocalContext.current
+    val vehicleViewModel: VehicleViewModel = viewModel()
+
     var selectedIndex by remember {
         mutableStateOf(0)
     }
 
-    val bikes = emptyList<BikeModel>()
+    var bikes by remember {
+        mutableStateOf<List<VehicleModel>>(emptyList())
+    }
+
+    var showFilterDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var selectedPriceFilter by remember {
+        mutableStateOf("All")
+    }
+
+    LaunchedEffect(Unit) {
+        vehicleViewModel.getVehicles { success, message, list ->
+            if (success) {
+                bikes = list.filter {
+                    it.type.equals("Bike", ignoreCase = true)
+                }
+            }
+        }
+    }
+
+    val filteredBikes = when (selectedPriceFilter) {
+
+        "Low" -> bikes.filter {
+            val price = it.price.filter { char -> char.isDigit() }.toIntOrNull() ?: 0
+            price < 3000
+        }
+
+        "Medium" -> bikes.filter {
+            val price = it.price.filter { char -> char.isDigit() }.toIntOrNull() ?: 0
+            price in 3000..7000
+        }
+
+        "High" -> bikes.filter {
+            val price = it.price.filter { char -> char.isDigit() }.toIntOrNull() ?: 0
+            price > 7000
+        }
+
+        else -> bikes
+    }
+
+    if (showFilterDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showFilterDialog = false
+            },
+            title = {
+                Text("Filter by Price")
+            },
+            text = {
+                Column {
+
+                    TextButton(
+                        onClick = {
+                            selectedPriceFilter = "All"
+                            showFilterDialog = false
+                        }
+                    ) {
+                        Text("All")
+                    }
+
+                    TextButton(
+                        onClick = {
+                            selectedPriceFilter = "Low"
+                            showFilterDialog = false
+                        }
+                    ) {
+                        Text("Below Rs. 3000")
+                    }
+
+                    TextButton(
+                        onClick = {
+                            selectedPriceFilter = "Medium"
+                            showFilterDialog = false
+                        }
+                    ) {
+                        Text("Rs. 3000 - Rs. 7000")
+                    }
+
+                    TextButton(
+                        onClick = {
+                            selectedPriceFilter = "High"
+                            showFilterDialog = false
+                        }
+                    ) {
+                        Text("Above Rs. 7000")
+                    }
+                }
+            },
+            confirmButton = {}
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -183,7 +287,44 @@ fun BikeSearchBody() {
                     color = Color.LightGray
                 )
 
-                Spacer(modifier = Modifier.height(25.dp))
+                Spacer(modifier = Modifier.height(22.dp))
+            }
+
+            item {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    item {
+                        BikeBrandButton(
+                            text = "ALL",
+                            selected = true
+                        )
+                    }
+
+                    item {
+                        BikeBrandButton(
+                            text = "Honda",
+                            selected = false
+                        )
+                    }
+
+                    item {
+                        BikeBrandButton(
+                            text = "Yamaha",
+                            selected = false
+                        )
+                    }
+
+                    item {
+                        BikeBrandButton(
+                            text = "Duke",
+                            selected = false
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(22.dp))
             }
 
             item {
@@ -192,7 +333,9 @@ fun BikeSearchBody() {
                     horizontalArrangement = Arrangement.End
                 ) {
                     Button(
-                        onClick = {},
+                        onClick = {
+                            showFilterDialog = true
+                        },
                         shape = CircleShape,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White
@@ -212,11 +355,37 @@ fun BikeSearchBody() {
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            items(bikes) { bike ->
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Recommend For You",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    Text(
+                        text = selectedPriceFilter,
+                        fontSize = 13.sp,
+                        color = Color.Gray
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+            }
+
+            items(filteredBikes) { bike ->
+
                 BikeCard(
-                    bikeImage = bike.image,
-                    name = bike.name,
-                    price = bike.price
+                    bike = bike,
+                    onClick = {
+                        val intent = Intent(context, BikeDetails::class.java)
+                        intent.putExtra("vehicleId", bike.vehicleId)
+                        context.startActivity(intent)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -226,15 +395,38 @@ fun BikeSearchBody() {
 }
 
 @Composable
+fun BikeBrandButton(
+    text: String,
+    selected: Boolean
+) {
+    Button(
+        onClick = {},
+        shape = RoundedCornerShape(25.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) Color(0xFF202A2A) else Color.White
+        ),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = text,
+            color = if (selected) Color.White else Color.Black,
+            fontSize = 12.sp
+        )
+    }
+}
+
+@Composable
 fun BikeCard(
-    bikeImage: Int,
-    name: String,
-    price: String
+    bike: VehicleModel,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp),
+            .height(135.dp)
+            .clickable {
+                onClick()
+            },
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -250,11 +442,11 @@ fun BikeCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = bikeImage),
-                contentDescription = name,
+                painter = painterResource(id = R.drawable.bike),
+                contentDescription = bike.name,
                 modifier = Modifier
-                    .width(110.dp)
-                    .height(80.dp),
+                    .width(115.dp)
+                    .height(85.dp),
                 contentScale = ContentScale.Fit
             )
 
@@ -264,7 +456,7 @@ fun BikeCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = name,
+                    text = bike.name,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
@@ -273,7 +465,7 @@ fun BikeCard(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "Kathmandu, Nepal",
+                    text = bike.location,
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
@@ -281,11 +473,29 @@ fun BikeCard(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = price,
+                    text = bike.price,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF00A859)
                 )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Button(
+                    onClick = onClick,
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF202A2A)
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 3.dp),
+                    modifier = Modifier.height(30.dp)
+                ) {
+                    Text(
+                        text = "Book now",
+                        fontSize = 10.sp,
+                        color = Color.White
+                    )
+                }
             }
         }
     }
