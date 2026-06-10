@@ -12,7 +12,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,13 +54,8 @@ class AdminManageVehicle : ComponentActivity() {
 @Composable
 fun VehicleBody() {
 
-    var selectedIndex by remember {
-        mutableStateOf(0)
-    }
-
-    var selectedCategory by remember {
-        mutableStateOf("All")
-    }
+    var selectedIndex by remember { mutableStateOf(0) }
+    var selectedCategory by remember { mutableStateOf("All") }
 
     val context = LocalContext.current
     val vehicleViewModel: VehicleViewModel = viewModel()
@@ -65,9 +64,27 @@ fun VehicleBody() {
         mutableStateOf<List<VehicleModel>>(emptyList())
     }
 
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
+    var showDialog by remember { mutableStateOf(false) }
+    var showUpdateDialog by remember { mutableStateOf(false) }
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var deleteVehicleId by remember { mutableStateOf("") }
+
+    var vehicleId by remember { mutableStateOf("") }
+    var updateName by remember { mutableStateOf("") }
+    var updateType by remember { mutableStateOf("") }
+    var updateNumber by remember { mutableStateOf("") }
+    var updateStatus by remember { mutableStateOf("") }
+    var updateImageName by remember { mutableStateOf("") }
+    var updatePrice by remember { mutableStateOf("") }
+    var updateLocation by remember { mutableStateOf("") }
+    var updateDescription by remember { mutableStateOf("") }
+    var updateCapacity by remember { mutableStateOf("") }
+    var updateEngine by remember { mutableStateOf("") }
+    var updateSpeed by remember { mutableStateOf("") }
+    var updateBattery by remember { mutableStateOf("") }
+    var updateParking by remember { mutableStateOf("") }
+    var updateSafety by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         vehicleViewModel.getVehicles { success, message, list ->
@@ -85,6 +102,235 @@ fun VehicleBody() {
         vehicles.filter {
             it.type.equals(selectedCategory, ignoreCase = true)
         }
+    }
+
+    if (showUpdateDialog) {
+        AlertDialog(
+            onDismissRequest = { showUpdateDialog = false },
+            title = { Text("Update Vehicle") },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = 500.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    OutlinedTextField(
+                        value = updateName,
+                        onValueChange = { updateName = it },
+                        label = { Text("Vehicle Name") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateType,
+                        onValueChange = { updateType = it },
+                        label = { Text("Type: Car or Bike") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateNumber,
+                        onValueChange = { updateNumber = it },
+                        label = { Text("Vehicle Number") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateStatus,
+                        onValueChange = { updateStatus = it },
+                        label = { Text("Status") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateImageName,
+                        onValueChange = { updateImageName = it },
+                        label = { Text("Image Name: car or bike") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updatePrice,
+                        onValueChange = { updatePrice = it },
+                        label = { Text("Price") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateLocation,
+                        onValueChange = { updateLocation = it },
+                        label = { Text("Location") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateDescription,
+                        onValueChange = { updateDescription = it },
+                        label = { Text("Description") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateCapacity,
+                        onValueChange = { updateCapacity = it },
+                        label = { Text("Capacity") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateEngine,
+                        onValueChange = { updateEngine = it },
+                        label = { Text("Engine") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateSpeed,
+                        onValueChange = { updateSpeed = it },
+                        label = { Text("Speed") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateBattery,
+                        onValueChange = { updateBattery = it },
+                        label = { Text("Battery") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateParking,
+                        onValueChange = { updateParking = it },
+                        label = { Text("Parking") },
+                        singleLine = true
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = updateSafety,
+                        onValueChange = { updateSafety = it },
+                        label = { Text("Safety") },
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val vehicle = VehicleModel(
+                            vehicleId = vehicleId,
+                            name = updateName,
+                            type = updateType,
+                            number = updateNumber,
+                            status = updateStatus,
+                            imageName = updateImageName,
+                            price = "Rs. ${updatePrice.filter { it.isDigit() }}/Day",
+                            location = updateLocation,
+                            description = updateDescription,
+                            capacity = updateCapacity,
+                            engine = updateEngine,
+                            speed = updateSpeed,
+                            battery = updateBattery,
+                            parking = updateParking,
+                            safety = updateSafety
+                        )
+
+                        vehicleViewModel.updateVehicle(vehicleId, vehicle) { success, message ->
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                            if (success) {
+                                showUpdateDialog = false
+                            }
+                        }
+                    }
+                ) {
+                    Text("Update")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUpdateDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showDeleteDialog) {
+
+        AlertDialog(
+            onDismissRequest = {
+                showDeleteDialog = false
+            },
+            title = {
+                Text("Delete Vehicle")
+            },
+            text = {
+                Text(
+                    "Are you sure you want to delete this vehicle?"
+                )
+            },
+
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        vehicleViewModel.deleteVehicle(deleteVehicleId) { success, message ->
+
+                            if (success) {
+                                Toast.makeText(
+                                    context,
+                                    "Vehicle deleted successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    message,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            showDeleteDialog = false
+                        }
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -244,9 +490,7 @@ fun VehicleBody() {
                         CategoryButton(
                             text = "All Vehicles",
                             selected = selectedCategory == "All",
-                            onClick = {
-                                selectedCategory = "All"
-                            }
+                            onClick = { selectedCategory = "All" }
                         )
                     }
 
@@ -254,9 +498,7 @@ fun VehicleBody() {
                         CategoryButton(
                             text = "Cars",
                             selected = selectedCategory == "Car",
-                            onClick = {
-                                selectedCategory = "Car"
-                            }
+                            onClick = { selectedCategory = "Car" }
                         )
                     }
 
@@ -264,9 +506,7 @@ fun VehicleBody() {
                         CategoryButton(
                             text = "Bikes",
                             selected = selectedCategory == "Bike",
-                            onClick = {
-                                selectedCategory = "Bike"
-                            }
+                            onClick = { selectedCategory = "Bike" }
                         )
                     }
                 }
@@ -281,9 +521,7 @@ fun VehicleBody() {
                 ) {
 
                     Button(
-                        onClick = {
-                            showDialog = true
-                        },
+                        onClick = { showDialog = true },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF00A859)
                         ),
@@ -304,7 +542,10 @@ fun VehicleBody() {
 
             items(filteredVehicles) { vehicle ->
 
-                val image = if (vehicle.imageName.lowercase() == "bike") {
+                val image = if (
+                    vehicle.imageName.lowercase() == "bike" ||
+                    vehicle.type.equals("Bike", ignoreCase = true)
+                ) {
                     R.drawable.bike
                 } else {
                     R.drawable.car
@@ -315,7 +556,31 @@ fun VehicleBody() {
                     name = vehicle.name,
                     type = vehicle.type,
                     number = vehicle.number,
-                    status = vehicle.status
+                    status = vehicle.status,
+                    onEdit = {
+                        vehicleId = vehicle.vehicleId
+                        updateName = vehicle.name
+                        updateType = vehicle.type
+                        updateNumber = vehicle.number
+                        updateStatus = vehicle.status
+                        updateImageName = vehicle.imageName
+
+                        updatePrice = vehicle.price
+                        updateLocation = vehicle.location
+                        updateDescription = vehicle.description
+                        updateCapacity = vehicle.capacity
+                        updateEngine = vehicle.engine
+                        updateSpeed = vehicle.speed
+                        updateBattery = vehicle.battery
+                        updateParking = vehicle.parking
+                        updateSafety = vehicle.safety
+                        showUpdateDialog = true
+                    },
+                    onDelete = {
+
+                        deleteVehicleId = vehicle.vehicleId
+                        showDeleteDialog = true
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -342,6 +607,7 @@ fun VehicleBody() {
 }
 
 @Composable
+
 fun AddVehicleDialog(
     onDismiss: () -> Unit,
     onAdd: (VehicleModel) -> Unit
@@ -351,6 +617,18 @@ fun AddVehicleDialog(
     var number by remember { mutableStateOf("") }
     var status by remember { mutableStateOf("Available") }
     var imageName by remember { mutableStateOf("car") }
+    var price by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var capacity by remember { mutableStateOf("") }
+    var engine by remember { mutableStateOf("") }
+    var speed by remember { mutableStateOf("") }
+    var battery by remember { mutableStateOf("") }
+    var parking by remember { mutableStateOf("") }
+    var safety by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    var typeExpanded by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -358,63 +636,144 @@ fun AddVehicleDialog(
             Text("Add Vehicle")
         },
         text = {
-            Column {
+            Column(
+                modifier = Modifier
+                    .heightIn(max = 500.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Vehicle Name") },
-                    singleLine = true
-                )
-
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Vehicle Name") }, singleLine = true)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = type,
-                    onValueChange = { type = it },
-                    label = { Text("Type: Car or Bike") },
-                    singleLine = true
-                )
+                Box {
+                    OutlinedTextField(
+                        value = type,
+                        onValueChange = {},
+                        label = { Text("Type") },
+                        readOnly = true,
+                        singleLine = true,
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    typeExpanded = true
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = "Dropdown"
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
+                    DropdownMenu(
+                        expanded = typeExpanded,
+                        onDismissRequest = {
+                            typeExpanded = false
+                        }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Car") },
+                            onClick = {
+                                type = "Car"
+                                imageName = "car"
+                                typeExpanded = false
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text("Bike") },
+                            onClick = {
+                                type = "Bike"
+                                imageName = "bike"
+                                typeExpanded = false
+                            }
+                        )
+                    }
+                }
+
+                OutlinedTextField(value = number, onValueChange = { number = it }, label = { Text("Vehicle Number") }, singleLine = true)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = number,
-                    onValueChange = { number = it },
-                    label = { Text("Vehicle Number") },
-                    singleLine = true
-                )
-
+                OutlinedTextField(value = status, onValueChange = { status = it }, label = { Text("Status") }, singleLine = true)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = status,
-                    onValueChange = { status = it },
-                    label = { Text("Status") },
-                    singleLine = true
-                )
-
+                OutlinedTextField(value = imageName, onValueChange = { imageName = it }, label = { Text("Image Name: car or bike") }, singleLine = true)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = imageName,
-                    onValueChange = { imageName = it },
-                    label = { Text("Image Name: car or bike") },
-                    singleLine = true
-                )
+                OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Price") }, singleLine = true)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(value = location, onValueChange = { location = it }, label = { Text("Location") }, singleLine = true)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") }, singleLine = true)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(value = capacity, onValueChange = { capacity = it }, label = { Text("Capacity") }, singleLine = true)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(value = engine, onValueChange = { engine = it }, label = { Text("Engine") }, singleLine = true)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(value = speed, onValueChange = { speed = it }, label = { Text("Speed") }, singleLine = true)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(value = battery, onValueChange = { battery = it }, label = { Text("Battery") }, singleLine = true)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(value = parking, onValueChange = { parking = it }, label = { Text("Parking") }, singleLine = true)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(value = safety, onValueChange = { safety = it }, label = { Text("Safety") }, singleLine = true)
             }
         },
         confirmButton = {
             Button(
                 onClick = {
+
+                    if (
+
+                        name.isBlank() ||
+                        type.isBlank() ||
+                        number.isBlank() ||
+                        status.isBlank() ||
+                        imageName.isBlank() ||
+                        price.isBlank() ||
+                        location.isBlank() ||
+                        description.isBlank() ||
+                        capacity.isBlank() ||
+                        engine.isBlank() ||
+                        speed.isBlank() ||
+                        battery.isBlank() ||
+                        parking.isBlank() ||
+                        safety.isBlank()
+                    ) {
+                        Toast.makeText(
+                            context,
+                            "Please fill all fields",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@Button
+                    }
+
                     val vehicle = VehicleModel(
                         name = name,
                         type = type,
                         number = number,
                         status = status,
-                        imageName = imageName
+                        imageName = imageName,
+                        price = "Rs. $price/Day",
+                        location = location,
+                        description = description,
+                        capacity = capacity,
+                        engine = engine,
+                        speed = speed,
+                        battery = battery,
+                        parking = parking,
+                        safety = safety
                     )
-
                     onAdd(vehicle)
                 }
             ) {
@@ -476,13 +835,15 @@ fun VehicleCard(
     name: String,
     type: String,
     number: String,
-    status: String
+    status: String,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(130.dp),
+            .height(180.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -501,8 +862,8 @@ fun VehicleCard(
                 painter = painterResource(id = image),
                 contentDescription = name,
                 modifier = Modifier
-                    .width(90.dp)
-                    .height(60.dp),
+                    .width(70.dp)
+                    .height(50.dp),
                 contentScale = ContentScale.Fit
             )
 
@@ -545,6 +906,32 @@ fun VehicleCard(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF00A859)
                 )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+
+                    Button(
+                        onClick = onEdit,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF00A859)
+                        )
+                    ) {
+                        Text("Edit")
+                    }
+
+                    Button(
+                        onClick = onDelete,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red
+                        )
+                    ) {
+                        Text("Delete")
+                    }
+                }
             }
         }
     }

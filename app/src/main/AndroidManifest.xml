@@ -99,17 +99,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.theme.AdminManageVehicle"
-            android:exported="true"
-            android:label="@string/title_activity_admin_manage_vehicle"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".view.AdminChatActivity"
             android:exported="true"
