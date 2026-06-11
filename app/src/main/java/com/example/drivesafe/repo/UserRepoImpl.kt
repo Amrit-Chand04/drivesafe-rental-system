@@ -36,6 +36,20 @@ class UserRepoImpl : UserRepo {
             }
     }
 
+    override fun login(
+        email: String,
+        password: String,
+        callback: (Boolean, String) -> Unit
+    ) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener {
+                callback(true, "Login successful")
+            }
+            .addOnFailureListener {
+                callback(false, it.message ?: "Login failed")
+            }
+    }
+
     override fun addUser(
         uid: String,
         model: UserModel,

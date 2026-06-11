@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.drivesafe" />
+                  <option name="mobileSdkAppId" value="1:675709071070:android:9a7273debafa4842c51c4f" />
+                  <option name="projectId" value="drivesafe-96cff" />
+                  <option name="projectNumber" value="675709071070" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
