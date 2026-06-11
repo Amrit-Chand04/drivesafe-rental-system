@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">DriveSafe</string>
+<<<<<<< HEAD
 
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_admin_dashboard">AdminDashboard</string>
@@ -19,4 +20,8 @@
     <string name="title_activity_notification">NotificationActivity</string>
     <string name="title_activity_user_chat">UserChatActivity</string>
 
+=======
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_kyc">KycActivity</string>
+>>>>>>> gyanu
 </resources>

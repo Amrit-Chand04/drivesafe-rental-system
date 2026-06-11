@@ -1,6 +1,10 @@
 {
   "project_info": {
     "project_number": "675709071070",
+<<<<<<< HEAD
+=======
+    "firebase_url": "https://drivesafe-96cff-default-rtdb.firebaseio.com",
+>>>>>>> gyanu
     "project_id": "drivesafe-96cff",
     "storage_bucket": "drivesafe-96cff.firebasestorage.app"
   },
