@@ -27,14 +27,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.drivesafe.repo.UserRepoImplementation
+import com.example.drivesafe.repo.UserRepoImpl
 import com.google.firebase.FirebaseApp
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        FirebaseApp.initializeApp(this) // ✅ correct place
+        FirebaseApp.initializeApp(this)
 
         enableEdgeToEdge()
 
@@ -48,7 +48,7 @@ class LoginActivity : ComponentActivity() {
 fun LoginScreen() {
 
     val context = LocalContext.current
-    val repo = remember { UserRepoImplementation() } // ✅ avoid recreation
+    val repo = remember { UserRepoImpl() }
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

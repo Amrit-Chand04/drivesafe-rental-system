@@ -1,19 +1,17 @@
 package com.example.drivesafe.model
 
-
-
-data class UserModel (
-    val id : String="",
-    val name : String="",
-    val email : String="",
-    val contact : String="",
-
-    ){
-    fun toMap(): Map<String,Any?>{
+data class UserModel(
+    val uid: String = "",
+    val fullName: String = "",
+    val email: String = "",
+    val phone: String = ""
+) {
+    fun toMap(): Map<String, Any?> {
         return mapOf(
-            "name" to name,
+            "uid" to uid,
+            "fullName" to fullName,
             "email" to email,
-            "contact" to contact
+            "phone" to phone
         )
     }
 }
