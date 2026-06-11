@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">DriveSafe</string>
-<<<<<<< HEAD
 
+    <!-- Core Activities -->
     <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_kyc">KycActivity</string>
+
     <string name="title_activity_admin_dashboard">AdminDashboard</string>
     <string name="title_activity_offers">OffersActivity</string>
     <string name="title_activity_forget_password">ForgetPassword</string>
@@ -10,18 +13,17 @@
     <string name="title_activity_user_dashboard">UserDashboard</string>
     <string name="title_activity_setting">SettingActivity</string>
     <string name="title_activity_sign_up">SignUpActivity</string>
+
     <string name="title_activity_admin_chat">AdminChatActivity</string>
     <string name="title_activity_admin_manage_vehicle">AdminManageVehicle</string>
+
     <string name="title_activity_bike_details">BikeDetails</string>
     <string name="title_activity_bike_search_page">BikeSearchPage</string>
+
     <string name="title_activity_car_details">CarDetails</string>
     <string name="title_activity_car_search_page">CarSearchPage</string>
+
     <string name="title_activity_customer_review">CustomerReview</string>
     <string name="title_activity_notification">NotificationActivity</string>
     <string name="title_activity_user_chat">UserChatActivity</string>
-
-=======
-    <string name="title_activity_login">LoginActivity</string>
-    <string name="title_activity_kyc">KycActivity</string>
->>>>>>> gyanu
 </resources>
