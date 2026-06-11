@@ -41,4 +41,31 @@ class VehicleRepoImpl : VehicleRepo {
             }
         })
     }
+
+    override fun updateVehicle(
+        id: String,
+        vehicle: VehicleModel,
+        callback: (Boolean, String) -> Unit
+    ) {
+        vehicleRef.child(id).setValue(vehicle)
+            .addOnSuccessListener {
+                callback(true, "Vehicle updated successfully")
+            }
+            .addOnFailureListener {
+                callback(false, it.message ?: "Update failed")
+            }
+    }
+
+    override fun deleteVehicle(
+        id: String,
+        callback: (Boolean, String) -> Unit
+    ) {
+        vehicleRef.child(id).removeValue()
+            .addOnSuccessListener {
+                callback(true, "Vehicle deleted successfully")
+            }
+            .addOnFailureListener {
+                callback(false, it.message ?: "Delete failed")
+            }
+    }
 }

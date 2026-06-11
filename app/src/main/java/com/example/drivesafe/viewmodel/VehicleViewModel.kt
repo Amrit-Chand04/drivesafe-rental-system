@@ -16,4 +16,12 @@ class VehicleViewModel : ViewModel() {
     fun getVehicles(callback: (Boolean, String, List<VehicleModel>) -> Unit) {
         repo.getVehicles(callback)
     }
+
+    fun updateVehicle(id: String, vehicle: VehicleModel, callback: (Boolean, String) -> Unit) {
+        repo.updateVehicle(id, vehicle, callback)
+    }
+
+    fun deleteVehicle(id: String, callback: (Boolean, String) -> Unit) {
+        repo.deleteVehicle(id, callback)
+    }
 }
