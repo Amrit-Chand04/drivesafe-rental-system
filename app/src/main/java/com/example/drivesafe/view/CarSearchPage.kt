@@ -174,75 +174,19 @@ fun CarSearchBody() {
                         )
                     }
                 },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.rounded_add_alert_24),
-                            contentDescription = "Notification",
-                            tint = Color.Gray
-                        )
-                    }
 
-                    IconButton(onClick = {}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24),
-                            contentDescription = "Profile",
-                            tint = Color.Gray
-                        )
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF3F8F5)
+                    containerColor = Color(0xFFE8F5E9)
                 )
             )
         },
 
-        bottomBar = {
-            NavigationBar(containerColor = Color.White) {
-
-                NavigationBarItem(
-                    selected = selectedIndex == 0,
-                    onClick = { selectedIndex = 0 },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_home_24),
-                            contentDescription = "Home"
-                        )
-                    },
-                    label = { Text("Home") }
-                )
-
-                NavigationBarItem(
-                    selected = selectedIndex == 1,
-                    onClick = { selectedIndex = 1 },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_inbox_24),
-                            contentDescription = "Inbox"
-                        )
-                    },
-                    label = { Text("Inbox") }
-                )
-
-                NavigationBarItem(
-                    selected = selectedIndex == 2,
-                    onClick = { selectedIndex = 2 },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24),
-                            contentDescription = "Profile"
-                        )
-                    },
-                    label = { Text("Profile") }
-                )
-            }
-        }
     ) { paddingValues ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF3F8F5))
+                .background(Color(0xFFE8F5E9))
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp)
         ) {

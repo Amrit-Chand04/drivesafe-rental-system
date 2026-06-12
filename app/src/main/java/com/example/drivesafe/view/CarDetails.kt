@@ -90,71 +90,31 @@ fun CarDetailsBody(vehicleId: String = "") {
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF3F8F5)
+                    containerColor = Color(0xFFE8F5E9)
                 )
             )
         },
 
-        bottomBar = {
-            NavigationBar(containerColor = Color.White) {
-                NavigationBarItem(
-                    selected = selectedIndex == 0,
-                    onClick = { selectedIndex = 0 },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_home_24),
-                            contentDescription = "Home"
-                        )
-                    },
-                    label = { Text("Home") }
-                )
-
-                NavigationBarItem(
-                    selected = selectedIndex == 1,
-                    onClick = { selectedIndex = 1 },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_inbox_24),
-                            contentDescription = "Inbox"
-                        )
-                    },
-                    label = { Text("Inbox") }
-                )
-
-                NavigationBarItem(
-                    selected = selectedIndex == 2,
-                    onClick = { selectedIndex = 2 },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24),
-                            contentDescription = "Profile"
-                        )
-                    },
-                    label = { Text("Profile") }
-                )
-            }
-        }
     ) { paddingValues ->
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF3F8F5))
+                .background(Color(0xFFE8F5E9))
                 .padding(paddingValues)
-                .padding(horizontal = 14.dp),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(bottom = 90.dp)
         ) {
 
             item {
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(9.dp))
 
                 HorizontalDivider(
                     thickness = 1.dp,
                     color = Color.LightGray
                 )
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(21.dp))
 
                 if (vehicle == null) {
 
@@ -185,7 +145,7 @@ fun CarDetailsBody(vehicleId: String = "") {
                         contentScale = ContentScale.Fit
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     Text(
                         text = vehicle!!.name,
@@ -194,7 +154,7 @@ fun CarDetailsBody(vehicleId: String = "") {
                         color = Color.Black
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
 
                     Text(
                         text = vehicle!!.description.ifEmpty {
@@ -204,7 +164,7 @@ fun CarDetailsBody(vehicleId: String = "") {
                         color = Color.Gray
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
 
                     Text(
                         text = "Price: ${vehicle!!.price.ifEmpty { "Rs.7000/Day" }}",
@@ -227,7 +187,7 @@ fun CarDetailsBody(vehicleId: String = "") {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(35.dp))
+                Spacer(modifier = Modifier.height(19.dp))
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -248,7 +208,7 @@ fun CarDetailsBody(vehicleId: String = "") {
                             color = Color.Black
                         )
 
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(18.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -274,7 +234,7 @@ fun CarDetailsBody(vehicleId: String = "") {
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(11.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -302,7 +262,7 @@ fun CarDetailsBody(vehicleId: String = "") {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 Button(
                     onClick = {},

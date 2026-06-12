@@ -145,7 +145,7 @@ fun User() {
                     when (currentScreen1) {
                         "home" -> UserBody(
                             onCarClick = {
-                                currentScreen1 = "car"
+                                context.startActivity(Intent(context, CarSearchPage::class.java))
                             },
                             onBikeClick = {
                                 context.startActivity(
