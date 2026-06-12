@@ -58,23 +58,16 @@ class ForgetPassword : ComponentActivity() {
 @Composable
 fun ForgetPasswordBody() {
 
+
     var email by remember { mutableStateOf("") }
 
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFFF8FAFC),
-                        Color(0xFFEAF2FF),
-                        Color(0xFFE4FBE8)
-                    )
-                )
-            )
+            .background(Color(0xFFE8F5E9))
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(15.dp)
+            modifier = Modifier.fillMaxSize().padding(17.dp)
         ) {
             Spacer(modifier = Modifier.height(50.dp))
             Row(
@@ -92,7 +85,7 @@ fun ForgetPasswordBody() {
             Spacer(modifier = Modifier.height(24.dp))
             Column (
                 Modifier.fillMaxWidth().wrapContentHeight().background(
-                    color = Color.White,
+                    color = Color(0xFFFFFFFF),
                     shape = RoundedCornerShape(20.dp)
                 ).padding(13.dp)
             ) {
@@ -107,17 +100,17 @@ fun ForgetPasswordBody() {
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(21.dp))
 
                 Text(
-                    text = "No worries! Enter your email address and we’ll send you a code to reset your password.",
-                    fontSize = 14.sp,
+                    text = "Enter your email to receive a reset code.",
+                    fontSize = 18.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.height(40.dp))
 
 
                 Text(
