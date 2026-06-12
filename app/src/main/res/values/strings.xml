@@ -26,4 +26,6 @@
     <string name="title_activity_customer_review">CustomerReview</string>
     <string name="title_activity_notification">NotificationActivity</string>
     <string name="title_activity_user_chat">UserChatActivity</string>
+    <string name="title_activity_otpverification">OTPVerificationActivity</string>
+    <string name="title_activity_new_reset_password">NewResetPassword</string>
 </resources>

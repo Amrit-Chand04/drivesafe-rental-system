@@ -11,62 +11,74 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DriveSafe">
+        <activity
+            android:name=".view.NewResetPassword"
+            android:exported="true"
+            android:label="@string/title_activity_new_reset_password"
+            android:theme="@style/Theme.DriveSafe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.OTPVerificationActivity"
+            android:exported="true"
+            android:label="@string/title_activity_otpverification"
+            android:theme="@style/Theme.DriveSafe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".view.ForgetPassword"
             android:exported="true"
             android:label="@string/title_activity_forget_password"
             android:theme="@style/Theme.DriveSafe" />
-
         <activity
             android:name=".view.KycActivity"
             android:exported="true"
             android:label="@string/title_activity_kyc"
             android:theme="@style/Theme.DriveSafe" />
-
         <activity
             android:name=".view.LoginActivity"
             android:exported="true"
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.DriveSafe" />
-
-
         <activity
             android:name=".view.SettingActivity"
             android:exported="true"
             android:label="@string/title_activity_setting"
             android:theme="@style/Theme.DriveSafe" />
-
         <activity
             android:name=".view.OffersActivity"
             android:exported="true"
             android:label="@string/title_activity_offers"
             android:theme="@style/Theme.DriveSafe" />
-
         <activity
             android:name=".view.AdminDashboard"
             android:exported="true"
             android:label="@string/title_activity_admin_dashboard"
             android:theme="@style/Theme.DriveSafe" />
-
         <activity
             android:name=".view.UserDashboard"
             android:exported="true"
             android:label="@string/title_activity_user_dashboard"
             android:theme="@style/Theme.DriveSafe" />
-
         <activity
             android:name=".view.SplashActivity"
             android:exported="true"
             android:label="@string/title_activity_splash"
             android:theme="@style/Theme.DriveSafe">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".view.UserChatActivity"
             android:exported="true"
@@ -156,7 +168,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".view.AdminChatActivity"
             android:exported="true"
@@ -184,7 +195,6 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.DriveSafe" />
-
     </application>
 
 </manifest>
