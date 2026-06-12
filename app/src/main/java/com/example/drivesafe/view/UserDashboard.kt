@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.drivesafe.R
 import com.example.drivesafe.ui.theme.DriveSafeTheme
+import android.content.Context
 
 class UserDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +70,11 @@ class UserDashboard : ComponentActivity() {
 @Composable
 fun User() {
 
+    val context = LocalContext.current
+
     var selectedIndex by remember { mutableStateOf(0) }
+
+    var currentScreen1 by remember { mutableStateOf("home") }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -134,7 +141,22 @@ fun User() {
         ) {
 
             when (selectedIndex) {
-                0 -> UserBody()
+                0 -> {
+                    when (currentScreen1) {
+                        "home" -> UserBody(
+                            onCarClick = {
+                                currentScreen1 = "car"
+                            },
+                            onBikeClick = {
+                                context.startActivity(
+                                    Intent(context, BikeSearchPage::class.java)
+                                )
+                            }
+                        )
+                        "car" -> CarSearchBody()
+                        "bike" -> BikeSearchBody()
+                    }
+                }
                 1 -> InboxScreen()
                 2 -> BookingScreen()
                 3 -> SettingsScreen(
@@ -150,7 +172,10 @@ fun User() {
 
 
 @Composable
-fun UserBody() {
+fun UserBody(
+    onCarClick: () -> Unit,
+    onBikeClick: () -> Unit
+) {
 
     var text by remember { mutableStateOf("") }
 
@@ -260,7 +285,7 @@ fun UserBody() {
                 modifier = Modifier
                     .weight(1f)
                     .height(180.dp)
-                    .clickable { },
+                    .clickable {onCarClick() },
 
 
                 shape = RoundedCornerShape(18.dp),
@@ -296,12 +321,12 @@ fun UserBody() {
                 }
             }
 
-            // Second Card
+        // Second Card
             Card(
                 modifier = Modifier
                     .weight(1f)
                     .height(180.dp)
-                    .clickable { },
+                    .clickable {onBikeClick() },
 
                 shape = RoundedCornerShape(18.dp),
 
@@ -313,7 +338,6 @@ fun UserBody() {
                     defaultElevation = 6.dp
                 )
             ) {
-
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -377,7 +401,6 @@ fun UserBody() {
             )
         }
     }
-
 }
 @Composable
 fun InboxScreen() {
