@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +48,8 @@ class CarDetails : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarDetailsBody(vehicleId: String = "") {
+
+    val context = LocalContext.current
 
     var selectedIndex by remember {
         mutableStateOf(0)
@@ -81,7 +84,12 @@ fun CarDetailsBody(vehicleId: String = "") {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+
+                    IconButton(
+                        onClick = {
+                            (context as? ComponentActivity)?.finish()
+                        }
+                    ) {
                         Icon(
                             painter = painterResource(id = R.drawable.outline_arrow_back_ios_24),
                             contentDescription = "Back",

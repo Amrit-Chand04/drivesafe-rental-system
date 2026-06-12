@@ -166,7 +166,11 @@ fun CarSearchBody() {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(
+                        onClick = {
+                            (context as? ComponentActivity)?.finish()
+                        }
+                    ) {
                         Icon(
                             painter = painterResource(id = R.drawable.outline_arrow_back_ios_24),
                             contentDescription = "Back",
