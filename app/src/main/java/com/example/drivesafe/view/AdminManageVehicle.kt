@@ -333,260 +333,177 @@ fun VehicleBody() {
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Vehicles",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.outline_arrow_back_ios_24),
-                            contentDescription = "Back",
-                            tint = Color.Black
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.rounded_add_alert_24),
-                            contentDescription = "Notification",
-                            tint = Color.Gray
-                        )
-                    }
 
-                    IconButton(onClick = {}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24),
-                            contentDescription = "Profile",
-                            tint = Color.Gray
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF3F8F5)
-                )
-            )
-        },
 
-        bottomBar = {
-            NavigationBar(containerColor = Color.White) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFE8F5E9))
+            .padding(16.dp)
+            .padding(horizontal = 14.dp),
+        contentPadding = PaddingValues(bottom = 90.dp)
+    ) {
 
-                NavigationBarItem(
-                    selected = selectedIndex == 0,
-                    onClick = { selectedIndex = 0 },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_home_24),
-                            contentDescription = "Home"
-                        )
-                    },
-                    label = { Text("Home") }
-                )
+        item {
+            Spacer(modifier = Modifier.height(18.dp))
 
-                NavigationBarItem(
-                    selected = selectedIndex == 1,
-                    onClick = { selectedIndex = 1 },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_inbox_24),
-                            contentDescription = "Inbox"
-                        )
-                    },
-                    label = { Text("Inbox") }
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
 
-                NavigationBarItem(
-                    selected = selectedIndex == 2,
-                    onClick = { selectedIndex = 2 },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24),
-                            contentDescription = "Profile"
-                        )
-                    },
-                    label = { Text("Profile") }
-                )
-            }
-        }
-    ) { paddingValues ->
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFFF3F8F5))
-                .padding(paddingValues)
-                .padding(horizontal = 14.dp),
-            contentPadding = PaddingValues(bottom = 90.dp)
-        ) {
-
-            item {
-                Spacer(modifier = Modifier.height(18.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-
-                    OutlinedTextField(
-                        value = "",
-                        onValueChange = {},
-                        placeholder = {
-                            Text(
-                                text = "Search vehicles...",
-                                fontSize = 13.sp
-                            )
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(55.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        singleLine = true
-                    )
-
-                    Button(
-                        onClick = {},
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White
-                        ),
-                        border = BorderStroke(1.dp, Color.LightGray),
-                        modifier = Modifier.height(55.dp)
-                    ) {
-
-                        Image(
-                            painter = painterResource(id = R.drawable.filter),
-                            contentDescription = "Filter",
-                            modifier = Modifier.size(18.dp),
-                            contentScale = ContentScale.Fit
-                        )
-
-                        Spacer(modifier = Modifier.width(5.dp))
-
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    placeholder = {
                         Text(
-                            text = "Filter",
-                            color = Color(0xFF00A859),
+                            text = "Search vehicles...",
                             fontSize = 13.sp
                         )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-            }
-
-            item {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    item {
-                        CategoryButton(
-                            text = "All Vehicles",
-                            selected = selectedCategory == "All",
-                            onClick = { selectedCategory = "All" }
-                        )
-                    }
-
-                    item {
-                        CategoryButton(
-                            text = "Cars",
-                            selected = selectedCategory == "Car",
-                            onClick = { selectedCategory = "Car" }
-                        )
-                    }
-
-                    item {
-                        CategoryButton(
-                            text = "Bikes",
-                            selected = selectedCategory == "Bike",
-                            onClick = { selectedCategory = "Bike" }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-
-                    Button(
-                        onClick = { showDialog = true },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00A859)
-                        ),
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier.height(42.dp)
-                    ) {
-
-                        Text(
-                            text = "+ Add Vehicle",
-                            color = Color.White,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-
-            items(filteredVehicles) { vehicle ->
-
-                val image = if (
-                    vehicle.imageName.lowercase() == "bike" ||
-                    vehicle.type.equals("Bike", ignoreCase = true)
-                ) {
-                    R.drawable.bike
-                } else {
-                    R.drawable.car
-                }
-
-                VehicleCard(
-                    image = image,
-                    name = vehicle.name,
-                    type = vehicle.type,
-                    number = vehicle.number,
-                    status = vehicle.status,
-                    onEdit = {
-                        vehicleId = vehicle.vehicleId
-                        updateName = vehicle.name
-                        updateType = vehicle.type
-                        updateNumber = vehicle.number
-                        updateStatus = vehicle.status
-                        updateImageName = vehicle.imageName
-
-                        updatePrice = vehicle.price
-                        updateLocation = vehicle.location
-                        updateDescription = vehicle.description
-                        updateCapacity = vehicle.capacity
-                        updateEngine = vehicle.engine
-                        updateSpeed = vehicle.speed
-                        updateBattery = vehicle.battery
-                        updateParking = vehicle.parking
-                        updateSafety = vehicle.safety
-                        showUpdateDialog = true
                     },
-                    onDelete = {
-
-                        deleteVehicleId = vehicle.vehicleId
-                        showDeleteDialog = true
-                    }
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(55.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Button(
+                    onClick = {},
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White
+                    ),
+                    border = BorderStroke(1.dp, Color.LightGray),
+                    modifier = Modifier.height(55.dp)
+                ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.filter),
+                        contentDescription = "Filter",
+                        modifier = Modifier.size(18.dp),
+                        contentScale = ContentScale.Fit
+                    )
+
+                    Spacer(modifier = Modifier.width(5.dp))
+
+                    Text(
+                        text = "Filter",
+                        color = Color(0xFF00A859),
+                        fontSize = 13.sp
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(14.dp))
+        }
+
+        item {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    CategoryButton(
+                        text = "All Vehicles",
+                        selected = selectedCategory == "All",
+                        onClick = { selectedCategory = "All" }
+                    )
+                }
+
+                item {
+                    CategoryButton(
+                        text = "Cars",
+                        selected = selectedCategory == "Car",
+                        onClick = { selectedCategory = "Car" }
+                    )
+                }
+
+                item {
+                    CategoryButton(
+                        text = "Bikes",
+                        selected = selectedCategory == "Bike",
+                        onClick = { selectedCategory = "Bike" }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+
+                Button(
+                    onClick = { showDialog = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF00A859)
+                    ),
+                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier.height(42.dp)
+                ) {
+
+                    Text(
+                        text = "+ Add Vehicle",
+                        color = Color.White,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        items(filteredVehicles) { vehicle ->
+
+            val image = if (
+                vehicle.imageName.lowercase() == "bike" ||
+                vehicle.type.equals("Bike", ignoreCase = true)
+            ) {
+                R.drawable.bike
+            } else {
+                R.drawable.car
+            }
+
+            VehicleCard(
+                image = image,
+                name = vehicle.name,
+                type = vehicle.type,
+                number = vehicle.number,
+                status = vehicle.status,
+                onEdit = {
+                    vehicleId = vehicle.vehicleId
+                    updateName = vehicle.name
+                    updateType = vehicle.type
+                    updateNumber = vehicle.number
+                    updateStatus = vehicle.status
+                    updateImageName = vehicle.imageName
+
+                    updatePrice = vehicle.price
+                    updateLocation = vehicle.location
+                    updateDescription = vehicle.description
+                    updateCapacity = vehicle.capacity
+                    updateEngine = vehicle.engine
+                    updateSpeed = vehicle.speed
+                    updateBattery = vehicle.battery
+                    updateParking = vehicle.parking
+                    updateSafety = vehicle.safety
+                    showUpdateDialog = true
+                },
+                onDelete = {
+
+                    deleteVehicleId = vehicle.vehicleId
+                    showDeleteDialog = true
+                }
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
         }
     }
+
 
     if (showDialog) {
         AddVehicleDialog(

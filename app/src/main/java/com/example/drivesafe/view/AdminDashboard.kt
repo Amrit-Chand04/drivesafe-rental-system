@@ -77,6 +77,8 @@ fun AdminApp() {
 
     var selectedIndex by remember { mutableStateOf(0) }
 
+    var currentScreen by remember { mutableStateOf("dashboard") }
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -94,7 +96,7 @@ fun AdminApp() {
                     .padding(horizontal = 12.dp, vertical = 10.dp)
                     .clip(RoundedCornerShape(24.dp)),
 
-                containerColor = Color(0xFFE7E9E8),
+                containerColor = Color.White,
                 tonalElevation = 6.dp
             ) {
 
@@ -149,7 +151,10 @@ fun AdminApp() {
         ) {
 
             when (selectedIndex) {
-                0 -> AdminBody()
+                0 -> AdminBody(
+                    currentScreen = currentScreen,
+                    onScreenChange = { currentScreen = it }
+                )
                 1 -> InboxScreen1()
                 2 -> OffersScreen(
                     onClick = {
@@ -168,7 +173,10 @@ fun AdminApp() {
 
 
 @Composable
-fun AdminBody() {
+fun AdminBody(
+    currentScreen: String,
+    onScreenChange: (String) -> Unit
+) {
 
     var showProfileScreen by remember {
         mutableStateOf(false)
@@ -180,6 +188,14 @@ fun AdminBody() {
         DashboardItem("Bookings", R.drawable.outline_calendar_month_24),
         DashboardItem("KYC\nVerification", R.drawable.outline_verified_user_24)
     )
+
+    when (currentScreen) {
+
+        "vehicles" -> {
+            VehicleBody()
+            return
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -258,7 +274,25 @@ fun AdminBody() {
                     AdminCard(
                         title = item.title,
                         icon = item.icon,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            when (item.title) {
+
+                                "Manage\nUsers" -> {
+                                    println("Users clicked")
+                                }
+
+                                "Vehicles" -> onScreenChange("vehicles")
+
+                                "Bookings" -> {
+                                    println("Bookings clicked")
+                                }
+
+                                "KYC\nVerification" -> {
+                                    println("KYC clicked")
+                                }
+                            }
+                        }
                     )
                 }
             }
