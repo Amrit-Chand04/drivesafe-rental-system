@@ -12,6 +12,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DriveSafe">
         <activity
+            android:name=".view.ChangePasswordActivity"
+            android:exported="true"
+            android:label="@string/title_activity_change_password"
+            android:theme="@style/Theme.DriveSafe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".view.NewResetPassword"
             android:exported="true"
             android:label="@string/title_activity_new_reset_password"
