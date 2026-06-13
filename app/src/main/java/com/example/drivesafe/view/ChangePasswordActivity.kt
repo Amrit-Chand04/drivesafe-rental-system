@@ -1,6 +1,7 @@
 package com.example.drivesafe.view
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -50,17 +51,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
+import com.example.drivesafe.repo.UserRepoImpl
 import com.example.drivesafe.view.ui.theme.DriveSafeTheme
+import com.example.drivesafe.viewmodel.UserViewModel
 
 class ChangePasswordActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            DriveSafeTheme {
-                ChangePasswordBody()
-            }
+            ChangePasswordBody()
         }
     }
 }
@@ -68,10 +70,15 @@ class ChangePasswordActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangePasswordBody() {
+
+    val viewModel: UserViewModel = viewModel()
+
     val context = LocalContext.current
     var oldPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+
+    val message = viewModel.message.value
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -246,7 +253,25 @@ fun ChangePasswordBody() {
 
                 // Change Password Button
                 ElevatedButton(
-                    onClick = {},
+                    onClick = {
+                        if (
+                            oldPassword.isBlank() ||
+                            newPassword.isBlank() ||
+                            confirmPassword.isBlank()
+                        ) {
+                            Toast.makeText(
+                                context,
+                                "All fields are required",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@ElevatedButton
+                        }
+                        viewModel.changePassword(
+                            oldPassword,
+                            newPassword,
+                            confirmPassword
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
@@ -281,6 +306,20 @@ fun ChangePasswordBody() {
                             )
                         }
                     }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                if (message.isNotEmpty()) {
+
+                    Text(
+                        text = message,
+                        color = if (
+                            message.contains("successfully", true)
+                        ) Color(0xFF16D64D)
+                        else Color.Red,
+                        fontSize = 15.sp
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))

@@ -66,4 +66,46 @@ class UserRepoImpl : UserRepo {
                 }
             }
     }
+
+    override fun changePassword(
+        oldPassword: String,
+        newPassword: String,
+        callback: (Boolean, String) -> Unit
+    ) {
+        val user = auth.currentUser
+
+        // User not logged in
+        if (user == null) {
+            callback(false, "User not logged in")
+            return
+        }
+
+        val email = user.email
+
+        // Email not available
+        if (email.isNullOrEmpty()) {
+            callback(false, "Email not found")
+            return
+        }
+
+        val credential = com.google.firebase.auth.EmailAuthProvider.getCredential(
+            email,
+            oldPassword
+        )
+
+        user.reauthenticate(credential)
+            .addOnSuccessListener {
+
+                user.updatePassword(newPassword)
+                    .addOnSuccessListener {
+                        callback(true, "Password changed successfully")
+                    }
+                    .addOnFailureListener {
+                        callback(false, it.message ?: "Failed to update password")
+                    }
+            }
+            .addOnFailureListener {
+                callback(false, "Old password is incorrect")
+            }
+    }
 }

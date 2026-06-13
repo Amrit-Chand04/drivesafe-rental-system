@@ -1,6 +1,8 @@
 package com.example.drivesafe.repo
 
+import android.text.BoringLayout
 import com.example.drivesafe.model.UserModel
+import com.example.drivesafe.view.ForgetPassword
 
 interface UserRepo {
 
@@ -19,6 +21,12 @@ interface UserRepo {
     fun addUser(
         uid: String,
         model: UserModel,
+        callback: (Boolean, String) -> Unit
+    )
+
+    fun changePassword(
+        oldPassword: String,
+        newPassword: String,
         callback: (Boolean, String) -> Unit
     )
 }
