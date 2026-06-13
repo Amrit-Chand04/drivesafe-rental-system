@@ -1,6 +1,7 @@
 package com.example.drivesafe.view
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -27,6 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -42,7 +45,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
+import com.example.drivesafe.viewmodel.AuthViewModel
 
 class ForgetPassword : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,8 +63,11 @@ class ForgetPassword : ComponentActivity() {
 @Composable
 fun ForgetPasswordBody() {
 
-
+    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
+
+    val forgetPasswordViewModel: AuthViewModel = viewModel()
+    val message by forgetPasswordViewModel.message.collectAsState()
 
     Column (
         modifier = Modifier
@@ -145,7 +153,17 @@ fun ForgetPasswordBody() {
                 // Reset Button
                 ElevatedButton (
 
-                    onClick = { },
+                    onClick = {
+                        if (email.isNotBlank()) {
+                            forgetPasswordViewModel.sendPasswordResetEmail(email)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Please enter your email address",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
 
                     modifier = Modifier
                         .fillMaxWidth()
@@ -193,6 +211,20 @@ fun ForgetPasswordBody() {
                     }
                 }
 
+                Spacer(modifier = Modifier.height(17.dp))
+
+                if (message.isNotEmpty()) {
+
+                    Text(
+                        text = message,
+                        color = if (
+                            message.contains("successfully", true)
+                        ) Color(0xFF16D64D)
+                        else Color.Red,
+                        fontSize = 15.sp
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(37.dp))
 
                 // OR DIVIDER
@@ -236,7 +268,7 @@ fun ForgetPasswordBody() {
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF0066FF),
                         modifier = Modifier.clickable {
-                            // Navigate to Sign In screen
+                            (context as? ComponentActivity)?.finish()
                         }
                     )
 
