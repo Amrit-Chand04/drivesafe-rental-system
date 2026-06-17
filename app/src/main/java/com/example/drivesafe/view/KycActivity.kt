@@ -1,4 +1,5 @@
 package com.example.drivesafe.view
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -44,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,6 +69,8 @@ class KycActivity : ComponentActivity() {
 @Composable
 fun KycScreen() {
 
+    val context = LocalContext.current
+
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var extraContact by remember { mutableStateOf("") }
@@ -81,161 +86,165 @@ fun KycScreen() {
         ActivityResultContracts.GetContent()
     ) { uri -> photo = uri }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFEAF8EE))
-            .padding(18.dp)
+            .padding(16.dp)
     ) {
+        item {
+            Column {
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            IconButton(onClick = { }) {
-                Icon(
-                    Icons.Default.ArrowBack,
-                    contentDescription = null,
-                    tint = Color.Black
-                )
-            }
-
-            Text(
-                text = "KYC Verification",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f)
-            )
-
-            Icon(
-                Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = Color(0xFF23B14D)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(Color(0xFFDFF5E3))
-                .align(Alignment.CenterHorizontally),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                Icons.Default.Person,
-                contentDescription = null,
-                tint = Color(0xFF23B14D),
-                modifier = Modifier.size(40.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        Text(
-            text = "Verify Your Identity",
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            )
-        ) {
-
-            Column(
-                modifier = Modifier.padding(18.dp)
-            ) {
-
-                KycField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = "Full Name",
-                    icon = { Icon(Icons.Default.Person, null) }
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                KycField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    label = "Phone Number",
-                    icon = { Icon(Icons.Default.Call, null) }
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                KycField(
-                    value = extraContact,
-                    onValueChange = { extraContact = it },
-                    label = "Additional Contact (Optional)",
-                    icon = { Icon(Icons.Default.MailOutline, null) }
-                )
-
-                Spacer(modifier = Modifier.height(22.dp))
-
-                Text(
-                    "Driving Licence",
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                UploadBox(
-                    title = "Upload Driving Licence",
-                    selected = doc != null
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    docLauncher.launch("*/*")
+
+                    // Center Title
+                    Text(
+                        text = "KYC Verification",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    // Back button aligned left
+                    IconButton(
+                        onClick = { (context as Activity).finish() },
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            tint = Color.Black
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(18.dp))
 
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFFDFF5E3))
+                        .align(Alignment.CenterHorizontally),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = null,
+                        tint = Color(0xFF23B14D),
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
                 Text(
-                    "Profile Photo",
-                    fontWeight = FontWeight.Bold
+                    text = "Verify Your Identity",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                UploadBox(
-                    title = "Upload Profile Photo",
-                    selected = photo != null
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    )
                 ) {
-                    photoLauncher.launch("image/*")
+
+                    Column(
+                        modifier = Modifier.padding(18.dp)
+                    ) {
+
+                        KycField(
+                            value = name,
+                            onValueChange = { name = it },
+                            label = "Full Name",
+                            icon = { Icon(Icons.Default.Person, null) }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        KycField(
+                            value = phone,
+                            onValueChange = { phone = it },
+                            label = "Phone Number",
+                            icon = { Icon(Icons.Default.Call, null) }
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        KycField(
+                            value = extraContact,
+                            onValueChange = { extraContact = it },
+                            label = "Additional Contact (Optional)",
+                            icon = { Icon(Icons.Default.MailOutline, null) }
+                        )
+
+                        Spacer(modifier = Modifier.height(22.dp))
+
+                        Text(
+                            "Driving Licence",
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        UploadBox(
+                            title = "Upload Driving Licence",
+                            selected = doc != null
+                        ) {
+                            docLauncher.launch("*/*")
+                        }
+
+                        Spacer(modifier = Modifier.height(18.dp))
+
+                        Text(
+                            "Your Photo",
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        UploadBox(
+                            title = "Upload Your Photo",
+                            selected = photo != null
+                        ) {
+                            photoLauncher.launch("image/*")
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(22.dp))
+
+                ElevatedButton(
+                    onClick = { },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(58.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    colors = ButtonDefaults.elevatedButtonColors(
+                        containerColor = Color(0xFF23B14D),
+                        contentColor = Color.White
+                    ),
+                    elevation = ButtonDefaults.elevatedButtonElevation(
+                        defaultElevation = 8.dp
+                    )
+                ) {
+                    Text(
+                        text = "Submit KYC",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
-        }
-
-        Spacer(modifier = Modifier.height(22.dp))
-
-        ElevatedButton(
-            onClick = { },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp),
-            shape = RoundedCornerShape(40.dp),
-            colors = ButtonDefaults.elevatedButtonColors(
-                containerColor = Color(0xFF23B14D),
-                contentColor = Color.White
-            ),
-            elevation = ButtonDefaults.elevatedButtonElevation(
-                defaultElevation = 8.dp
-            )
-        ) {
-            Text(
-                text = "Submit KYC",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
         }
     }
 }
@@ -253,6 +262,7 @@ fun KycField(
         leadingIcon = icon,
         label = { Text(label) },
         modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
         shape = RoundedCornerShape(14.dp)
     )
 }
@@ -297,9 +307,9 @@ fun UploadBox(
 
             Text(
                 text = if (selected)
-                    "✔ Selected"
+                    "Selected"
                 else
-                    "❌ Not selected",
+                    "Not selected",
                 fontSize = 12.sp,
                 color = if (selected)
                     Color(0xFF23B14D)
