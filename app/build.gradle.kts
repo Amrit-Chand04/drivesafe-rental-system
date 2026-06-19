@@ -40,6 +40,10 @@ android {
 
 dependencies {
 
+    //cloudinary
+    implementation("com.cloudinary:cloudinary-android:3.1.2")
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+
     // Core AndroidX + Compose
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
