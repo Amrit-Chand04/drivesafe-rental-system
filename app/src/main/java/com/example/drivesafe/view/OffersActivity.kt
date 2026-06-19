@@ -2,6 +2,7 @@ package com.example.drivesafe.view
 
 import android.app.Activity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -9,14 +10,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,10 +30,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.drivesafe.model.OfferModel
+import com.example.drivesafe.repo.OfferRepoImpl
+import com.example.drivesafe.viewmodel.OfferViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -211,6 +218,23 @@ fun CreateOfferDialog(
     val startState = rememberDatePickerState()
     val endState = rememberDatePickerState()
 
+    val vm = remember {
+        OfferViewModel(
+            OfferRepoImpl()
+        )
+    }
+
+    val context = LocalContext.current
+    val toastMessage = vm.toast.collectAsState().value
+    val isLoading = vm.isLoading.collectAsState().value
+
+    LaunchedEffect(toastMessage) {
+        toastMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            vm.clear()
+        }
+    }
+
     Dialog(onDismissRequest = onDismiss) {
 
         Card(
@@ -230,6 +254,7 @@ fun CreateOfferDialog(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Title") },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -239,6 +264,7 @@ fun CreateOfferDialog(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -246,11 +272,18 @@ fun CreateOfferDialog(
 
                 OutlinedTextField(
                     value = discount,
-                    onValueChange = { discount = it },
-                    label = { Text("Discount (%)") },
-                    modifier = Modifier.fillMaxWidth()
+                    onValueChange = {
+                        if (it.all { ch -> ch.isDigit() }) {
+                            discount = it
+                        }
+                    },
+                    label = {
+                        Text("Discount Percentage")
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    )
                 )
-
                 Spacer(Modifier.height(8.dp))
 
                 // START DATE
@@ -328,12 +361,43 @@ fun CreateOfferDialog(
                     Spacer(Modifier.width(8.dp))
 
                     Button(
-                        onClick = onDismiss,
+                        enabled = !isLoading,
+                        onClick = {
+                            val offer = OfferModel(
+                                title = title,
+                                description = description,
+                                discount = discount.toIntOrNull() ?: 0,
+                                startDate = startDate,
+                                endDate = endDate
+                            )
+
+                            vm.createOffer(offer) { success, message ->
+                                if (success) {
+                                    onDismiss()
+                                }
+                            }
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF00C853)
                         )
                     ) {
-                        Text("Save", color = Color.White)
+
+                        if (isLoading) {
+
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = Color.White
+                            )
+
+                        } else {
+
+                            Text(
+                                text = "Save",
+                                color = Color.White
+                            )
+
+                        }
                     }
                 }
             }
