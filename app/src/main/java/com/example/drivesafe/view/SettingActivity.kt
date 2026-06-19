@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,8 @@ fun SettingsScreen(
     userEmail: String,
     role: String
 ) {
+
+    val context = LocalContext.current
 
     var showAppearance by remember { mutableStateOf(false) }
     var selectedTheme by remember { mutableStateOf("System") }
@@ -130,7 +134,10 @@ fun SettingsScreen(
 
             SettingsItem(
                 title = "Complete KYC",
-                onClick = {}
+                onClick = {
+                    val intent = Intent(context, KycActivity::class.java)
+                    context.startActivity(intent)
+                }
             )
         }
 
