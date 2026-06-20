@@ -10,6 +10,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -61,6 +63,19 @@ fun OffersScreen(
 ) {
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
+
+    var selectedOffer by remember { mutableStateOf<OfferModel?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val vm = remember {
+        OfferViewModel(OfferRepoImpl())
+    }
+
+    val offersList = vm.offers.collectAsState().value
+
+    LaunchedEffect(Unit) {
+        vm.loadOffers()
+    }
 
     Scaffold(
         topBar = {
@@ -185,6 +200,7 @@ fun OffersScreen(
 
                 CreateOfferDialog(
                     showDialog = showDialog,
+                    vm = vm,
                     onDismiss = {
                         showDialog = false
                     }
@@ -193,13 +209,91 @@ fun OffersScreen(
 
             Spacer(modifier = Modifier.height(44.dp))
 
+            Text(
+                text = "Active Offers",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(22.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(bottom = 16.dp)
+                    .border(
+                        width = 1.dp,
+                        color = Color.Black,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+
+                if(offersList.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No active offers available.",
+                            fontSize = 22.sp,
+                            color = Color.Gray
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        items(offersList) { offer ->
+                            OfferCardItem(
+                                offer = offer,
+                                onClick = {
+                                    selectedOffer = offer
+                                    showDeleteDialog = true
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
         }
+    }
+    if (showDeleteDialog && selectedOffer != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Offer") },
+            text = { Text("Are you sure you want to delete this offer?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    vm.deleteOffer(selectedOffer!!.id) { success, msg ->
+                        showDeleteDialog = false
+                        if (success) {
+                            vm.loadOffers()
+                        }
+                    }
+                }) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateOfferDialog(
     showDialog: Boolean,
+    vm: OfferViewModel,
     onDismiss: () -> Unit
 ) {
 
@@ -217,12 +311,6 @@ fun CreateOfferDialog(
 
     val startState = rememberDatePickerState()
     val endState = rememberDatePickerState()
-
-    val vm = remember {
-        OfferViewModel(
-            OfferRepoImpl()
-        )
-    }
 
     val context = LocalContext.current
     val toastMessage = vm.toast.collectAsState().value
@@ -373,6 +461,7 @@ fun CreateOfferDialog(
 
                             vm.createOffer(offer) { success, message ->
                                 if (success) {
+                                    vm.loadOffers()
                                     onDismiss()
                                 }
                             }
@@ -446,6 +535,69 @@ fun CreateOfferDialog(
 fun formatDate(millis: Long): String {
     val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     return sdf.format(Date(millis))
+}
+
+
+@Composable
+fun OfferCardItem(
+    offer: OfferModel,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+            .clickable(onClick = onClick ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth()
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(0xFF00C853),
+                            Color(0xFF1E88E5)
+                        )
+                    )
+                )
+                .padding(16.dp)
+        ) {
+            Column {
+
+                Text(
+                    text = offer.title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(7.dp))
+
+                Text(
+                    text = offer.description,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "Discount: ${offer.discount}%",
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "Start: ${offer.startDate}",
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "End: ${offer.endDate}",
+                    color = Color.White
+                )
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
