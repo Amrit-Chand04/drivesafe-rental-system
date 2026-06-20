@@ -9,4 +9,13 @@ interface OfferRepo {
         model: OfferModel,
         callback: (Boolean, String) -> Unit
     )
+
+    fun getOffers(
+        callback: (Boolean, String, List<OfferModel>?) -> Unit
+    )
+
+    fun deleteOffer(
+        id: String,
+        callback: (Boolean, String) -> Unit
+    )
 }

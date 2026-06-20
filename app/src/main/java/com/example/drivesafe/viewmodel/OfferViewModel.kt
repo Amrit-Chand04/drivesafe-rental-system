@@ -54,4 +54,24 @@ class OfferViewModel(val repo: OfferRepo) : ViewModel() {
     fun clear() {
         _toast.value = null
     }
+
+    private val _offers = MutableStateFlow<List<OfferModel>>(emptyList())
+    val offers: StateFlow<List<OfferModel>> = _offers
+
+
+    fun loadOffers() {
+        repo.getOffers { success, message, list ->
+
+            if (success && list != null) {
+                _offers.value = list
+            } else {
+                _offers.value = emptyList()
+            }
+        }
+
+    }
+
+    fun deleteOffer(id: String, callback: (Boolean, String) -> Unit){
+        repo.deleteOffer(id,callback)
+    }
 }

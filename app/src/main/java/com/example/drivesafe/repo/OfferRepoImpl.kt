@@ -15,6 +15,7 @@ class OfferRepoImpl : OfferRepo{
     ) {
         val id = offerRef.push().key ?: ""
         model.id = id
+        model.createdAt = System.currentTimeMillis()
 
         offerRef.child(id).setValue(model).addOnCompleteListener {
             if (it.isSuccessful) {
@@ -25,5 +26,37 @@ class OfferRepoImpl : OfferRepo{
         }
     }
 
+    override fun getOffers(callback: (Boolean, String, List<OfferModel>?) -> Unit) {
+
+        offerRef.get()
+            .addOnSuccessListener { snapshot ->
+
+                try {
+                    val list = snapshot.children.mapNotNull { snap ->
+                        snap.getValue(OfferModel::class.java)
+                    }
+
+                    callback(true, "Loaded", list)
+                } catch (e: Exception) {
+                    callback(false, "Parse crash: ${e.message}", null)
+                }
+            }
+            .addOnFailureListener { error ->
+                callback(false, error.message ?: "Error", null)
+            }
+    }
+
+    override fun deleteOffer(
+        id: String,
+        callback: (Boolean, String) -> Unit
+    ) {
+        offerRef.child(id).removeValue().addOnCompleteListener {
+            if (it.isSuccessful) {
+                callback(true, "Offer deleted succesfully")
+            } else {
+                callback(false, "${it.exception?.message}")
+            }
+        }
+    }
 
 }
