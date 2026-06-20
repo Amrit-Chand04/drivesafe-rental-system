@@ -29,4 +29,5 @@
     <string name="title_activity_otpverification">OTPVerificationActivity</string>
     <string name="title_activity_new_reset_password">NewResetPassword</string>
     <string name="title_activity_change_password">ChangePasswordActivity</string>
+    <string name="title_activity_user_manage">UserManage</string>
 </resources>
