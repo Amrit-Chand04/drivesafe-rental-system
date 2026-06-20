@@ -37,8 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.model.OfferModel
-import com.example.drivesafe.repo.OfferRepoImpl
 import com.example.drivesafe.viewmodel.OfferViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,9 +67,7 @@ fun OffersScreen(
     var selectedOffer by remember { mutableStateOf<OfferModel?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    val vm = remember {
-        OfferViewModel(OfferRepoImpl())
-    }
+    val vm: OfferViewModel = viewModel()
 
     val offersList = vm.offers.collectAsState().value
 

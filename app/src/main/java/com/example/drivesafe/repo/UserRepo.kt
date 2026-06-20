@@ -1,9 +1,7 @@
 package com.example.drivesafe.repo
 
-import android.text.BoringLayout
 import com.example.drivesafe.model.UserModel
 import com.example.drivesafe.model.UserWithKyc
-import com.example.drivesafe.view.ForgetPassword
 
 interface UserRepo {
 
@@ -16,6 +14,11 @@ interface UserRepo {
     fun login(
         email: String,
         password: String,
+        callback: (Boolean, String) -> Unit
+    )
+
+    fun sendPasswordResetEmail(
+        email: String,
         callback: (Boolean, String) -> Unit
     )
 
@@ -34,6 +37,8 @@ interface UserRepo {
     fun getAllUser(callback: (Boolean, String, List<UserModel?>) -> Unit)
 
     fun getAllUserWithKyc(callback: (Boolean, String, List<UserWithKyc>) -> Unit)
+
+    fun rollbackCurrentUserRegistration()
 
 
     fun deleteUser(

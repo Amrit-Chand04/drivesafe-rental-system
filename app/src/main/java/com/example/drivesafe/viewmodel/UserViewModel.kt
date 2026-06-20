@@ -6,14 +6,11 @@ import com.example.drivesafe.model.UserModel
 import com.example.drivesafe.model.UserWithKyc
 import com.example.drivesafe.repo.UserRepo
 import com.example.drivesafe.repo.UserRepoImpl
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class UserViewModel(
-    private val repo: UserRepo = UserRepoImpl()
-) : ViewModel() {
+class UserViewModel(private val repo: UserRepo = UserRepoImpl()) : ViewModel() {
     private val _uiMessage = MutableStateFlow<String?>(null)
     val uiMessage: StateFlow<String?> = _uiMessage.asStateFlow()
 
@@ -53,8 +50,7 @@ class UserViewModel(
                         _uiMessage.value = "Signup Successful"
                         onSuccess()
                     } else {
-                        FirebaseAuth.getInstance().currentUser?.delete()
-                        FirebaseAuth.getInstance().signOut()
+                        repo.rollbackCurrentUserRegistration()
                         _uiMessage.value = addMessage
                     }
                 }

@@ -78,6 +78,23 @@ class UserRepoImpl : UserRepo {
             }
     }
 
+    override fun sendPasswordResetEmail(
+        email: String,
+        callback: (Boolean, String) -> Unit
+    ) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    callback(true, "Password reset email sent successfully")
+                } else {
+                    callback(
+                        false,
+                        task.exception?.message ?: "Failed to send reset email"
+                    )
+                }
+            }
+    }
+
     override fun addUser(
         uid: String,
         model: UserModel,
@@ -208,6 +225,11 @@ class UserRepoImpl : UserRepo {
                 callback(false, error.message, emptyList())
             }
         })
+    }
+
+    override fun rollbackCurrentUserRegistration() {
+        auth.currentUser?.delete()
+        auth.signOut()
     }
 
     override fun deleteUser(

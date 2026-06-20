@@ -1,13 +1,17 @@
 package com.example.drivesafe.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import com.example.drivesafe.model.KycModel
 import com.example.drivesafe.repo.KycRepo
+import com.example.drivesafe.repo.KycRepoImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 
-class KycViewModel( val repo: KycRepo) : ViewModel() {
+class KycViewModel(application: Application) : AndroidViewModel(application) {
+    private val repo: KycRepo = KycRepoImpl(application.applicationContext)
+
     private val _toast = MutableStateFlow<String?>(null)
     val toast: StateFlow<String?> = _toast
 

@@ -21,13 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.example.drivesafe.R
 
 import com.example.drivesafe.model.VehicleModel
 
 import com.example.drivesafe.ui.theme.DriveSafeTheme
-import com.google.firebase.database.FirebaseDatabase
+import com.example.drivesafe.viewmodel.VehicleViewModel
 
 class CarDetails : ComponentActivity() {
 
@@ -50,6 +51,7 @@ class CarDetails : ComponentActivity() {
 fun CarDetailsBody(vehicleId: String = "") {
 
     val context = LocalContext.current
+    val vehicleViewModel: VehicleViewModel = viewModel()
 
     var selectedIndex by remember {
         mutableStateOf(0)
@@ -60,15 +62,13 @@ fun CarDetailsBody(vehicleId: String = "") {
     }
 
     LaunchedEffect(vehicleId) {
-        if (vehicleId.isNotEmpty()) {
-            FirebaseDatabase.getInstance()
-                .reference
-                .child("vehicles")
-                .child(vehicleId)
-                .get()
-                .addOnSuccessListener { snapshot ->
-                    vehicle = snapshot.getValue(VehicleModel::class.java)
-                }
+        if (vehicleId.isBlank()) {
+            vehicle = null
+            return@LaunchedEffect
+        }
+
+        vehicleViewModel.getVehicleById(vehicleId) { success, _, foundVehicle ->
+            vehicle = if (success) foundVehicle else null
         }
     }
 

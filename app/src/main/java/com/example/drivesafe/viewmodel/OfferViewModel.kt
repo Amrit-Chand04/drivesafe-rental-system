@@ -3,13 +3,16 @@ package com.example.drivesafe.viewmodel
 import androidx.lifecycle.ViewModel
 import com.example.drivesafe.model.OfferModel
 import com.example.drivesafe.repo.OfferRepo
+import com.example.drivesafe.repo.OfferRepoImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class OfferViewModel(val repo: OfferRepo) : ViewModel() {
+class OfferViewModel(
+    private val repo: OfferRepo = OfferRepoImpl()
+) : ViewModel() {
     private val _toast = MutableStateFlow<String?>(null)
     val toast: StateFlow<String?> = _toast
 

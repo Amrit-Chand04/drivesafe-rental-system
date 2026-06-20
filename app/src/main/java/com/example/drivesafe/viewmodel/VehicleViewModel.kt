@@ -17,6 +17,25 @@ class VehicleViewModel : ViewModel() {
         repo.getVehicles(callback)
     }
 
+    fun getVehicleById(
+        vehicleId: String,
+        callback: (Boolean, String, VehicleModel?) -> Unit
+    ) {
+        if (vehicleId.isBlank()) {
+            callback(false, "Invalid vehicle id", null)
+            return
+        }
+
+        repo.getVehicles { success, message, list ->
+            if (!success) {
+                callback(false, message, null)
+                return@getVehicles
+            }
+
+            callback(true, message, list.firstOrNull { it.vehicleId == vehicleId })
+        }
+    }
+
     fun updateVehicle(id: String, vehicle: VehicleModel, callback: (Boolean, String) -> Unit) {
         repo.updateVehicle(id, vehicle, callback)
     }

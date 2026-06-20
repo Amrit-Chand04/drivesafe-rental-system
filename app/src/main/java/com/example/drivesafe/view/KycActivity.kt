@@ -58,9 +58,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
 import com.example.drivesafe.model.KycModel
-import com.example.drivesafe.repo.KycRepoImpl
 import com.example.drivesafe.viewmodel.KycViewModel
 
 class KycActivity : ComponentActivity() {
@@ -78,11 +78,7 @@ class KycActivity : ComponentActivity() {
 fun KycScreen() {
 
     val context = LocalContext.current
-    val vm = remember {
-        KycViewModel(
-            KycRepoImpl(context)
-        )
-    }
+    val vm: KycViewModel = viewModel()
     val toastMessage = vm.toast.collectAsState().value
     val isLoading = vm.isLoading.collectAsState().value
 

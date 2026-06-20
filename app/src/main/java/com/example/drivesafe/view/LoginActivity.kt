@@ -27,8 +27,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
-import com.example.drivesafe.repo.UserRepoImpl
+import com.example.drivesafe.viewmodel.AuthViewModel
 import com.google.firebase.FirebaseApp
 
 class LoginActivity : ComponentActivity() {
@@ -49,11 +50,20 @@ class LoginActivity : ComponentActivity() {
 fun LoginScreen() {
 
     val context = LocalContext.current
-    val repo = remember { UserRepoImpl() }
+    val vm: AuthViewModel = viewModel()
+    val message by vm.message.collectAsState()
+    val isLoading by vm.loading.collectAsState()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(message) {
+        if (message.isNotBlank()) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            vm.clearMessage()
+        }
+    }
 
     Scaffold { paddingValues ->
 
@@ -167,18 +177,9 @@ fun LoginScreen() {
                 ElevatedButton(
 
                     onClick = {
-                        println("LOGIN BUTTON CLICKED") // check Logcat
-
-                        repo.login(email.trim(), password.trim()) { success, message ->
-                            println("LOGIN CALLBACK: $message") // debug
-
-                            Toast.makeText(
-                                context,
-                                message,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        vm.login(email, password)
                     },
+                    enabled = !isLoading,
 
                     modifier = Modifier
                         .fillMaxWidth()
@@ -192,7 +193,15 @@ fun LoginScreen() {
                         defaultElevation = 8.dp
                     )
                 ) {
-                    Text("Login", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = Color.White
+                        )
+                    } else {
+                        Text("Login", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(25.dp))

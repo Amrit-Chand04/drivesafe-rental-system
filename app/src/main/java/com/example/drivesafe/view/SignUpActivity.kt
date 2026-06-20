@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
 import com.example.drivesafe.viewmodel.UserViewModel
 
@@ -72,9 +73,7 @@ fun SignUpScreen(enableBackend: Boolean = true) {
 
     val context = LocalContext.current
 
-    val userViewModel = remember {
-        if (enableBackend) UserViewModel() else null
-    }
+    val userViewModel: UserViewModel? = if (enableBackend) viewModel() else null
 
     userViewModel?.let { vm ->
         val uiMessage by vm.uiMessage.collectAsState()
