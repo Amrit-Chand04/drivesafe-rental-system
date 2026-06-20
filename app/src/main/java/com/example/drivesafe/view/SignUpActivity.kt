@@ -25,6 +25,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,8 +45,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.drivesafe.R
-import com.example.drivesafe.model.UserModel
-import com.example.drivesafe.repo.UserRepoImpl
 import com.example.drivesafe.viewmodel.UserViewModel
 
 class SignUpActivity : ComponentActivity() {
@@ -73,7 +73,18 @@ fun SignUpScreen(enableBackend: Boolean = true) {
     val context = LocalContext.current
 
     val userViewModel = remember {
-        if (enableBackend) UserViewModel(UserRepoImpl()) else null
+        if (enableBackend) UserViewModel() else null
+    }
+
+    userViewModel?.let { vm ->
+        val uiMessage by vm.uiMessage.collectAsState()
+
+        LaunchedEffect(uiMessage) {
+            uiMessage?.let { message ->
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                vm.clearUiMessage()
+            }
+        }
     }
 
     Scaffold { padding ->
@@ -208,81 +219,18 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                             return@ElevatedButton
                         }
 
-                        if (
-                            fullName.isBlank() ||
-                            email.isBlank() ||
-                            phone.isBlank() ||
-                            password.isBlank() ||
-                            confirmPassword.isBlank()
+                        userViewModel?.registerUser(
+                            fullName = fullName,
+                            email = email,
+                            phone = phone,
+                            password = password,
+                            confirmPassword = confirmPassword
                         ) {
-                            Toast.makeText(
-                                context,
-                                "Please fill all fields",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else if (password != confirmPassword) {
-                            Toast.makeText(
-                                context,
-                                "Passwords do not match",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            userViewModel?.register(
-                                email = email,
-                                password = password
-                            ) { success, message, uid ->
-
-                                if (success) {
-
-                                    val user = UserModel(
-                                        uid = uid,
-                                        fullName = fullName,
-                                        email = email,
-                                        phone = phone
-                                    )
-
-                                    userViewModel.addUser(
-                                        id = uid,
-                                        model = user
-                                    ) { addSuccess, addMessage ->
-
-                                        if (addSuccess) {
-                                            Toast.makeText(
-                                                context,
-                                                "Signup Successful",
-                                                Toast.LENGTH_LONG
-                                            ).show()
-
-                                            fullName = ""
-                                            email = ""
-                                            phone = ""
-                                            password = ""
-                                            confirmPassword = ""
-                                        } else {
-                                            Toast.makeText(
-                                                context,
-                                                addMessage,
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
-                                    }
-
-                                } else {
-
-                                    val errorMessage =
-                                        if (message.contains("already", ignoreCase = true)) {
-                                            "Email already in use"
-                                        } else {
-                                            message
-                                        }
-
-                                    Toast.makeText(
-                                        context,
-                                        errorMessage,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
+                            fullName = ""
+                            email = ""
+                            phone = ""
+                            password = ""
+                            confirmPassword = ""
                         }
                     },
                     modifier = Modifier
