@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -166,14 +167,17 @@ fun LoginScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = { }) {
+                    TextButton(onClick = {
+                        context.startActivity(
+                            Intent(context, ForgetPassword::class.java)
+                        )
+                    }) {
                         Text("Forgot Password?", color = Color(0xFF2E7D32))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                // LOGIN BUTTON ✅ FIXED
                 ElevatedButton(
 
                     onClick = {
@@ -213,7 +217,11 @@ fun LoginScreen() {
                         text = "Sign Up",
                         color = Color(0xFF2E7D32),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable { }
+                        modifier = Modifier.clickable {
+                            context.startActivity(
+                                Intent(context, SignUpActivity::class.java)
+                            )
+                        }
                     )
                 }
             }

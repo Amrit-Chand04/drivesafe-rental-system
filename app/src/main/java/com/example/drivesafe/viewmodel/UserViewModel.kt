@@ -42,7 +42,8 @@ class UserViewModel(private val repo: UserRepo = UserRepoImpl()) : ViewModel() {
                     uid = uid,
                     fullName = fullName,
                     email = email,
-                    phone = phone
+                    phone = phone,
+                    role = "user"
                 )
 
                 repo.addUser(uid, user) { addSuccess, addMessage ->

@@ -2,6 +2,7 @@ package com.example.drivesafe.view
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -51,7 +52,9 @@ fun SplashBody() {
         if(isLoggedIn){
 
         }else{
-
+            val intent = Intent(context, LoginActivity::class.java)
+            context.startActivity(intent)
+            activity?.finish()
         }
 
     }
