@@ -30,4 +30,5 @@
     <string name="title_activity_new_reset_password">NewResetPassword</string>
     <string name="title_activity_change_password">ChangePasswordActivity</string>
     <string name="title_activity_user_manage">UserManage</string>
+    <string name="title_activity_booking_vehicle">BookingVehicleActivity</string>
 </resources>
