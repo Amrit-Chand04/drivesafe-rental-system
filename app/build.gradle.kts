@@ -43,6 +43,8 @@ dependencies {
     //cloudinary
     implementation("com.cloudinary:cloudinary-android:3.1.2")
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
+    implementation("androidx.compose.material:material-icons-extended")
 
     // Core AndroidX + Compose
     implementation(libs.androidx.core.ktx)
