@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,14 +8,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,14 +29,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-import com.example.drivesafe.R
-
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.drivesafe.model.VehicleModel
-
+import coil3.compose.AsyncImage
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 import com.example.drivesafe.viewmodel.VehicleViewModel
+import com.example.drivesafe.R
+import com.example.drivesafe.model.VehicleFirebaseModel
 
 class CarSearchPage : ComponentActivity() {
 
@@ -51,6 +51,8 @@ class CarSearchPage : ComponentActivity() {
     }
 }
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarSearchBody() {
@@ -58,11 +60,7 @@ fun CarSearchBody() {
     val context = LocalContext.current
     val vehicleViewModel: VehicleViewModel = viewModel()
 
-    var selectedIndex by remember { mutableStateOf(0) }
-
-    var cars by remember {
-        mutableStateOf<List<VehicleModel>>(emptyList())
-    }
+    val bikes by vehicleViewModel.vehicles.collectAsState()
 
     var showFilterDialog by remember {
         mutableStateOf(false)
@@ -72,34 +70,39 @@ fun CarSearchBody() {
         mutableStateOf("All")
     }
 
+    val isLoading = vehicleViewModel.isLoading.collectAsState().value
+
     LaunchedEffect(Unit) {
         vehicleViewModel.getVehicles { success, message, list ->
-            if (success) {
-                cars = list.filter {
-                    it.type.equals("Car", ignoreCase = true)
-                }
-            }
+
         }
     }
 
-    val filteredCars = when (selectedPriceFilter) {
+    val filteredCars = remember(selectedPriceFilter, bikes) {
 
-        "Low" -> cars.filter {
-            val price = it.price.filter { char -> char.isDigit() }.toIntOrNull() ?: 0
-            price < 3000
+        val carList = bikes.filter {
+            it.type.equals("Car", ignoreCase = true)
         }
 
-        "Medium" -> cars.filter {
-            val price = it.price.filter { char -> char.isDigit() }.toIntOrNull() ?: 0
-            price in 3000..7000
-        }
+        when (selectedPriceFilter) {
 
-        "High" -> cars.filter {
-            val price = it.price.filter { char -> char.isDigit() }.toIntOrNull() ?: 0
-            price > 7000
-        }
+            "Low" -> carList.filter {
+                val price = it.price.filter(Char::isDigit).toIntOrNull() ?: 0
+                price < 3000
+            }
 
-        else -> cars
+            "Medium" -> carList.filter {
+                val price = it.price.filter(Char::isDigit).toIntOrNull() ?: 0
+                price in 3000..7000
+            }
+
+            "High" -> carList.filter {
+                val price = it.price.filter(Char::isDigit).toIntOrNull() ?: 0
+                price > 7000
+            }
+
+            else -> carList
+        }
     }
 
     if (showFilterDialog) {
@@ -107,84 +110,117 @@ fun CarSearchBody() {
             onDismissRequest = {
                 showFilterDialog = false
             },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(20.dp),
+
             title = {
-                Text("Filter by Price")
+                Text(
+                    text = "Filter by Price",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
             },
+
             text = {
-                Column {
 
-                    TextButton(
-                        onClick = {
-                            selectedPriceFilter = "All"
-                            showFilterDialog = false
-                        }
-                    ) {
-                        Text("All")
-                    }
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
 
-                    TextButton(
-                        onClick = {
-                            selectedPriceFilter = "Low"
-                            showFilterDialog = false
-                        }
-                    ) {
-                        Text("Below Rs. 3000")
-                    }
+                    val filters = listOf(
+                        "All" to "All",
+                        "Low" to "Below Rs. 3000",
+                        "Medium" to "Rs. 3000 - Rs. 7000",
+                        "High" to "Above Rs. 7000"
+                    )
 
-                    TextButton(
-                        onClick = {
-                            selectedPriceFilter = "Medium"
-                            showFilterDialog = false
-                        }
-                    ) {
-                        Text("Rs. 3000 - Rs. 7000")
-                    }
+                    filters.forEach { (key, label) ->
 
-                    TextButton(
-                        onClick = {
-                            selectedPriceFilter = "High"
-                            showFilterDialog = false
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = if (selectedPriceFilter == key)
+                                        Color(0xFFE8F5E9)
+                                    else
+                                        Color.Transparent,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .clickable {
+                                    selectedPriceFilter = key
+                                    showFilterDialog = false
+                                }
+                                .padding(
+                                    horizontal = 14.dp,
+                                    vertical = 12.dp
+                                ),
+
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            Text(
+                                text = label,
+                                modifier = Modifier.fillMaxWidth(),
+                                fontSize = 15.sp,
+                                fontWeight = if (selectedPriceFilter == key)
+                                    FontWeight.Bold
+                                else
+                                    FontWeight.Normal,
+                                color = if (selectedPriceFilter == key)
+                                    Color(0xFF00A859)
+                                else
+                                    Color.Black
+                            )
                         }
-                    ) {
-                        Text("Above Rs. 7000")
                     }
                 }
             },
-            confirmButton = {}
+
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showFilterDialog = false
+                    }
+                ) {
+                    Text(
+                        "Close",
+                        color = Color(0xFF00A859),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         )
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Car Search",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = {
-                            (context as? ComponentActivity)?.finish()
-                        }
+                        onClick = { (context as Activity).finish() }
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.outline_arrow_back_ios_24),
-                            contentDescription = "Back",
+                            Icons.Default.ArrowBack,
+                            contentDescription = null,
                             tint = Color.Black
                         )
                     }
                 },
-
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFE8F5E9)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFEAF8EE)
                 )
             )
         },
-
+        containerColor = Color(0xFFEAF8EE)
     ) { paddingValues ->
 
         Column(
@@ -192,114 +228,129 @@ fun CarSearchBody() {
                 .fillMaxSize()
                 .background(Color(0xFFE8F5E9))
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
         ) {
 
-            Spacer(modifier = Modifier.height(18.dp))
-
             HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp),
                 thickness = 1.dp,
                 color = Color.LightGray
             )
 
-            Spacer(modifier = Modifier.height(22.dp))
-
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                item {
-                    BrandButton(
-                        text = "ALL",
-                        selected = true
-                    )
-                }
-
-                item {
-                    BrandButton(
-                        text = "Suzuki",
-                        selected = false
-                    )
-                }
-                item {
-                    BrandButton(
-                        text = "Toyota",
-                        selected = false
-                    )
-                }
-                item {
-                    BrandButton(
-                        text = "BYD",
-                        selected = false
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
-                Button(
-                    onClick = {
-                        showFilterDialog = true
-                    },
-                    shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White
-                    ),
-                    modifier = Modifier.size(55.dp),
-                    contentPadding = PaddingValues(0.dp)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.width(60.dp)
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.filter),
-                        contentDescription = "Filter",
-                        modifier = Modifier.size(22.dp),
-                        contentScale = ContentScale.Fit
+
+                    Button(
+                        onClick = {
+                            showFilterDialog = true
+                        },
+                        shape = CircleShape,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White
+                        ),
+                        modifier = Modifier.size(55.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+
+                        Image(
+                            painter = painterResource(id = R.drawable.filter),
+                            contentDescription = "Filter",
+                            modifier = Modifier.size(22.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+
+
+                    Text(
+                        text = selectedPriceFilter,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF00A859),
+                        maxLines = 1
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Text(
+                text = "Recommend For You",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+                    .border(
+                        width = 2.dp,
+                        color = Color.LightGray,
+                        shape = RoundedCornerShape(28.dp)
+                    ),
             ) {
-                Text(
-                    text = "Recommend For You",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
 
-                Text(
-                    text = selectedPriceFilter,
-                    fontSize = 13.sp,
-                    color = Color.Gray
-                )
-            }
+                when {
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 90.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                items(filteredCars) { car ->
-
-                    CarGridCard(
-                        car = car,
-                        onClick = {
-                            val intent = Intent(context, CarDetails::class.java)
-                            intent.putExtra("vehicleId", car.vehicleId)
-                            context.startActivity(intent)
+                    isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                color = Color(0xFF00A859)
+                            )
                         }
-                    )
+                    }
+
+                    filteredCars.isEmpty() -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No bikes found",
+                                color = Color.Gray
+                            )
+                        }
+                    }
+
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            items(filteredCars) { car ->
+                                CarCard(
+                                    vehicle = car,
+                                    onBook = {
+                                        // Handle booking here
+
+                                        val intent = Intent(context, CarDetails::class.java)
+
+                                        intent.putExtra( "carId", car.vehicleId)
+
+                                        context.startActivity(intent)
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -307,121 +358,106 @@ fun CarSearchBody() {
 }
 
 @Composable
-fun BrandButton(
-    text: String,
-    selected: Boolean
+fun CarCard(
+    vehicle: VehicleFirebaseModel,
+    onBook: () -> Unit
 ) {
-    Button(
-        onClick = {},
-        shape = RoundedCornerShape(25.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected) Color(0xFF202A2A) else Color.White
-        ),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)
-    ) {
-        Text(
-            text = text,
-            color = if (selected) Color.White else Color.Black,
-            fontSize = 12.sp
-        )
-    }
-}
+    //debugging
 
-@Composable
-fun CarGridCard(
-    car: VehicleModel,
-    onClick: () -> Unit
-) {
-
-    val image = if (
-        car.imageName.lowercase() == "bike" ||
-        car.type.equals("Bike", ignoreCase = true)
-    ) {
-        R.drawable.bike
-    } else {
-        R.drawable.car
-    }
+    println("VEHICLE IMAGE URL = ${vehicle.vehicleImage}")
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(260.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(3.dp)
+            .height(220.dp),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
 
-            Box(
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+
+            // IMAGE FROM CLOUDINARY URL
+            AsyncImage(
+                model = vehicle.vehicleImage,
+                contentDescription = vehicle.name,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(125.dp)
-                    .background(Color(0xFFF1F1F1)),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = image),
-                    contentDescription = car.name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(95.dp)
-                        .padding(8.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
+                    .width(130.dp)
+                    .height(180.dp),
+                contentScale = ContentScale.Crop
+            )
+
+
+            Spacer(modifier = Modifier.width(12.dp))
+
 
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
+                modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = car.name,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
 
-                Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = car.location.ifEmpty { "No location" },
-                    fontSize = 11.sp,
-                    color = Color.Gray
+                    text = vehicle.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+
+                Spacer(
+                    modifier = Modifier.height(6.dp)
+                )
+
 
                 Text(
-                    text = car.price.ifEmpty { "No price" },
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    text = "Type: ${vehicle.type}"
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Number: ${vehicle.number}"
+                )
 
-                Button(
-                    onClick = onClick,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF202A2A)
-                    ),
-                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 3.dp),
-                    modifier = Modifier.height(30.dp)
-                ) {
-                    Text(
-                        text = "Book now",
-                        fontSize = 10.sp,
-                        color = Color.White
-                    )
+                Text(
+                    text = "Price: ${vehicle.price}"
+                )
+
+                Text(
+                    text = "Status: ${vehicle.status}",
+                    color = Color(0xFF00A859),
+                    fontWeight = FontWeight.Bold
+                )
+
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+
+                Row {
+
+                    Button(
+                        onClick = onBook,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF00A859)
+                        )
+                    ){
+                        Text(
+                            text = "Book",
+                            fontSize = 12.sp
+                        )
+                    }
+
                 }
             }
         }
     }
 }
-
 
 @Preview(
     showBackground = true,
@@ -429,7 +465,7 @@ fun CarGridCard(
     heightDp = 800
 )
 @Composable
-fun PreviewCarSearchPage() {
+fun BikePreview() {
     DriveSafeTheme {
         CarSearchBody()
     }

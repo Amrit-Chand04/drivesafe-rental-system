@@ -1,14 +1,16 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,19 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-
-import com.example.drivesafe.R
-
-import com.example.drivesafe.model.VehicleModel
-
+import coil3.compose.AsyncImage
+import com.example.drivesafe.model.VehicleFirebaseModel
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 import com.example.drivesafe.viewmodel.VehicleViewModel
+
 
 class BikeDetails : ComponentActivity() {
 
@@ -36,11 +34,13 @@ class BikeDetails : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val vehicleId = intent.getStringExtra("vehicleId") ?: ""
+        val bikeId = intent.getStringExtra("bikeId") ?: ""
 
         setContent {
             DriveSafeTheme {
-                BikeDetailsBody(vehicleId)
+                BikeDetailsBody(
+                    bikeId = bikeId
+                )
             }
         }
     }
@@ -48,258 +48,284 @@ class BikeDetails : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BikeDetailsBody(vehicleId: String = "") {
+fun BikeDetailsBody(
+    bikeId: String
+) {
 
     val context = LocalContext.current
-    val vehicleViewModel: VehicleViewModel = viewModel()
 
-    var selectedIndex by remember {
-        mutableStateOf(0)
+    val viewModel: VehicleViewModel = viewModel()
+
+    var bike by remember {
+        mutableStateOf<VehicleFirebaseModel?>(null)
     }
 
-    var vehicle by remember {
-        mutableStateOf<VehicleModel?>(null)
-    }
-
-    LaunchedEffect(vehicleId) {
-        if (vehicleId.isBlank()) {
-            vehicle = null
-            return@LaunchedEffect
-        }
-
-        vehicleViewModel.getVehicleById(vehicleId) { success, _, foundVehicle ->
-            vehicle = if (success) foundVehicle else null
+    LaunchedEffect(bikeId) {
+        viewModel.getVehicleById(bikeId) { success, message, vehicle ->
+            if (success) {
+                bike = vehicle
+            }
         }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Bike Details",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
-
-                    IconButton(onClick = {
-                        (context as? ComponentActivity)?.finish()
-                    }) {
+                    IconButton(
+                        onClick = { (context as Activity).finish() }
+                    ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.outline_arrow_back_ios_24),
-                            contentDescription = "Back",
+                            Icons.Default.ArrowBack,
+                            contentDescription = null,
                             tint = Color.Black
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFE8F5E9)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFEAF8EE)
                 )
             )
         },
-
+        containerColor = Color(0xFFEAF8EE)
     ) { paddingValues ->
 
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFE8F5E9))
+                .background(Color(0xFFEAF8EE))
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(horizontal = 16.dp)
         ) {
 
-            item {
-                Spacer(modifier = Modifier.height(13.dp))
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp),
+                thickness = 1.dp,
+                color = Color.LightGray
+            )
 
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = Color.LightGray
-                )
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
 
-                if (vehicle == null) {
+            if (bike == null) {
 
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_home_24),
-                        contentDescription = null,
-                        tint = Color(0xFF00A859),
-                        modifier = Modifier.size(90.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(17.dp))
-
-                    Text(
-                        text = "No Bike Selected",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-
-                    Spacer(modifier = Modifier.height(7.dp))
-
-                    Text(
-                        text = "Bike details will appear here",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-
-                    Text(
-                        text = "after a bike is selected.",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-
-                } else {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.bike),
-                        contentDescription = vehicle!!.name,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(210.dp),
-                        contentScale = ContentScale.Fit
-                    )
-
-                    Spacer(modifier = Modifier.height(17.dp))
-
-                    Text(
-                        text = vehicle!!.name,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-
-                    Spacer(modifier = Modifier.height(9.dp))
-
-                    Text(
-                        text = vehicle!!.description.ifEmpty {
-                            "A comfortable bike available for rent."
-                        },
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "Price: ${vehicle!!.price.ifEmpty { "Rs.7000/Day" }}",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-
-                    Text(
-                        text = "Location: ${vehicle!!.location.ifEmpty { "Kathmandu, Nepal" }}",
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-
-                    Text(
-                        text = "Status: ${vehicle!!.status}",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF00A859)
-                    )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
 
-                Spacer(modifier = Modifier.height(26.dp))
+            } else {
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.White
-                    )
+                val data = bike!!
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 15.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
 
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    item {
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(260.dp),
+                            shape = RoundedCornerShape(25.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.White
+                            ),
+                            elevation = CardDefaults.cardElevation(5.dp)
+                        ) {
+
+                            AsyncImage(
+                                model = data.vehicleImage,
+                                contentDescription = data.name,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+
+                        }
+
+                    }
+
+                    item {
 
                         Text(
-                            text = "Bike Features",
-                            fontSize = 16.sp,
+                            text = data.name,
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
                         )
 
-                        Spacer(modifier = Modifier.height(17.dp))
+                        Spacer(modifier = Modifier.height(5.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
 
-                            EmptyBikeFeatureBox(
-                                title = "Capacity",
-                                value = vehicle?.capacity?.ifEmpty { "--" } ?: "--",
-                                modifier = Modifier.weight(1f)
+                            Text(
+                                text = "Status: ",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp,
+                                color = Color.Black
                             )
 
-                            EmptyBikeFeatureBox(
-                                title = "Engine",
-                                value = vehicle?.engine?.ifEmpty { "--" } ?: "--",
-                                modifier = Modifier.weight(1f)
+
+                            Text(
+                                text = data.status,
+                                color = Color(0xFF00A859),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
                             )
 
-                            EmptyBikeFeatureBox(
-                                title = "Speed",
-                                value = vehicle?.speed?.ifEmpty { "--" } ?: "--",
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-
-                            EmptyBikeFeatureBox(
-                                title = "Mileage",
-                                value = vehicle?.battery?.ifEmpty { "--" } ?: "--",
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            EmptyBikeFeatureBox(
-                                title = "Safety",
-                                value = vehicle?.safety?.ifEmpty { "--" } ?: "--",
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            EmptyBikeFeatureBox(
-                                title = "Price",
-                                value = vehicle?.price?.ifEmpty { "--" } ?: "--",
-                                modifier = Modifier.weight(1f)
-                            )
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    item {
 
-                Button(
-                    onClick = {},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(55.dp),
-                    shape = RoundedCornerShape(28.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF202A2A)
-                    )
-                ) {
-                    Text(
-                        text = "Book Now",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.White
+                            )
+                        ) {
+
+                            Column(
+                                modifier = Modifier.padding(6.dp)
+                            ){
+                                Text(
+                                    text = "Description",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+
+                                Spacer(modifier = Modifier.height(3.dp))
+
+                                Text(
+                                    text = data.description,
+                                    color = Color.Gray
+                                )
+
+                            }
+                        }
+
+                    }
+
+                    item {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+
+                            BikeFeatureBox(
+                                title = "Fuel",
+                                value = data.fuelType,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            BikeFeatureBox(
+                                title = "Capacity",
+                                value = data.capacity,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                        }
+
+                    }
+                    item {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+
+
+                            BikeFeatureBox(
+                                title = "Engine",
+                                value = data.engine,
+                                modifier = Modifier.weight(1f)
+                            )
+
+
+                            BikeFeatureBox(
+                                title = "Speed",
+                                value = data.speed,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                        }
+
+                    }
+
+                    item {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+
+
+                            BikeFeatureBox(
+                                title = "Number",
+                                value = data.number,
+                                modifier = Modifier.weight(1f)
+                            )
+
+
+                            BikeFeatureBox(
+                                title = "Price",
+                                value = data.price,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                        }
+
+                    }
+                    item {
+
+                        Button(
+                            onClick = {
+
+                                // open booking screen
+
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(55.dp),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00A859)
+                            )
+                        ) {
+
+                            Text(
+                                text = "Book Now",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                        }
+
+                    }
+
                 }
             }
         }
@@ -307,14 +333,14 @@ fun BikeDetailsBody(vehicleId: String = "") {
 }
 
 @Composable
-fun EmptyBikeFeatureBox(
+fun BikeFeatureBox(
     title: String,
     value: String,
     modifier: Modifier
 ) {
 
     Card(
-        modifier = modifier.height(90.dp),
+        modifier = modifier.height(65.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFEDEDED)
@@ -323,38 +349,25 @@ fun EmptyBikeFeatureBox(
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(10.dp),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Text(
                 text = title,
-                fontSize = 12.sp,
+                fontSize = 10.sp,
                 color = Color.Gray
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             Text(
                 text = value,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
         }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    widthDp = 390,
-    heightDp = 800
-)
-@Composable
-fun BikeDetailsPreview() {
-    DriveSafeTheme {
-        BikeDetailsBody()
     }
 }

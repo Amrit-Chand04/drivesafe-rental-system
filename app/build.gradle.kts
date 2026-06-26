@@ -45,6 +45,7 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
 
     // Core AndroidX + Compose
     implementation(libs.androidx.core.ktx)

@@ -1,25 +1,55 @@
 package com.example.drivesafe.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import com.example.drivesafe.model.VehicleFirebaseModel
 import com.example.drivesafe.model.VehicleModel
 import com.example.drivesafe.repo.VehicleRepo
 import com.example.drivesafe.repo.VehicleRepoImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-class VehicleViewModel : ViewModel() {
+class VehicleViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repo: VehicleRepo = VehicleRepoImpl()
+    private val repo: VehicleRepo = VehicleRepoImpl(application.applicationContext)
+    private val _vehicles = MutableStateFlow<List<VehicleFirebaseModel>>(emptyList())
+    val vehicles = _vehicles.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     fun addVehicle(vehicle: VehicleModel, callback: (Boolean, String) -> Unit) {
-        repo.addVehicle(vehicle, callback)
-    }
 
-    fun getVehicles(callback: (Boolean, String, List<VehicleModel>) -> Unit) {
-        repo.getVehicles(callback)
+        _isLoading.value = true
+
+        repo.addVehicle(vehicle) { success, message ->
+
+            _isLoading.value = false
+
+            callback(success, message)
+        }
+    }
+    // amrir chand thakuri this is  one
+    fun getVehicles(callback: (Boolean, String, List<VehicleFirebaseModel>) -> Unit) {
+
+        _isLoading.value = true
+
+        repo.getVehicles { success, message, list ->
+
+            _isLoading.value = false
+
+            if (success) {
+                _vehicles.value = list
+            }
+
+            callback(success, message, list)
+        }
     }
 
     fun getVehicleById(
         vehicleId: String,
-        callback: (Boolean, String, VehicleModel?) -> Unit
+        callback: (Boolean, String, VehicleFirebaseModel?) -> Unit
     ) {
         if (vehicleId.isBlank()) {
             callback(false, "Invalid vehicle id", null)
@@ -32,15 +62,32 @@ class VehicleViewModel : ViewModel() {
                 return@getVehicles
             }
 
-            callback(true, message, list.firstOrNull { it.vehicleId == vehicleId })
+            val vehicle = list.firstOrNull { it.vehicleId == vehicleId }
+
+            callback(true, message,vehicle )
         }
     }
 
-    fun updateVehicle(id: String, vehicle: VehicleModel, callback: (Boolean, String) -> Unit) {
-        repo.updateVehicle(id, vehicle, callback)
+    fun updateVehicle(vehicle: VehicleFirebaseModel, callback: (Boolean, String) -> Unit) {
+
+        _isLoading.value = true
+
+        repo.updateVehicle(vehicle) { success, message ->
+
+            _isLoading.value = false
+
+            callback(success, message)
+        }
     }
 
     fun deleteVehicle(id: String, callback: (Boolean, String) -> Unit) {
-        repo.deleteVehicle(id, callback)
+
+        repo.deleteVehicle(id) { success, message ->
+            if (success) {
+                _vehicles.value =
+                    _vehicles.value.filter { it.vehicleId != id }
+            }
+            callback(success, message)
+        }
     }
 }

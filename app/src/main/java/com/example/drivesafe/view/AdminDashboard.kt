@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -49,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -178,6 +180,8 @@ fun AdminBody(
     onScreenChange: (String) -> Unit
 ) {
 
+    val context = LocalContext.current
+
     var showProfileScreen by remember {
         mutableStateOf(false)
     }
@@ -282,7 +286,10 @@ fun AdminBody(
                                     println("Users clicked")
                                 }
 
-                                "Vehicles" -> onScreenChange("vehicles")
+                                "Vehicles" -> {
+                                    val intent = Intent(context, AdminManageVehicle::class.java)
+                                    context.startActivity(intent)
+                                }
 
                                 "Bookings" -> {
                                     println("Bookings clicked")

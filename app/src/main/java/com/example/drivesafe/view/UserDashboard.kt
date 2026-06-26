@@ -153,8 +153,6 @@ fun User() {
                                 )
                             }
                         )
-                        "car" -> CarSearchBody()
-                        "bike" -> BikeSearchBody()
                     }
                 }
                 1 -> InboxScreen()
@@ -321,7 +319,7 @@ fun UserBody(
                 }
             }
 
-        // Second Card
+            // Second Card
             Card(
                 modifier = Modifier
                     .weight(1f)

@@ -1,18 +1,16 @@
 package com.example.drivesafe.model
 
-import android.net.Uri
-
-data class VehicleModel(
+data class VehicleFirebaseModel(
     var vehicleId: String = "",
     var name: String = "",
     var type: String = "",
+    var fuelType: String = "",
     var number: String = "",
     var status: String = "",
-    var vehicleImage: Uri? = null,
+    var vehicleImage: String = "",
     var price: String = "",
     var description: String = "",
     var capacity: String = "",
     var engine: String = "",
-    var speed: String = "",
-    var fuelType: String = "",
+    var speed: String = ""
 )
