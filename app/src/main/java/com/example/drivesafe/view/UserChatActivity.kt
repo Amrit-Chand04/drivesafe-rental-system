@@ -1,10 +1,12 @@
 package com.example.drivesafe.view
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,13 +17,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.drivesafe.R
+import com.example.drivesafe.model.ChatListModel
+import com.example.drivesafe.repo.ChatRepoImpl
 import com.example.drivesafe.ui.theme.DriveSafeTheme
+import com.example.drivesafe.viewmodel.ChatViewModel
+import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class UserChatActivity : ComponentActivity() {
 
@@ -31,28 +41,50 @@ class UserChatActivity : ComponentActivity() {
 
         setContent {
             DriveSafeTheme {
-                UserChatBody()
+                val chatViewModel = remember {
+                    ChatViewModel(ChatRepoImpl())
+                }
+
+                UserChatBody(chatViewModel)
             }
         }
     }
 }
 
-data class UserChatModel(
-    val name: String,
-    val message: String,
-    val time: String,
-    val unread: String
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserChatBody() {
+fun UserChatBody(chatViewModel: ChatViewModel) {
 
     var selectedIndex by remember {
         mutableStateOf(1)
     }
 
-    val chats = emptyList<UserChatModel>()
+    val context = LocalContext.current
+    val currentUser = FirebaseAuth.getInstance().currentUser
+
+    val userId = currentUser?.uid ?: "guest_user"
+
+    var chats by remember {
+        mutableStateOf(
+            listOf(
+                ChatListModel(
+                    userId = userId,
+                    name = "Admin",
+                    lastMessage = "Chat with admin",
+                    lastTime = System.currentTimeMillis(),
+                    unreadForUser = 0
+                )
+            )
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        chatViewModel.getUserChatPreview(userId) { chat ->
+            if (chat != null) {
+                chats = listOf(chat)
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -83,61 +115,41 @@ fun UserChatBody() {
         },
 
         bottomBar = {
-            NavigationBar(
-                containerColor = Color.White
-            ) {
+            NavigationBar(containerColor = Color.White) {
                 NavigationBarItem(
                     selected = selectedIndex == 0,
-                    onClick = {
-                        selectedIndex = 0
-                    },
+                    onClick = { selectedIndex = 0 },
                     icon = {
                         Icon(
-                            painter = painterResource(
-                                id = R.drawable.baseline_home_24
-                            ),
+                            painter = painterResource(id = R.drawable.baseline_home_24),
                             contentDescription = "Home"
                         )
                     },
-                    label = {
-                        Text(text = "Home")
-                    }
+                    label = { Text("Home") }
                 )
 
                 NavigationBarItem(
                     selected = selectedIndex == 1,
-                    onClick = {
-                        selectedIndex = 1
-                    },
+                    onClick = { selectedIndex = 1 },
                     icon = {
                         Icon(
-                            painter = painterResource(
-                                id = R.drawable.baseline_inbox_24
-                            ),
+                            painter = painterResource(id = R.drawable.baseline_inbox_24),
                             contentDescription = "Inbox"
                         )
                     },
-                    label = {
-                        Text(text = "Inbox")
-                    }
+                    label = { Text("Inbox") }
                 )
 
                 NavigationBarItem(
                     selected = selectedIndex == 2,
-                    onClick = {
-                        selectedIndex = 2
-                    },
+                    onClick = { selectedIndex = 2 },
                     icon = {
                         Icon(
-                            painter = painterResource(
-                                id = R.drawable.baseline_supervised_user_circle_24
-                            ),
+                            painter = painterResource(id = R.drawable.baseline_supervised_user_circle_24),
                             contentDescription = "Profile"
                         )
                     },
-                    label = {
-                        Text(text = "Profile")
-                    }
+                    label = { Text("Profile") }
                 )
             }
         }
@@ -165,10 +177,16 @@ fun UserChatBody() {
 
             items(chats) { chat ->
                 UserChatCard(
-                    name = chat.name,
-                    message = chat.message,
-                    time = chat.time,
-                    unread = chat.unread
+                    name = "Admin",
+                    message = chat.lastMessage,
+                    time = formatChatListTime(chat.lastTime),
+                    unread = chat.unreadForUser,
+                    onClick = {
+                        chatViewModel.markUserChatAsRead(userId)
+
+                        val intent = Intent(context, UserAdminChatActivity::class.java)
+                        context.startActivity(intent)
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -182,11 +200,14 @@ fun UserChatCard(
     name: String,
     message: String,
     time: String,
-    unread: String
+    unread: Int,
+    onClick: () -> Unit
 ) {
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -210,7 +231,7 @@ fun UserChatCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = name.first().toString(),
+                    text = "A",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF00A859)
@@ -219,10 +240,7 @@ fun UserChatCard(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = name,
                     fontSize = 15.sp,
@@ -239,10 +257,7 @@ fun UserChatCard(
                 )
             }
 
-            Column(
-                horizontalAlignment = Alignment.End
-            ) {
-
+            Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = time,
                     fontSize = 11.sp,
@@ -251,7 +266,7 @@ fun UserChatCard(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                if (unread != "") {
+                if (unread > 0) {
                     Box(
                         modifier = Modifier
                             .size(22.dp)
@@ -259,7 +274,7 @@ fun UserChatCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = unread,
+                            text = unread.toString(),
                             fontSize = 11.sp,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
@@ -271,14 +286,25 @@ fun UserChatCard(
     }
 }
 
-@Preview(
-    showBackground = true,
-    widthDp = 390,
-    heightDp = 800
-)
+fun formatChatListTime(timestamp: Long): String {
+    return try {
+        val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        sdf.format(Date(timestamp))
+    } catch (e: Exception) {
+        ""
+    }
+}
+
+@Preview(showBackground = true)
 @Composable
 fun UserChatPreview() {
     DriveSafeTheme {
-        UserChatBody()
+        UserChatCard(
+            name = "Admin",
+            message = "Chat with admin",
+            time = "Now",
+            unread = 1,
+            onClick = {}
+        )
     }
 }
