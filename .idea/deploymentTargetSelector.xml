@@ -5,25 +5,20 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="BookingVehicleActivity">
+      <SelectionState runConfigName="UserChatActivity">
         <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="BookingVehicleActivity (1)">
+      <SelectionState runConfigName="AdminChatActivity (1)">
         <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="BookingVehicleActivity (2)">
+      <SelectionState runConfigName="AdminChatActivity (2)">
         <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="BookingVehicleActivity (3)">
+      <SelectionState runConfigName="AdminUserChatActivity">
         <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="BookingVehicleActivity (4)">
+      <SelectionState runConfigName="UserChatActivity (1)">
         <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>
