@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -418,83 +419,96 @@ fun CarCard(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
 
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
 
-
-            // IMAGE FROM CLOUDINARY URL
-            AsyncImage(
-                model = vehicle.vehicleImage,
-                contentDescription = vehicle.name,
+            Row(
                 modifier = Modifier
-                    .width(130.dp)
-                    .height(180.dp),
-                contentScale = ContentScale.Crop
-            )
-
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-
-            Column(
-                modifier = Modifier.weight(1f)
+                    .fillMaxSize()
+                    .padding(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-
-                Text(
-                    text = vehicle.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                // IMAGE FROM CLOUDINARY URL
+                AsyncImage(
+                    model = vehicle.vehicleImage,
+                    contentDescription = vehicle.name,
+                    modifier = Modifier
+                        .width(130.dp)
+                        .height(180.dp),
+                    contentScale = ContentScale.Crop
                 )
 
+                Spacer(modifier = Modifier.width(12.dp))
 
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
-
-
-                Text(
-                    text = "Type: ${vehicle.type}"
-                )
-
-                Text(
-                    text = "Number: ${vehicle.number}"
-                )
-
-                Text(
-                    text = "Price: ${vehicle.price}"
-                )
-
-                Text(
-                    text = "Status: ${vehicle.status}",
-                    color = Color(0xFF00A859),
-                    fontWeight = FontWeight.Bold
-                )
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
 
 
-                Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = vehicle.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
 
 
-                Row {
+                    Spacer(
+                        modifier = Modifier.height(6.dp)
+                    )
 
-                    Button(
-                        onClick = onBook,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00A859)
-                        )
-                    ){
-                        Text(
-                            text = "Book",
-                            fontSize = 12.sp
-                        )
+
+                    Text(
+                        text = "Type: ${vehicle.type}"
+                    )
+
+                    Text(
+                        text = "Number: ${vehicle.number}"
+                    )
+
+                    Text(
+                        text = "Price: ${vehicle.price}"
+                    )
+
+                    Text(
+                        text = "Status: ${vehicle.status}",
+                        color = Color(0xFF00A859),
+                        fontWeight = FontWeight.Bold
+                    )
+
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+
+                    Row {
+
+                        Button(
+                            onClick = onBook,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00A859)
+                            )
+                        ){
+                            Text(
+                                text = "Book",
+                                fontSize = 12.sp
+                            )
+                        }
+
                     }
-
                 }
+            }
+
+            IconButton(
+                onClick = { },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.FavoriteBorder,
+                    contentDescription = "Favorite",
+                    tint = Color.Black
+                )
             }
         }
     }
