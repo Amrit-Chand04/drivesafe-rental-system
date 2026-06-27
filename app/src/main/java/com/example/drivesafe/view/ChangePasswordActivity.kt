@@ -34,6 +34,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,8 +80,17 @@ fun ChangePasswordBody() {
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    val message = viewModel.message.value
+    val message by viewModel.message.collectAsState()
+
     val scrollState = rememberScrollState()
+    val loading by viewModel.loading.collectAsState()
+
+    LaunchedEffect(message) {
+        message?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.clearMessage()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -254,18 +265,6 @@ fun ChangePasswordBody() {
                 // Change Password Button
                 ElevatedButton(
                     onClick = {
-                        if (
-                            oldPassword.isBlank() ||
-                            newPassword.isBlank() ||
-                            confirmPassword.isBlank()
-                        ) {
-                            Toast.makeText(
-                                context,
-                                "All fields are required",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@ElevatedButton
-                        }
                         viewModel.changePassword(
                             oldPassword,
                             newPassword,
@@ -306,20 +305,6 @@ fun ChangePasswordBody() {
                             )
                         }
                     }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                if (message.isNotEmpty()) {
-
-                    Text(
-                        text = message,
-                        color = if (
-                            message.contains("successfully", true)
-                        ) Color(0xFF16D64D)
-                        else Color.Red,
-                        fontSize = 15.sp
-                    )
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))

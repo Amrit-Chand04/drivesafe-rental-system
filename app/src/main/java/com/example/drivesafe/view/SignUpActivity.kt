@@ -75,14 +75,13 @@ fun SignUpScreen(enableBackend: Boolean = true) {
 
     val userViewModel: UserViewModel? = if (enableBackend) viewModel() else null
 
-    userViewModel?.let { vm ->
-        val uiMessage by vm.uiMessage.collectAsState()
+    val message by userViewModel?.message?.collectAsState(initial = null)
+        ?: remember { mutableStateOf(null) }
 
-        LaunchedEffect(uiMessage) {
-            uiMessage?.let { message ->
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                vm.clearUiMessage()
-            }
+    LaunchedEffect(message) {
+        message?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            userViewModel?.clearMessage()
         }
     }
 
