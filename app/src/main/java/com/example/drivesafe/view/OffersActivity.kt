@@ -1,6 +1,5 @@
 package com.example.drivesafe.view
 
-import android.app.Activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -16,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -49,19 +47,14 @@ class OffersActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            OffersScreen(
-                onClick = {}
-            )
+            OffersScreen()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OffersScreen(
-    onClick: () -> Unit
-) {
-    val context = LocalContext.current
+fun OffersScreen() {
     var showDialog by remember { mutableStateOf(false) }
 
     var selectedOffer by remember { mutableStateOf<OfferModel?>(null) }
@@ -75,72 +68,48 @@ fun OffersScreen(
         vm.loadOffers()
     }
 
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Create Offer",
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { (context as Activity).finish() }
-                    ) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = null,
-                            tint = Color.Black
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFEAF8EE)
-                )
-            )
-        },
-        containerColor = Color(0xFFEAF8EE)
-    ) { paddingValues ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp)
+    ) {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp)
+        Text(
+            text = "Create Offer",
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            thickness = 1.4.dp,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(35.dp))
+
+        Text(
+            text = "Offer Management",
+            fontSize = 25.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text(
+            text = "Create and manage promotional offers\nto boost your bookings.",
+            color = Color.Gray,
+            fontSize = 18.sp
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
         ) {
-
-            Spacer(modifier = Modifier.height(15.dp))
-
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                thickness = 1.4.dp,
-                color = Color.Black
-            )
-
-            Spacer(modifier = Modifier.height(35.dp))
-
-            Text(
-                text = "Offer Management",
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = "Create and manage promotional offers\nto boost your bookings.",
-                color = Color.Gray,
-                fontSize = 18.sp
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
                 ElevatedButton(
                     onClick = {
                         showDialog = true
@@ -205,16 +174,16 @@ fun OffersScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(44.dp))
+        Spacer(modifier = Modifier.height(44.dp))
 
-            Text(
-                text = "Active Offers",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(22.dp))
+        Text(
+            text = "Active Offers",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(22.dp))
 
-            Box(
+        Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -258,7 +227,6 @@ fun OffersScreen(
                 }
             }
 
-        }
     }
     if (showDeleteDialog && selectedOffer != null) {
         AlertDialog(
@@ -601,7 +569,5 @@ fun OfferCardItem(
 @Preview(showBackground = true)
 @Composable
 fun OfferPreview() {
-    OffersScreen(
-        onClick = {}
-    )
+    OffersScreen()
 }

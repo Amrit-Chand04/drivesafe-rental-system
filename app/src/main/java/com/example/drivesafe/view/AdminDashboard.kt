@@ -158,11 +158,7 @@ fun AdminApp() {
                     onScreenChange = { currentScreen = it }
                 )
                 1 -> InboxScreen1()
-                2 -> OffersScreen(
-                    onClick = {
-                        selectedIndex = 0
-                    }
-                )
+                2 -> OffersScreen()
                 3 -> SettingsScreen()
             }
         }
