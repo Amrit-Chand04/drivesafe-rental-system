@@ -14,7 +14,7 @@ interface UserRepo {
     fun login(
         email: String,
         password: String,
-        callback: (Boolean, String) -> Unit
+        callback: (Boolean, String, UserModel?) -> Unit
     )
 
     fun sendPasswordResetEmail(
@@ -45,4 +45,6 @@ interface UserRepo {
         uid: String,
         callback: (Boolean, String) -> Unit
     )
+
+    fun logOut(callback : (Boolean, String) -> Unit)
 }

@@ -93,9 +93,19 @@ fun UserScreen() {
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        "KYC Status: ${user.kyc?.status ?: "Not submitted"}"
-                    )
+                    if (user.user.role == "admin") {
+
+                        Text(
+                            text = "Role: Admin"
+                        )
+
+                    } else {
+
+                        Text(
+                            text = "KYC Status: ${user.kyc?.status ?: "Not submitted"}"
+                        )
+
+                    }
                 }
             },
             confirmButton = {
@@ -286,13 +296,17 @@ fun UserCard(
                         Text("View", color = Color.Black)
                     }
 
-                    Button(
-                        onClick = onDelete ,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red
-                        )
-                    ) {
-                        Text("Delete", color = Color.White)
+                    if (user.user.role != "admin") {
+
+                        Button(
+                            onClick = onDelete,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red
+                            )
+                        ) {
+                            Text("Delete", color = Color.White)
+                        }
+
                     }
                 }
             }

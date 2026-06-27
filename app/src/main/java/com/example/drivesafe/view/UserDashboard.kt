@@ -86,7 +86,7 @@ fun User() {
                     .padding(horizontal = 12.dp, vertical = 10.dp)
                     .clip(RoundedCornerShape(24.dp)),
 
-                containerColor = Color(0xFFE7E9E8),
+                containerColor = Color.White,
                 tonalElevation = 6.dp
             ) {
 

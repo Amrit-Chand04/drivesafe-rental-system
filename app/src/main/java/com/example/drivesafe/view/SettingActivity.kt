@@ -22,8 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.ui.theme.AppThemeState
 import com.example.drivesafe.ui.theme.DriveSafeTheme
+import com.example.drivesafe.viewmodel.AuthViewModel
 
 class SettingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,9 +51,64 @@ fun SettingsScreen(
 ) {
 
     val context = LocalContext.current
+    val vm: AuthViewModel = viewModel()
 
     var showAppearance by remember { mutableStateOf(false) }
     var selectedTheme by remember { mutableStateOf("System") }
+
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
+    val isLoggedOut by vm.isLoggedOut.collectAsState()
+
+
+    LaunchedEffect(isLoggedOut) {
+
+        if (isLoggedOut) {
+
+            context.startActivity(
+                Intent(context, LoginActivity::class.java)
+            )
+
+            (context as? ComponentActivity)?.finish()
+        }
+    }
+
+    if (showLogoutDialog) {
+
+        AlertDialog(
+            onDismissRequest = {
+                showLogoutDialog = false
+            },
+
+            containerColor = Color(0xFFE8F5E9),
+
+            title = {
+                Text("Logout")
+            },
+            text = {
+                Text("Are you sure you want to logout?")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutDialog = false
+                        vm.logOut()
+                    }
+                ) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        showLogoutDialog = false
+                    }
+                ) {
+                    Text("No")
+                }
+            }
+        )
+    }
 
     fun onAppearanceClick() {
         showAppearance = !showAppearance
@@ -197,13 +254,18 @@ fun SettingsScreen(
 
         SettingsItem(
             title = "Password Change",
-            onClick = {}
+            onClick = {
+                val intent = Intent(context, ChangePasswordActivity::class.java)
+                context.startActivity(intent)
+            }
         )
 
         SettingsItem(
             title = "Log Out",
             titleColor = Color.Red,
-            onClick = {}
+            onClick = {
+                showLogoutDialog = true
+            }
         )
     }
 }

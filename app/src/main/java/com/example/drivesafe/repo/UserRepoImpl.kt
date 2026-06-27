@@ -44,7 +44,7 @@ class UserRepoImpl : UserRepo {
     override fun login(
         email: String,
         password: String,
-        callback: (Boolean, String) -> Unit
+        callback: (Boolean, String, UserModel?) -> Unit
     ) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
@@ -52,29 +52,36 @@ class UserRepoImpl : UserRepo {
 
                 if (uid.isNullOrBlank()) {
                     auth.signOut()
-                    callback(false, "Login failed")
+                    callback(false, "Login failed", null)
                     return@addOnSuccessListener
                 }
 
                 ref.child(uid)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
+
                             if (snapshot.exists()) {
-                                callback(true, "Login successful")
+
+                                val user = snapshot.getValue(UserModel::class.java)
+
+                                if (user != null) {
+                                    callback(true, "Login successful", user)
+                                }
+
                             } else {
                                 auth.signOut()
-                                callback(false, "Your account has been permanently deleted")
+                                callback(false, "Your account has been permanently deleted", null)
                             }
                         }
 
                         override fun onCancelled(error: DatabaseError) {
                             auth.signOut()
-                            callback(false, error.message)
+                            callback(false, error.message, null)
                         }
                     })
             }
             .addOnFailureListener {
-                callback(false, it.message ?: "Login failed")
+                callback(false, it.message ?: "Login failed", null)
             }
     }
 
@@ -264,5 +271,16 @@ class UserRepoImpl : UserRepo {
                 callback(false, error.message)
             }
         })
+    }
+
+    override fun logOut(callback: (Boolean, String) -> Unit) {
+
+        try {
+            auth.signOut()
+            callback(true, "Logout successful")
+        } catch (e: Exception) {
+            callback(false, e.toString())
+
+        }
     }
 }

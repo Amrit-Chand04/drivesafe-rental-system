@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -37,8 +38,6 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        FirebaseApp.initializeApp(this)
-
         enableEdgeToEdge()
 
         setContent {
@@ -54,6 +53,7 @@ fun LoginScreen() {
     val vm: AuthViewModel = viewModel()
     val message by vm.message.collectAsState()
     val isLoading by vm.loading.collectAsState()
+    val user by vm.user.collectAsState()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -65,6 +65,27 @@ fun LoginScreen() {
             vm.clearMessage()
         }
     }
+
+    LaunchedEffect(user) {
+        user?.let {
+            when (it.role) {
+                "admin" -> {
+                    val intent = Intent(context, AdminDashboard::class.java)
+                    context.startActivity(intent)
+                    (context as? Activity)?.finish()
+                }
+
+                "user" -> {
+                    val intent = Intent(context, UserDashboard::class.java)
+                    context.startActivity(intent)
+                    (context as? Activity)?.finish()
+                }
+
+            }
+        }
+    }
+
+
 
     Scaffold { paddingValues ->
 
