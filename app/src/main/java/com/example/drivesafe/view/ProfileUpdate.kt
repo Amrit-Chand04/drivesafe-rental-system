@@ -2,6 +2,7 @@ package com.example.drivesafe.view
 
 import android.app.Activity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -23,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.drivesafe.viewmodel.UserViewModel
 import com.example.drivesafe.view.ui.theme.DriveSafeTheme
 
 class ProfileUpdate : ComponentActivity() {
@@ -42,9 +45,29 @@ class ProfileUpdate : ComponentActivity() {
 fun ProfileScreen() {
 
     val context = LocalContext.current
+    val vm: UserViewModel = viewModel()
 
-    var fullName by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
+    val user by vm.user.collectAsState()
+    val message by vm.message.collectAsState()
+    val loading by vm.loading.collectAsState()
+
+    var fullName by remember(user) { mutableStateOf(user?.fullName ?: "") }
+    var phone by remember(user) { mutableStateOf(user?.phone ?: "") }
+
+    LaunchedEffect(Unit) {
+        vm.loadCurrentUser()
+    }
+
+    LaunchedEffect(message) {
+        message?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            vm.clearMessage()
+            if (it == "Profile updated successfully") {
+                vm.loadCurrentUser()
+                (context as? Activity)?.finish()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -73,95 +96,128 @@ fun ProfileScreen() {
         containerColor = Color(0xFFEAF8EE)
     ) { paddingValues ->
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(bottom = 24.dp)
-        ) {
+        if (user == null) {
 
-            item {
-                Spacer(modifier = Modifier.height(32.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = Color(0xFF24C16B)
+                )
+            }
 
-                // Avatar
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .background(Color(0xFF24C16B), CircleShape)
-                        .border(3.dp, Color.White, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = PaddingValues(bottom = 24.dp)
+            ) {
+
+                item {
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Avatar
+                    Box(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .background(Color(0xFF24C16B), CircleShape)
+                            .border(3.dp, Color.White, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = user?.fullName
+                                ?.split(" ")
+                                ?.mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                                ?.take(2)
+                                ?.joinToString("") ?: "U",
+                            fontSize = 36.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
                     Text(
-                        text = "U",
-                        fontSize = 36.sp,
+                        text = user?.fullName ?: "User",
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color.Black
                     )
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                Text(
-                    text = "Your Name",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                OutlinedTextField(
-                    value = fullName,
-                    onValueChange = { fullName = it },
-                    placeholder = { Text("Full Name", color = Color.Gray) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(14.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedIndicatorColor = Color(0xFF24C16B),
-                        unfocusedIndicatorColor = Color(0xFFE0E0E0)
+                    OutlinedTextField(
+                        value = fullName,
+                        onValueChange = { fullName = it },
+                        placeholder = { Text("Full Name", color = Color.Gray) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(14.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedIndicatorColor = Color(0xFF24C16B),
+                            unfocusedIndicatorColor = Color(0xFFE0E0E0)
+                        )
                     )
-                )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    placeholder = { Text("Phone Number", color = Color.Gray) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(14.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
-                        focusedIndicatorColor = Color(0xFF24C16B),
-                        unfocusedIndicatorColor = Color(0xFFE0E0E0)
+                    OutlinedTextField(
+                        value = phone,
+                        onValueChange = { phone = it },
+                        placeholder = { Text("Phone Number", color = Color.Gray) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(14.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedIndicatorColor = Color(0xFF24C16B),
+                            unfocusedIndicatorColor = Color(0xFFE0E0E0)
+                        )
                     )
-                )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                Button(
-                    onClick = { },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(50.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF23B14D)
-                    )
-                ) {
-                    Text(
-                        text = "Save Changes",
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
+                    Button(
+                        onClick = {
+                            if (!loading) {
+                                val uid = user?.uid ?: return@Button
+                                vm.updateUser(uid, fullName, phone)
+                            }
+                        },
+                        enabled = !loading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(50.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF23B14D)
+                        )
+                    ) {
+                        if (loading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        } else {
+                            Text(
+                                text = "Save Changes",
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }

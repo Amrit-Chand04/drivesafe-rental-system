@@ -234,6 +234,14 @@ class UserRepoImpl : UserRepo {
         })
     }
 
+    override fun updateUser(user: UserModel, callback: (Boolean, String) -> Unit) {
+        val updates = mapOf<String, Any>("fullName" to user.fullName, "phone" to user.phone)
+
+        ref.child(user.uid).updateChildren(updates)
+            .addOnSuccessListener { callback(true, "Profile updated successfully") }
+            .addOnFailureListener { callback(false, it.message ?: "Update failed") }
+    }
+
     override fun rollbackCurrentUserRegistration() {
         auth.currentUser?.delete()
         auth.signOut()

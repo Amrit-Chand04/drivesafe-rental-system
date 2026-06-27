@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
-import com.example.drivesafe.viewmodel.AuthViewModel
+import com.example.drivesafe.viewmodel.UserViewModel
 
 class ForgetPassword : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +66,7 @@ fun ForgetPasswordBody() {
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
 
-    val forgetPasswordViewModel: AuthViewModel = viewModel()
+    val forgetPasswordViewModel: UserViewModel = viewModel()
     val message by forgetPasswordViewModel.message.collectAsState()
 
     Column (
@@ -213,12 +213,12 @@ fun ForgetPasswordBody() {
 
                 Spacer(modifier = Modifier.height(17.dp))
 
-                if (message.isNotEmpty()) {
+                if (!message.isNullOrEmpty()) {
 
                     Text(
-                        text = message,
+                        text = message ?: "",
                         color = if (
-                            message.contains("successfully", true)
+                            message?.contains("successfully", true) == true
                         ) Color(0xFF16D64D)
                         else Color.Red,
                         fontSize = 15.sp

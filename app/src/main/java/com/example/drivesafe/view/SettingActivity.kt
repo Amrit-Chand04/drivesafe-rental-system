@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.ui.theme.AppThemeState
 import com.example.drivesafe.ui.theme.DriveSafeTheme
-import com.example.drivesafe.viewmodel.AuthViewModel
+import com.example.drivesafe.viewmodel.UserViewModel
 
 class SettingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +49,7 @@ class SettingActivity : ComponentActivity() {
 fun SettingsScreen() {
 
     val context = LocalContext.current
-    val vm: AuthViewModel = viewModel()
+    val vm: UserViewModel = viewModel()
     val user by vm.user.collectAsState()
 
     var showAppearance by remember { mutableStateOf(false) }

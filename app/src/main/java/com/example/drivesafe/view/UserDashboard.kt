@@ -58,7 +58,7 @@ import android.content.Context
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.drivesafe.viewmodel.AuthViewModel
+import com.example.drivesafe.viewmodel.UserViewModel
 
 class UserDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,7 +80,7 @@ fun User() {
 
     var currentScreen1 by remember { mutableStateOf("home") }
 
-    val vm: AuthViewModel = viewModel()
+    val vm: UserViewModel = viewModel()
     val user by vm.user.collectAsState()
 
     LaunchedEffect(Unit) {

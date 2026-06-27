@@ -42,6 +42,8 @@ interface UserRepo {
 
     fun getCurrentUser(callback: (Boolean, UserModel?) -> Unit)
 
+    fun updateUser(user: UserModel, callback: (Boolean, String) -> Unit)
+
 
     fun deleteUser(
         uid: String,

@@ -1,6 +1,5 @@
 package com.example.drivesafe.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.drivesafe.model.UserModel
 import com.example.drivesafe.model.UserWithKyc
@@ -11,18 +10,71 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class UserViewModel(private val repo: UserRepo = UserRepoImpl()) : ViewModel() {
-    private val _message = MutableStateFlow<String?>(null)
 
+    private val _message = MutableStateFlow<String?>(null)
     val message: StateFlow<String?> = _message.asStateFlow()
 
-    private val _allUsers = MutableStateFlow<List<UserWithKyc>>(emptyList())
-    val allUsers: StateFlow<List<UserWithKyc>> = _allUsers.asStateFlow()
+    private val _user = MutableStateFlow<UserModel?>(null)
+    val user: StateFlow<UserModel?> = _user.asStateFlow()
 
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
+    private val _isLoggedOut = MutableStateFlow(false)
+    val isLoggedOut = _isLoggedOut.asStateFlow()
+
+    private val _allUsers = MutableStateFlow<List<UserWithKyc>>(emptyList())
+    val allUsers: StateFlow<List<UserWithKyc>> = _allUsers.asStateFlow()
+
     fun clearMessage() {
         _message.value = null
+    }
+
+    fun login(email: String, password: String) {
+        if (email.isBlank() || password.isBlank()) {
+            _message.value = "Please fill all fields"
+            return
+        }
+        _loading.value = true
+        repo.login(email.trim(), password) { success, msg, userData ->
+            _loading.value = false
+            _message.value = msg
+            if (success && userData != null) {
+                _user.value = userData
+            }
+        }
+    }
+
+    fun sendPasswordResetEmail(email: String) {
+        if (email.isBlank()) {
+            _message.value = "Please enter email"
+            return
+        }
+        _loading.value = true
+        repo.sendPasswordResetEmail(email.trim()) { _, msg ->
+            _loading.value = false
+            _message.value = msg
+        }
+    }
+
+    fun logOut() {
+        _loading.value = true
+        repo.logOut { success, msg ->
+            _loading.value = false
+            _message.value = msg
+            if (success) {
+                _user.value = null
+                _isLoggedOut.value = true
+            }
+        }
+    }
+
+    fun loadCurrentUser() {
+        repo.getCurrentUser { success, userData ->
+            if (success && userData != null) {
+                _user.value = userData
+            }
+        }
     }
 
     fun registerUser(
@@ -80,16 +132,11 @@ class UserViewModel(private val repo: UserRepo = UserRepoImpl()) : ViewModel() {
         repo.addUser(id, model, callback)
     }
 
-    // change password
-
     fun changePassword(
         oldPassword: String,
         newPassword: String,
         confirmPassword: String
     ) {
-
-        // ui validation
-
         if (oldPassword.isBlank() || newPassword.isBlank() || confirmPassword.isBlank()) {
             _message.value = "All fields are required"
             return
@@ -111,21 +158,29 @@ class UserViewModel(private val repo: UserRepo = UserRepoImpl()) : ViewModel() {
         }
 
         _loading.value = true
-
         repo.changePassword(oldPassword, newPassword) { success, msg ->
-
             _loading.value = false
             _message.value = msg
         }
     }
-    fun getAllUsers() {
+
+    fun updateUser(uid: String, fullName: String, phone: String) {
+        if (fullName.isBlank() || phone.isBlank()) {
+            _message.value = "All fields are required"
+            return
+        }
 
         _loading.value = true
-
-        repo.getAllUserWithKyc { success, message, list ->
-
+        repo.updateUser(UserModel(uid = uid, fullName = fullName, phone = phone)) { success, msg ->
             _loading.value = false
+            _message.value = msg
+        }
+    }
 
+    fun getAllUsers() {
+        _loading.value = true
+        repo.getAllUserWithKyc { success, message, list ->
+            _loading.value = false
             if (success) {
                 _allUsers.value = list
             } else {
@@ -134,14 +189,12 @@ class UserViewModel(private val repo: UserRepo = UserRepoImpl()) : ViewModel() {
         }
     }
 
-
     fun deleteUser(
         uid: String,
         callback: (Boolean, String) -> Unit
     ) {
         repo.deleteUser(uid) { success, message ->
             callback(success, message)
-
             if (success) {
                 getAllUsers()
             }

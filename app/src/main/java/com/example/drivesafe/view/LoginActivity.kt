@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
-import com.example.drivesafe.viewmodel.AuthViewModel
+import com.example.drivesafe.viewmodel.UserViewModel
 import com.google.firebase.FirebaseApp
 
 class LoginActivity : ComponentActivity() {
@@ -50,7 +50,7 @@ class LoginActivity : ComponentActivity() {
 fun LoginScreen() {
 
     val context = LocalContext.current
-    val vm: AuthViewModel = viewModel()
+    val vm: UserViewModel = viewModel()
     val message by vm.message.collectAsState()
     val isLoading by vm.loading.collectAsState()
     val user by vm.user.collectAsState()
@@ -60,7 +60,7 @@ fun LoginScreen() {
     var passwordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(message) {
-        if (message.isNotBlank()) {
+        if (!message.isNullOrBlank()) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             vm.clearMessage()
         }
