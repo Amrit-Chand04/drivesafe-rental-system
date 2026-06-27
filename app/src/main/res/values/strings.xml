@@ -33,4 +33,5 @@
     <string name="title_activity_booking_vehicle">BookingVehicleActivity</string>
     <string name="title_activity_user_admin_chat">UserAdminChatActivity</string>
     <string name="title_activity_admin_user_chat">AdminUserChatActivity</string>
+    <string name="title_activity_profile_update">ProfileUpdate</string>
 </resources>

@@ -40,6 +40,8 @@ interface UserRepo {
 
     fun rollbackCurrentUserRegistration()
 
+    fun getCurrentUser(callback: (Boolean, UserModel?) -> Unit)
+
 
     fun deleteUser(
         uid: String,

@@ -239,6 +239,23 @@ class UserRepoImpl : UserRepo {
         auth.signOut()
     }
 
+    override fun getCurrentUser(callback: (Boolean, UserModel?) -> Unit) {
+        val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) {
+            callback(false, null)
+            return
+        }
+        ref.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue(UserModel::class.java)
+                callback(user != null, user)
+            }
+            override fun onCancelled(error: DatabaseError) {
+                callback(false, null)
+            }
+        })
+    }
+
     override fun deleteUser(
         uid: String,
         callback: (Boolean, String) -> Unit

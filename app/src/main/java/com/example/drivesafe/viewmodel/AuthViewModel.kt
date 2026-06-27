@@ -75,4 +75,12 @@ class AuthViewModel(
             }
         }
     }
+
+    fun loadCurrentUser() {
+        repo.getCurrentUser { success, userData ->
+            if (success && userData != null) {
+                _user.value = userData
+            }
+        }
+    }
 }

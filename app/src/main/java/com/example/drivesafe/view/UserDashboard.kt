@@ -55,6 +55,10 @@ import androidx.compose.ui.unit.sp
 import com.example.drivesafe.R
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 import android.content.Context
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.drivesafe.viewmodel.AuthViewModel
 
 class UserDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +79,13 @@ fun User() {
     var selectedIndex by remember { mutableStateOf(0) }
 
     var currentScreen1 by remember { mutableStateOf("home") }
+
+    val vm: AuthViewModel = viewModel()
+    val user by vm.user.collectAsState()
+
+    LaunchedEffect(Unit) {
+        vm.loadCurrentUser()
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -157,11 +168,7 @@ fun User() {
                 }
                 1 -> InboxScreen()
                 2 -> BookingScreen()
-                3 -> SettingsScreen(
-                    userName = "User",
-                    userEmail = "user@gmail.com",
-                    role = "user"
-                )
+                3 -> SettingsScreen()
             }
         }
     }
