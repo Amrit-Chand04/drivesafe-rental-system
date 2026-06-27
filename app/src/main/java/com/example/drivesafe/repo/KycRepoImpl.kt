@@ -10,7 +10,11 @@ import android.util.Log
 import com.cloudinary.Cloudinary
 import com.cloudinary.utils.ObjectUtils
 import com.example.drivesafe.model.KycFirebaseModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.util.concurrent.Executors
 
 class KycRepoImpl(
@@ -105,21 +109,11 @@ class KycRepoImpl(
                     return@execute
                 }
 
-                val kycId = database
-                    .child("kyc")
-                    .push()
-                    .key
-
-                if (kycId == null) {
-                    postResult(
-                        callback,
-                        false,
-                        "Failed to generate KYC ID"
-                    )
+                val uid = FirebaseAuth.getInstance().currentUser?.uid
+                if (uid == null) {
+                    postResult(callback, false, "User not logged in")
                     return@execute
                 }
-
-                // Save KYC data to Firebase
 
                 val kycData = KycFirebaseModel(
                     name = name,
@@ -130,7 +124,7 @@ class KycRepoImpl(
 
                 database
                     .child("kyc")
-                    .child(kycId)
+                    .child(uid)
                     .setValue(kycData)
                     .addOnSuccessListener {
 
@@ -176,6 +170,29 @@ class KycRepoImpl(
         Handler(Looper.getMainLooper()).post {
             callback(success, message)
         }
+    }
+
+    override fun getMyKycStatus(callback: (Boolean) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return callback(false)
+        database.child("kyc").child(uid)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val kyc = snapshot.getValue(KycFirebaseModel::class.java)
+                    callback(kyc?.status == "approved")
+                }
+                override fun onCancelled(error: DatabaseError) { callback(false) }
+            })
+    }
+
+    override fun getMyKycRecord(callback: (KycFirebaseModel?) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return callback(null)
+        database.child("kyc").child(uid)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    callback(snapshot.getValue(KycFirebaseModel::class.java))
+                }
+                override fun onCancelled(error: DatabaseError) { callback(null) }
+            })
     }
 
     override fun getFileNameFromUri(

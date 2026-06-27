@@ -25,7 +25,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -81,6 +83,12 @@ fun KycScreen() {
     val vm: KycViewModel = viewModel()
     val toastMessage = vm.toast.collectAsState().value
     val isLoading = vm.isLoading.collectAsState().value
+    val isLoadingRecord by vm.isLoadingRecord.collectAsState()
+    val myKycRecord by vm.myKycRecord.collectAsState()
+
+    LaunchedEffect(Unit) {
+        vm.loadMyKycRecord()
+    }
 
     LaunchedEffect(toastMessage) {
         toastMessage?.let {
@@ -91,8 +99,6 @@ fun KycScreen() {
 
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
-
-
     var doc by remember { mutableStateOf<Uri?>(null) }
     var photo by remember { mutableStateOf<Uri?>(null) }
 
@@ -133,156 +139,253 @@ fun KycScreen() {
         containerColor = Color(0xFFEAF8EE)
     ) { paddingValues ->
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp)
-        ) {
-            item {
-                Column {
+        when {
+            isLoadingRecord -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFF23B14D))
+                }
+            }
 
-                    Spacer(modifier = Modifier.height(18.dp))
+            myKycRecord != null -> {
+                KycStatusView(
+                    record = myKycRecord!!,
+                    paddingValues = paddingValues
+                )
+            }
 
-                    Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFDFF5E3))
-                            .align(Alignment.CenterHorizontally),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            tint = Color(0xFF23B14D),
-                            modifier = Modifier.size(40.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Text(
-                        text = "Verify Your Identity",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White
-                        )
-                    ) {
-
-                        Column(
-                            modifier = Modifier.padding(18.dp)
-                        ) {
-
-                            KycField(
-                                value = name,
-                                onValueChange = { name = it },
-                                label = "Full Name",
-                                icon = { Icon(Icons.Default.Person, null) }
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            KycField(
-                                value = phone,
-                                onValueChange = { phone = it },
-                                label = "Phone Number",
-                                icon = { Icon(Icons.Default.Call, null) }
-                            )
-
-
-                            Spacer(modifier = Modifier.height(22.dp))
-
-                            Text(
-                                "Driving Licence",
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            UploadBox(
-                                title = "Upload Driving Licence",
-                                selected = doc != null
-                            ) {
-                                docLauncher.launch("*/*")
-                            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp)
+                ) {
+                    item {
+                        Column {
 
                             Spacer(modifier = Modifier.height(18.dp))
 
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFFDFF5E3))
+                                    .align(Alignment.CenterHorizontally),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Person,
+                                    contentDescription = null,
+                                    tint = Color(0xFF23B14D),
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(14.dp))
+
                             Text(
-                                "Your Photo",
-                                fontWeight = FontWeight.Bold
+                                text = "Verify Your Identity",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
                             )
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(20.dp))
 
-                            UploadBox(
-                                title = "Upload Your Photo",
-                                selected = photo != null
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(24.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
-                                photoLauncher.launch("image/*")
-                            }
-                        }
-                    }
+                                Column(modifier = Modifier.padding(18.dp)) {
 
-                    Spacer(modifier = Modifier.height(22.dp))
+                                    KycField(
+                                        value = name,
+                                        onValueChange = { name = it },
+                                        label = "Full Name",
+                                        icon = { Icon(Icons.Default.Person, null) }
+                                    )
 
-                    ElevatedButton(
-                        enabled = !isLoading,
-                        onClick = {
-                            vm.submitKyc(
-                                KycModel(
-                                    name = name,
-                                    phone = phone,
-                                    doc = doc,
-                                    photo = photo
-                                )
-                            ) { success, message ->
-                                if (success) {
-                                    name = ""
-                                    phone = ""
-                                    doc = null
-                                    photo = null
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    KycField(
+                                        value = phone,
+                                        onValueChange = { phone = it },
+                                        label = "Phone Number",
+                                        icon = { Icon(Icons.Default.Call, null) }
+                                    )
+
+                                    Spacer(modifier = Modifier.height(22.dp))
+
+                                    Text("Driving Licence", fontWeight = FontWeight.Bold)
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    UploadBox(
+                                        title = "Upload Driving Licence",
+                                        selected = doc != null
+                                    ) { docLauncher.launch("*/*") }
+
+                                    Spacer(modifier = Modifier.height(18.dp))
+
+                                    Text("Your Photo", fontWeight = FontWeight.Bold)
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    UploadBox(
+                                        title = "Upload Your Photo",
+                                        selected = photo != null
+                                    ) { photoLauncher.launch("image/*") }
                                 }
                             }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(58.dp),
-                        shape = RoundedCornerShape(40.dp),
-                        colors = ButtonDefaults.elevatedButtonColors(
-                            containerColor = Color(0xFF23B14D),
-                            contentColor = Color.White
-                        ),
-                        elevation = ButtonDefaults.elevatedButtonElevation(
-                            defaultElevation = 8.dp
-                        )
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = "Submit KYC",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+
+                            Spacer(modifier = Modifier.height(22.dp))
+
+                            ElevatedButton(
+                                enabled = !isLoading,
+                                onClick = {
+                                    vm.submitKyc(
+                                        KycModel(name = name, phone = phone, doc = doc, photo = photo)
+                                    ) { success, _ ->
+                                        if (success) {
+                                            name = ""; phone = ""; doc = null; photo = null
+                                            vm.loadMyKycRecord()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth().height(58.dp),
+                                shape = RoundedCornerShape(40.dp),
+                                colors = ButtonDefaults.elevatedButtonColors(
+                                    containerColor = Color(0xFF23B14D),
+                                    contentColor = Color.White
+                                ),
+                                elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 8.dp)
+                            ) {
+                                if (isLoading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    Text(text = "Submit KYC", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
+                }
+            }
+        }
+    }
+}
 
-                    Spacer(modifier = Modifier.height(16.dp))
+@Composable
+fun KycStatusView(
+    record: com.example.drivesafe.model.KycFirebaseModel,
+    paddingValues: androidx.compose.foundation.layout.PaddingValues
+) {
+    val statusColor: Color
+    val statusIcon: androidx.compose.ui.graphics.vector.ImageVector
+    val statusLabel: String
+    val statusMessage: String
+
+    when (record.status) {
+        "approved" -> {
+            statusColor = Color(0xFF23B14D)
+            statusIcon = Icons.Default.CheckCircle
+            statusLabel = "Approved"
+            statusMessage = "Your KYC has been verified successfully. You can now book vehicles."
+        }
+        "rejected" -> {
+            statusColor = Color(0xFFE53935)
+            statusIcon = Icons.Default.Warning
+            statusLabel = "Rejected"
+            statusMessage = "Your KYC was rejected. Please contact support for more details."
+        }
+        else -> {
+            statusColor = Color(0xFFFFA000)
+            statusIcon = Icons.Default.Warning
+            statusLabel = "Pending Review"
+            statusMessage = "Your KYC is under review. We will notify you once it's verified."
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .padding(horizontal = 24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier.padding(28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(statusColor.copy(alpha = 0.12f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = statusIcon,
+                        contentDescription = null,
+                        tint = statusColor,
+                        modifier = Modifier.size(44.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "KYC Status",
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = statusLabel,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = statusColor
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = statusMessage,
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+                ) {
+                    Column(modifier = Modifier.padding(14.dp)) {
+                        Text("Name: ${record.name}", fontSize = 14.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Phone: ${record.phone}", fontSize = 14.sp)
+                    }
                 }
             }
         }

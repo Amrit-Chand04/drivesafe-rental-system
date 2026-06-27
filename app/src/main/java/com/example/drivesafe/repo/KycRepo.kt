@@ -2,6 +2,7 @@ package com.example.drivesafe.repo
 
 import android.content.Context
 import android.net.Uri
+import com.example.drivesafe.model.KycFirebaseModel
 interface KycRepo {
 
     fun submitKyc1(
@@ -11,6 +12,10 @@ interface KycRepo {
         photo: Uri,
         callback: (Boolean, String) -> Unit
     )
+
+    fun getMyKycStatus(callback: (Boolean) -> Unit)
+
+    fun getMyKycRecord(callback: (KycFirebaseModel?) -> Unit)
 
     fun getFileNameFromUri(
         context: Context,

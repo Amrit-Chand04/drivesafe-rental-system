@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.drivesafe.ui.theme.DriveSafeTheme
+import com.example.drivesafe.viewmodel.KycViewModel
 import com.example.drivesafe.viewmodel.VehicleViewModel
 import com.example.drivesafe.R
 import com.example.drivesafe.model.VehicleFirebaseModel
@@ -58,12 +59,12 @@ fun BikeSearchBody() {
 
     val context = LocalContext.current
     val vehicleViewModel: VehicleViewModel = viewModel()
+    val kycViewModel: KycViewModel = viewModel()
 
     val bikes by vehicleViewModel.vehicles.collectAsState()
 
-    var showFilterDialog by remember {
-        mutableStateOf(false)
-    }
+    var showFilterDialog by remember { mutableStateOf(false) }
+    var showKycDialog by remember { mutableStateOf(false) }
 
     var selectedPriceFilter by remember {
         mutableStateOf("All")
@@ -102,6 +103,44 @@ fun BikeSearchBody() {
 
             else -> bikeList
         }
+    }
+
+    if (showKycDialog) {
+        AlertDialog(
+            onDismissRequest = { showKycDialog = false },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    text = "KYC Required",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = "You need to complete your KYC verification before booking a vehicle.",
+                    fontSize = 15.sp,
+                    color = Color.Gray
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showKycDialog = false
+                        context.startActivity(Intent(context, KycActivity::class.java))
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A859))
+                ) {
+                    Text("Complete KYC", color = Color.White)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showKycDialog = false }) {
+                    Text("Cancel", color = Color(0xFF00A859))
+                }
+            }
+        )
     }
 
     if (showFilterDialog) {
@@ -338,13 +377,15 @@ fun BikeSearchBody() {
                                 BikeCard(
                                     vehicle = bike,
                                     onBook = {
-                                        // Handle booking here
-
-                                        val intent = Intent(context, BikeDetails::class.java)
-
-                                        intent.putExtra( "bikeId", bike.vehicleId)
-
-                                        context.startActivity(intent)
+                                        kycViewModel.checkKycStatus { isVerified ->
+                                            if (isVerified) {
+                                                val intent = Intent(context, BikeDetails::class.java)
+                                                intent.putExtra("bikeId", bike.vehicleId)
+                                                context.startActivity(intent)
+                                            } else {
+                                                showKycDialog = true
+                                            }
+                                        }
                                     }
                                 )
                             }

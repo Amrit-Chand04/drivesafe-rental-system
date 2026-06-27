@@ -2,6 +2,7 @@ package com.example.drivesafe.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.example.drivesafe.model.KycFirebaseModel
 import com.example.drivesafe.model.KycModel
 import com.example.drivesafe.repo.KycRepo
 import com.example.drivesafe.repo.KycRepoImpl
@@ -43,6 +44,31 @@ class KycViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
 
+        }
+    }
+
+    private val _myKycRecord = MutableStateFlow<KycFirebaseModel?>(null)
+    val myKycRecord: StateFlow<KycFirebaseModel?> = _myKycRecord
+
+    private val _isLoadingRecord = MutableStateFlow(true)
+    val isLoadingRecord: StateFlow<Boolean> = _isLoadingRecord
+
+    fun loadMyKycRecord() {
+        _isLoadingRecord.value = true
+        repo.getMyKycRecord { record ->
+            _myKycRecord.value = record
+            _isLoadingRecord.value = false
+        }
+    }
+
+    private val _isCheckingKyc = MutableStateFlow(false)
+    val isCheckingKyc: StateFlow<Boolean> = _isCheckingKyc
+
+    fun checkKycStatus(callback: (Boolean) -> Unit) {
+        _isCheckingKyc.value = true
+        repo.getMyKycStatus { isVerified ->
+            _isCheckingKyc.value = false
+            callback(isVerified)
         }
     }
 
