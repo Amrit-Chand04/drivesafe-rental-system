@@ -310,8 +310,11 @@ fun CarDetailsBody(
 
                         Button(
                             onClick = {
+                                val effectivePrice = if (data.offerPercentage > 0 && data.discountedPrice > 0)
+                                    data.discountedPrice.toString() else data.price
                                 val intent = Intent(context, BookingVehicleActivity::class.java)
                                 intent.putExtra("vehicleId", carId)
+                                intent.putExtra("vehiclePrice", effectivePrice)
                                 context.startActivity(intent)
                             },
                             modifier = Modifier

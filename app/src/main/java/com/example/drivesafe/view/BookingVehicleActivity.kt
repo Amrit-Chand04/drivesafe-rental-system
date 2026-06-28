@@ -39,22 +39,26 @@ class BookingVehicleActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val vehicleId = intent.getStringExtra("vehicleId") ?: ""
+        val vehiclePrice = intent.getStringExtra("vehiclePrice") ?: "0"
         setContent {
-            BookingVehicle(vehicleId = vehicleId)
+            BookingVehicle(vehicleId = vehicleId, vehiclePrice = vehiclePrice)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingVehicle(vehicleId: String = "") {
+fun BookingVehicle(vehicleId: String = "", vehiclePrice: String = "0") {
 
     val context = LocalContext.current
+    val vm: BookingViewModel = viewModel()
+
+    val message by vm.message.collectAsState()
+    val estimatedPrice by vm.estimatedPrice.collectAsState()
 
     var fullName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var rentalPlan by remember { mutableStateOf("Hourly") }
-
     var pickupDate by remember { mutableStateOf("") }
     var pickupTime by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
@@ -64,15 +68,10 @@ fun BookingVehicle(vehicleId: String = "") {
 
     val datePickerState = rememberDatePickerState()
 
-    val bookingViewModel: BookingViewModel = viewModel()
-    val message by bookingViewModel.message.collectAsState()
-
     LaunchedEffect(message) {
         message?.let {
-            if (it.isNotEmpty()) {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                bookingViewModel.clearMessage()
-            }
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            vm.clearMessage()
         }
     }
 
@@ -117,20 +116,14 @@ fun BookingVehicle(vehicleId: String = "") {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "Booking Details",
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text(text = "Booking Details", fontSize = 26.sp, fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     IconButton(onClick = { (context as Activity).finish() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.Black)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFEAF8EE)
-                )
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color(0xFFEAF8EE))
             )
         },
         containerColor = Color(0xFFEAF8EE)
@@ -142,15 +135,12 @@ fun BookingVehicle(vehicleId: String = "") {
                 .padding(padding)
                 .padding(16.dp)
         ) {
-
             item {
-
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
-
                     Column(modifier = Modifier.padding(16.dp)) {
 
                         Text(text = "Personal Details", fontWeight = FontWeight.Bold)
@@ -162,6 +152,7 @@ fun BookingVehicle(vehicleId: String = "") {
                             onValueChange = { fullName = it },
                             label = { Text("Full Name") },
                             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                            singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -188,6 +179,7 @@ fun BookingVehicle(vehicleId: String = "") {
                                     duration = ""
                                     pickupDate = ""
                                     pickupTime = ""
+                                    vm.calculatePrice(vehiclePrice, "Hourly", "")
                                 }
                             )
                             Text("Hourly")
@@ -199,6 +191,7 @@ fun BookingVehicle(vehicleId: String = "") {
                                     duration = ""
                                     pickupDate = ""
                                     pickupTime = ""
+                                    vm.calculatePrice(vehiclePrice, "Daily", "")
                                 }
                             )
                             Text("Daily")
@@ -206,7 +199,6 @@ fun BookingVehicle(vehicleId: String = "") {
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // DATE PICKER
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -220,17 +212,12 @@ fun BookingVehicle(vehicleId: String = "") {
                                     color = if (pickupDate.isEmpty()) Color.Gray else Color.Black,
                                     modifier = Modifier.weight(1f)
                                 )
-                                Icon(
-                                    imageVector = Icons.Default.DateRange,
-                                    contentDescription = null,
-                                    tint = Color(0xFF00A859)
-                                )
+                                Icon(Icons.Default.DateRange, contentDescription = null, tint = Color(0xFF00A859))
                             }
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // TIME PICKER
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -244,11 +231,7 @@ fun BookingVehicle(vehicleId: String = "") {
                                     color = if (pickupTime.isEmpty()) Color.Gray else Color.Black,
                                     modifier = Modifier.weight(1f)
                                 )
-                                Icon(
-                                    imageVector = Icons.Default.Schedule,
-                                    contentDescription = null,
-                                    tint = Color(0xFF00A859)
-                                )
+                                Icon(Icons.Default.Schedule, contentDescription = null, tint = Color(0xFF00A859))
                             }
                         }
 
@@ -256,11 +239,54 @@ fun BookingVehicle(vehicleId: String = "") {
 
                         OutlinedTextField(
                             value = duration,
-                            onValueChange = { duration = it.filter { ch -> ch.isDigit() } },
-                            label = { Text("Duration") },
+                            onValueChange = {
+                                duration = it.filter { ch -> ch.isDigit() }
+                                vm.calculatePrice(vehiclePrice, rentalPlan, duration)
+                            },
+                            label = { Text(if (rentalPlan == "Hourly") "Duration (Hours)" else "Duration (Days)") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth()
                         )
+
+                        if (estimatedPrice != null) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = "Estimated Price",
+                                            fontSize = 13.sp,
+                                            color = Color.Gray
+                                        )
+                                        val ratePerUnit = if (rentalPlan == "Hourly")
+                                            String.format("%.2f", vehiclePrice.toDoubleOrNull()?.div(24) ?: 0.0)
+                                        else vehiclePrice
+                                        val unit = if (rentalPlan == "Hourly") "hr" else "day"
+                                        Text(
+                                            text = "$duration $unit(s)  ×  Rs.$ratePerUnit/$unit",
+                                            fontSize = 12.sp,
+                                            color = Color(0xFF555555)
+                                        )
+                                    }
+                                    Text(
+                                        text = "Rs. ${String.format("%.2f", estimatedPrice)}",
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF2E7D32)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -268,7 +294,7 @@ fun BookingVehicle(vehicleId: String = "") {
 
                 Button(
                     onClick = {
-                        bookingViewModel.validateAndBook(
+                        vm.validateAndBook(
                             fullName = fullName,
                             phoneNumber = phoneNumber,
                             rentalPlan = rentalPlan,
