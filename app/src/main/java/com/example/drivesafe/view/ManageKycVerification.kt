@@ -2,6 +2,7 @@ package com.example.drivesafe.view
 
 import android.app.Activity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -64,12 +65,20 @@ fun ManageKycVerificationScreen() {
 
     val allKycList by kycViewModel.allKycList.collectAsState()
     val isLoading by kycViewModel.isLoadingAll.collectAsState()
+    val toast by kycViewModel.toast.collectAsState()
 
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Pending", "Approved", "Rejected")
 
     LaunchedEffect(Unit) {
         kycViewModel.loadAllKycRecords()
+    }
+
+    LaunchedEffect(toast) {
+        toast?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            kycViewModel.clear()
+        }
     }
 
     val filteredList = remember(selectedFilter, allKycList) {
@@ -223,8 +232,8 @@ fun KycCard(
             confirmButton = {
                 Button(
                     onClick = {
+                        onReject(rejectReason)
                         if (rejectReason.isNotBlank()) {
-                            onReject(rejectReason)
                             showRejectDialog = false
                             rejectReason = ""
                         }

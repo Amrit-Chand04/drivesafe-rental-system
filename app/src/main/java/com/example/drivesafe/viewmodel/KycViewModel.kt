@@ -91,6 +91,10 @@ class KycViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateKycStatus(uid: String, status: String, rejectionReason: String = "") {
+        if (status == "rejected" && rejectionReason.isBlank()) {
+            _toast.value = "Please enter a reason for rejection"
+            return
+        }
         repo.updateKycStatus(uid, status, rejectionReason) { success ->
             if (success) {
                 _allKycList.value = _allKycList.value.map { kyc ->
