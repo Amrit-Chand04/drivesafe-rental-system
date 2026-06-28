@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.drivesafe.ui.theme.DriveSafeTheme
+import com.example.drivesafe.viewmodel.FavoriteViewModel
 import com.example.drivesafe.viewmodel.KycViewModel
 import com.example.drivesafe.viewmodel.VehicleViewModel
 import com.example.drivesafe.R
@@ -62,8 +64,10 @@ fun CarSearchBody() {
     val context = LocalContext.current
     val vehicleViewModel: VehicleViewModel = viewModel()
     val kycViewModel: KycViewModel = viewModel()
+    val favoriteViewModel: FavoriteViewModel = viewModel()
 
     val bikes by vehicleViewModel.vehicles.collectAsState()
+    val favoriteIds by favoriteViewModel.favoriteIds.collectAsState()
 
     var showFilterDialog by remember { mutableStateOf(false) }
     var showKycDialog by remember { mutableStateOf(false) }
@@ -75,9 +79,8 @@ fun CarSearchBody() {
     val isLoading = vehicleViewModel.isLoading.collectAsState().value
 
     LaunchedEffect(Unit) {
-        vehicleViewModel.getVehicles { success, message, list ->
-
-        }
+        vehicleViewModel.getVehicles { _, _, _ -> }
+        favoriteViewModel.loadFavorites()
     }
 
     val filteredCars = remember(selectedPriceFilter, bikes) {
@@ -378,6 +381,8 @@ fun CarSearchBody() {
                             items(filteredCars) { car ->
                                 CarCard(
                                     vehicle = car,
+                                    isFavorite = favoriteIds.contains(car.vehicleId),
+                                    onFavoriteClick = { favoriteViewModel.toggleFavorite(car.vehicleId) },
                                     onBook = {
                                         kycViewModel.checkKycStatus { isVerified ->
                                             if (isVerified) {
@@ -402,6 +407,8 @@ fun CarSearchBody() {
 @Composable
 fun CarCard(
     vehicle: VehicleFirebaseModel,
+    isFavorite: Boolean = false,
+    onFavoriteClick: () -> Unit = {},
     onBook: () -> Unit
 ) {
     //debugging
@@ -499,15 +506,15 @@ fun CarCard(
             }
 
             IconButton(
-                onClick = { },
+                onClick = onFavoriteClick,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.FavoriteBorder,
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                     contentDescription = "Favorite",
-                    tint = Color.Black
+                    tint = if (isFavorite) Color(0xFF00A859) else Color.Black
                 )
             }
         }

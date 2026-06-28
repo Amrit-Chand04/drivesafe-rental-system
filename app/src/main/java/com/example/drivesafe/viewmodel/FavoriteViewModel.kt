@@ -1,4 +1,35 @@
 package com.example.drivesafe.viewmodel
 
-class FavoriteViewModel {
+import androidx.lifecycle.ViewModel
+import com.example.drivesafe.repo.FavoriteRepo
+import com.example.drivesafe.repo.FavoriteRepoImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+class FavoriteViewModel(private val repo: FavoriteRepo = FavoriteRepoImpl()) : ViewModel() {
+
+    private val _favoriteIds = MutableStateFlow<Set<String>>(emptySet())
+    val favoriteIds: StateFlow<Set<String>> = _favoriteIds.asStateFlow()
+
+    fun loadFavorites(callback: (Boolean, String) -> Unit = { _, _ -> }) {
+        repo.getFavorites { success, message, ids ->
+            if (success) {
+                _favoriteIds.value = ids
+            }
+            callback(success, message)
+        }
+    }
+
+    fun toggleFavorite(vehicleId: String) {
+        val current = _favoriteIds.value.toMutableSet()
+        if (current.contains(vehicleId)) {
+            current.remove(vehicleId)
+            repo.removeFavorite(vehicleId) { _, _ -> }
+        } else {
+            current.add(vehicleId)
+            repo.addFavorite(vehicleId) { _, _ -> }
+        }
+        _favoriteIds.value = current
+    }
 }
