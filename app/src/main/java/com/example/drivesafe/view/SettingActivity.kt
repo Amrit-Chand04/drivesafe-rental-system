@@ -222,7 +222,12 @@ fun SettingsScreen() {
             }
 
             if (user?.role == "user") {
-                item { SettingsItem(title = "Favourite", onClick = {}) }
+                item {
+                    SettingsItem(
+                        title = "Favourite",
+                        onClick = { context.startActivity(Intent(context, FavoritesActivity::class.java)) }
+                    )
+                }
                 item {
                     SettingsItem(
                         title = "Complete KYC",
