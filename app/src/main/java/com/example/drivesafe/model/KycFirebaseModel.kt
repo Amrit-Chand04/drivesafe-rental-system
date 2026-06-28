@@ -1,6 +1,7 @@
 package com.example.drivesafe.model
 
 data class KycFirebaseModel(
+    val uid: String = "",
     val name: String = "",
     val phone: String = "",
     val doc: String = "",

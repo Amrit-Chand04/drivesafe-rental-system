@@ -38,7 +38,38 @@ class KycRepoImpl(
         photo: Uri,
         callback: (Boolean, String) -> Unit
     ) {
+        val currentUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (currentUid == null) {
+            postResult(callback, false, "User not logged in")
+            return
+        }
 
+        database.child("kyc")
+            .orderByChild("phone")
+            .equalTo(phone)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val existingUid = snapshot.children.firstOrNull()?.key
+                    if (snapshot.exists() && existingUid != currentUid) {
+                        postResult(callback, false, "This phone number is already registered for KYC")
+                        return
+                    }
+                    uploadAndSave(currentUid, name, phone, doc, photo, callback)
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    postResult(callback, false, "Phone verification failed")
+                }
+            })
+    }
+
+    private fun uploadAndSave(
+        uid: String,
+        name: String,
+        phone: String,
+        doc: Uri,
+        photo: Uri,
+        callback: (Boolean, String) -> Unit
+    ) {
         Executors.newSingleThreadExecutor().execute {
 
             try {
@@ -109,13 +140,8 @@ class KycRepoImpl(
                     return@execute
                 }
 
-                val uid = FirebaseAuth.getInstance().currentUser?.uid
-                if (uid == null) {
-                    postResult(callback, false, "User not logged in")
-                    return@execute
-                }
-
                 val kycData = KycFirebaseModel(
+                    uid = uid,
                     name = name,
                     phone = phone,
                     doc = docUrl,
@@ -189,10 +215,30 @@ class KycRepoImpl(
         database.child("kyc").child(uid)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    callback(snapshot.getValue(KycFirebaseModel::class.java))
+                    callback(snapshot.getValue(KycFirebaseModel::class.java)?.copy(uid = uid))
                 }
                 override fun onCancelled(error: DatabaseError) { callback(null) }
             })
+    }
+
+    override fun getAllKycRecords(callback: (List<KycFirebaseModel>) -> Unit) {
+        database.child("kyc")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val list = snapshot.children.mapNotNull { child ->
+                        val uid = child.key ?: return@mapNotNull null
+                        child.getValue(KycFirebaseModel::class.java)?.copy(uid = uid)
+                    }
+                    callback(list)
+                }
+                override fun onCancelled(error: DatabaseError) { callback(emptyList()) }
+            })
+    }
+
+    override fun updateKycStatus(uid: String, status: String, callback: (Boolean) -> Unit) {
+        database.child("kyc").child(uid).child("status").setValue(status)
+            .addOnSuccessListener { callback(true) }
+            .addOnFailureListener { callback(false) }
     }
 
     override fun getFileNameFromUri(

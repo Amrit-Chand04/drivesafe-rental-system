@@ -36,7 +36,7 @@ class KycViewModel(application: Application) : AndroidViewModel(application) {
                     model.doc,
                     model.photo
                 ){
-                    success,message ->
+                        success,message ->
 
                     _isLoading.value = false
                     _toast.value =message
@@ -74,5 +74,29 @@ class KycViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clear() {
         _toast.value = null
+    }
+
+    private val _allKycList = MutableStateFlow<List<KycFirebaseModel>>(emptyList())
+    val allKycList: StateFlow<List<KycFirebaseModel>> = _allKycList
+
+    private val _isLoadingAll = MutableStateFlow(false)
+    val isLoadingAll: StateFlow<Boolean> = _isLoadingAll
+
+    fun loadAllKycRecords() {
+        _isLoadingAll.value = true
+        repo.getAllKycRecords { list ->
+            _allKycList.value = list
+            _isLoadingAll.value = false
+        }
+    }
+
+    fun updateKycStatus(uid: String, status: String) {
+        repo.updateKycStatus(uid, status) { success ->
+            if (success) {
+                _allKycList.value = _allKycList.value.map { kyc ->
+                    if (kyc.uid == uid) kyc.copy(status = status) else kyc
+                }
+            }
+        }
     }
 }
