@@ -182,6 +182,7 @@ fun UserBody(
     onBikeClick: () -> Unit
 ) {
 
+    val context = LocalContext.current
     var text by remember { mutableStateOf("") }
 
     Column(
@@ -220,8 +221,7 @@ fun UserBody(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                IconButton(onClick = {
-                }) {
+                IconButton(onClick = {context.startActivity(Intent(context, ProfileUpdate::class.java))}) {
                     Icon(
                         Icons.Default.Person,
                         contentDescription = "Profile",

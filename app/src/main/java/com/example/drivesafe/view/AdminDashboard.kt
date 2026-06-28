@@ -229,8 +229,7 @@ fun AdminBody(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                IconButton(onClick = {
-                }) {
+                IconButton(onClick = {context.startActivity(Intent(context, ProfileUpdate::class.java))}) {
                     Icon(
                         Icons.Default.Person,
                         contentDescription = "Profile",
@@ -276,6 +275,9 @@ fun AdminBody(
 
                                 "Manage\nUsers" -> {
                                     println("Users clicked")
+
+                                    val intent = Intent(context, UserManage::class.java)
+                                    context.startActivity(intent)
                                 }
 
                                 "Vehicles" -> {
