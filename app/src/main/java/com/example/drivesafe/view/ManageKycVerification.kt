@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,8 +16,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Badge
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.drivesafe.model.KycFirebaseModel
@@ -176,7 +183,7 @@ fun ManageKycVerificationScreen() {
                             KycCard(
                                 kyc = kyc,
                                 onApprove = { kycViewModel.updateKycStatus(kyc.uid, "approved") },
-                                onReject = { kycViewModel.updateKycStatus(kyc.uid, "rejected") }
+                                onReject = { reason -> kycViewModel.updateKycStatus(kyc.uid, "rejected", reason) }
                             )
                         }
                     }
@@ -190,8 +197,51 @@ fun ManageKycVerificationScreen() {
 fun KycCard(
     kyc: KycFirebaseModel,
     onApprove: () -> Unit,
-    onReject: () -> Unit
+    onReject: (String) -> Unit
 ) {
+    var fullImageUrl by remember { mutableStateOf<String?>(null) }
+    var showRejectDialog by remember { mutableStateOf(false) }
+    var rejectReason by remember { mutableStateOf("") }
+
+    fullImageUrl?.let { url ->
+        FullImageDialog(url = url, onDismiss = { fullImageUrl = null })
+    }
+
+    if (showRejectDialog) {
+        AlertDialog(
+            onDismissRequest = { showRejectDialog = false },
+            title = { Text("Reason for Rejection", fontWeight = FontWeight.Bold) },
+            text = {
+                OutlinedTextField(
+                    value = rejectReason,
+                    onValueChange = { rejectReason = it },
+                    placeholder = { Text("Enter reason...") },
+                    minLines = 3,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (rejectReason.isNotBlank()) {
+                            onReject(rejectReason)
+                            showRejectDialog = false
+                            rejectReason = ""
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935))
+                ) {
+                    Text("Reject")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRejectDialog = false; rejectReason = "" }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Card(
         shape = RoundedCornerShape(18.dp),
         modifier = Modifier
@@ -272,15 +322,41 @@ fun KycCard(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 KycImageTile(
-                    label = "Selfie / Photo",
-                    url = kyc.photo,
-                    modifier = Modifier.weight(1f)
+                    label = "Driving Licence",
+                    url = kyc.doc,
+                    icon = Icons.Default.Badge,
+                    modifier = Modifier.weight(1f),
+                    onClick = { fullImageUrl = kyc.doc }
                 )
                 KycImageTile(
-                    label = "ID Document",
-                    url = kyc.doc,
-                    modifier = Modifier.weight(1f)
+                    label = "Profile Photo",
+                    url = kyc.photo,
+                    icon = Icons.Default.Image,
+                    modifier = Modifier.weight(1f),
+                    onClick = { fullImageUrl = kyc.photo }
                 )
+            }
+
+            if (kyc.status.equals("rejected", ignoreCase = true) && kyc.rejectionReason.isNotBlank()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFFFEBEE), shape = RoundedCornerShape(8.dp))
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = "Reason: ",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFE53935)
+                    )
+                    Text(
+                        text = kyc.rejectionReason,
+                        fontSize = 13.sp,
+                        color = Color(0xFFB71C1C)
+                    )
+                }
             }
 
             if (kyc.status.equals("pending", ignoreCase = true)) {
@@ -291,7 +367,7 @@ fun KycCard(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     OutlinedButton(
-                        onClick = {},
+                        onClick = { showRejectDialog = true },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(10.dp),
                         border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFE53935)),
@@ -308,7 +384,7 @@ fun KycCard(
                     }
 
                     Button(
-                        onClick = {},
+                        onClick = onApprove,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -329,25 +405,71 @@ fun KycCard(
 }
 
 @Composable
-fun KycImageTile(label: String, url: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        AsyncImage(
-            model = url,
-            contentDescription = label,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(110.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color(0xFFF0F0F0))
+fun KycImageTile(
+    label: String,
+    url: String,
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(0xFFF2F2F2))
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color(0xFF2E7D32),
+            modifier = Modifier.size(20.dp)
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = label,
-            fontSize = 11.sp,
-            color = Color(0xFF888888),
-            fontWeight = FontWeight.Medium
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color(0xFF1A1A1A)
         )
+    }
+}
+
+@Composable
+fun FullImageDialog(url: String, onDismiss: () -> Unit) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            AsyncImage(
+                model = url,
+                contentDescription = "Full Image",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
+            )
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+                    .background(Color(0x88000000), shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = Color.White
+                )
+            }
+        }
     }
 }
 
