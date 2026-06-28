@@ -28,6 +28,7 @@ class OfferViewModel(
         val end = sdf.parse(model.endDate)
 
         when {
+            _offers.value.isNotEmpty() -> _toast.value = "An offer is already active. Delete it before creating a new one."
             model.title.isBlank() -> _toast.value = "Enter title"
             model.description.isBlank() -> _toast.value = "Enter description"
             model.discount <= 0 -> _toast.value = "Enter valid discount"
