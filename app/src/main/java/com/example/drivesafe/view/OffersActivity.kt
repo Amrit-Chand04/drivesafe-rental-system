@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -15,15 +16,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -37,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.model.OfferModel
+import com.example.drivesafe.ui.theme.DriveSafeTheme
 import com.example.drivesafe.viewmodel.OfferViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -47,7 +44,9 @@ class OffersActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            OffersScreen()
+            DriveSafeTheme {
+                OffersScreen()
+            }
         }
     }
 }
@@ -55,164 +54,146 @@ class OffersActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OffersScreen() {
-    var showDialog by remember { mutableStateOf(false) }
 
-    var selectedOffer by remember { mutableStateOf<OfferModel?>(null) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
     val vm: OfferViewModel = viewModel()
 
-    val offersList = vm.offers.collectAsState().value
+    val offersList by vm.offers.collectAsState()
+
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedOffer by remember { mutableStateOf<OfferModel?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         vm.loadOffers()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .padding(horizontal = 16.dp)
-    ) {
-
-        Text(
-            text = "Create Offer",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
-        )
-
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.4.dp,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(35.dp))
-
-        Text(
-            text = "Offer Management",
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text(
-            text = "Create and manage promotional offers\nto boost your bookings.",
-            color = Color.Gray,
-            fontSize = 18.sp
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-                ElevatedButton(
+    if (showDeleteDialog && selectedOffer != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(20.dp),
+            title = { Text("Delete Offer", fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to delete this offer?", color = Color.Gray) },
+            confirmButton = {
+                Button(
                     onClick = {
-                        showDialog = true
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(0.45f)
-                        .height(50.dp)
-                        .wrapContentWidth(Alignment.End),
-                    shape = RoundedCornerShape(10.dp),
-                    elevation = ButtonDefaults.elevatedButtonElevation(
-                        defaultElevation = 8.dp
-                    ),
-                    colors = ButtonDefaults.elevatedButtonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    contentPadding = PaddingValues()
-                ) {
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(
-                                        Color(0xFF00C853),
-                                        Color(0xFF1E88E5)
-                                    )
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp)
-                            )
-
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = "Create Offer",
-                                color = Color.White,
-                                fontSize = 20.sp
-                            )
+                        vm.deleteOffer(selectedOffer!!.id) { success, _ ->
+                            showDeleteDialog = false
+                            if (success) vm.loadOffers()
                         }
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Delete", color = Color.White)
                 }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel", color = Color(0xFF00A859))
+                }
+            }
+        )
+    }
 
-                CreateOfferDialog(
-                    showDialog = showDialog,
-                    vm = vm,
-                    onDismiss = {
-                        showDialog = false
-                    }
+    CreateOfferDialog(
+        showDialog = showDialog,
+        vm = vm,
+        onDismiss = { showDialog = false }
+    )
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Offer Management",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFEAF8EE)
                 )
+            )
+        },
+        containerColor = Color(0xFFEAF8EE)
+    ) { paddingValues ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFEAF8EE))
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
+        ) {
+
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+
+                Button(
+                    onClick = { showDialog = true },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A859)),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = "Create Offer", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                }
             }
 
-        Spacer(modifier = Modifier.height(44.dp))
+            Spacer(modifier = Modifier.height(18.dp))
+            Text(
+                text = "Active Offers",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
 
-        Text(
-            text = "Active Offers",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        Box(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(bottom = 16.dp)
                     .border(
-                        width = 1.dp,
-                        color = Color.Black,
-                        shape = RoundedCornerShape(12.dp)
+                        width = 2.dp,
+                        color = Color.LightGray,
+                        shape = RoundedCornerShape(28.dp)
                     )
-                    .padding(16.dp)
             ) {
-
-                if(offersList.isEmpty()) {
+                if (offersList.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "No active offers available.",
-                            fontSize = 22.sp,
+                            fontSize = 16.sp,
                             color = Color.Gray
                         )
                     }
                 } else {
                     LazyColumn(
                         modifier = Modifier
-                            .fillMaxWidth(),
+                            .fillMaxSize()
+                            .padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(bottom = 16.dp)
+                        contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
                         items(offersList) { offer ->
                             OfferCardItem(
@@ -226,35 +207,10 @@ fun OffersScreen() {
                     }
                 }
             }
-
-    }
-    if (showDeleteDialog && selectedOffer != null) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Offer") },
-            text = { Text("Are you sure you want to delete this offer?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    vm.deleteOffer(selectedOffer!!.id) { success, msg ->
-                        showDeleteDialog = false
-                        if (success) {
-                            vm.loadOffers()
-                        }
-                    }
-                }) {
-                    Text("Delete")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showDeleteDialog = false
-                }) {
-                    Text("Cancel")
-                }
-            }
-        )
+        }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateOfferDialog(
@@ -268,10 +224,8 @@ fun CreateOfferDialog(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var discount by remember { mutableStateOf("") }
-
     var startDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
-
     var openStart by remember { mutableStateOf(false) }
     var openEnd by remember { mutableStateOf(false) }
 
@@ -279,8 +233,8 @@ fun CreateOfferDialog(
     val endState = rememberDatePickerState()
 
     val context = LocalContext.current
-    val toastMessage = vm.toast.collectAsState().value
-    val isLoading = vm.isLoading.collectAsState().value
+    val toastMessage by vm.toast.collectAsState()
+    val isLoading by vm.isLoading.collectAsState()
 
     LaunchedEffect(toastMessage) {
         toastMessage?.let {
@@ -289,130 +243,122 @@ fun CreateOfferDialog(
         }
     }
 
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = Color(0xFF00A859),
+        focusedLabelColor = Color(0xFF00A859),
+        cursorColor = Color(0xFF00A859)
+    )
+
     Dialog(onDismissRequest = onDismiss) {
-
         Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFEAF8EE)
-            )
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(8.dp)
         ) {
+            Column(modifier = Modifier.padding(20.dp)) {
 
-            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Create Offer",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
 
-                Text("Create Offer", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-
-                Spacer(Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Title") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = fieldColors
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text("Description") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = fieldColors
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = discount,
-                    onValueChange = {
-                        if (it.all { ch -> ch.isDigit() }) {
-                            discount = it
-                        }
-                    },
-                    label = {
-                        Text("Discount Percentage")
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    )
+                    onValueChange = { if (it.all { ch -> ch.isDigit() }) discount = it },
+                    label = { Text("Discount Percentage") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = fieldColors
                 )
-                Spacer(Modifier.height(8.dp))
+
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // START DATE
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { openStart = true }
-                        .border(
-                            width = 1.dp,
-                            color = Color(0xFF888888),
-                            shape = RoundedCornerShape(7.dp)
-                        )
-                        .background(Color(0xFFEAF8EE), RoundedCornerShape(10.dp))
-                        .padding(16.dp)
+                        .border(1.dp, Color(0xFF00A859), RoundedCornerShape(12.dp))
+                        .padding(14.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = if (startDate.isEmpty()) "Select Start Date" else startDate,
-                            color = if (startDate.isEmpty()) Color(0xFF888888) else Color.Black,
+                            color = if (startDate.isEmpty()) Color.Gray else Color.Black,
                             modifier = Modifier.weight(1f)
                         )
-
                         Icon(
                             imageVector = Icons.Default.DateRange,
                             contentDescription = null,
-                            tint = Color.Gray
+                            tint = Color(0xFF00A859)
                         )
                     }
                 }
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // END DATE
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { openEnd = true }
-                        .border(
-                            width = 1.dp,
-                            color = Color(0xFF888888),
-                            shape = RoundedCornerShape(7.dp)
-                        )
-                        .background(Color(0xFFEAF8EE), RoundedCornerShape(10.dp))
-                        .padding(16.dp)
+                        .border(1.dp, Color(0xFF00A859), RoundedCornerShape(12.dp))
+                        .padding(14.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = if (endDate.isEmpty()) "Select End Date" else endDate,
-                            color = if (endDate.isEmpty()) Color(0xFF888888) else Color.Black,
+                            color = if (endDate.isEmpty()) Color.Gray else Color.Black,
                             modifier = Modifier.weight(1f)
                         )
-
                         Icon(
                             imageVector = Icons.Default.DateRange,
                             contentDescription = null,
-                            tint = Color.Gray
+                            tint = Color(0xFF00A859)
                         )
                     }
                 }
-                Spacer(Modifier.height(12.dp))
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-
                     TextButton(onClick = onDismiss) {
-                        Text("Cancel")
+                        Text("Cancel", color = Color.Gray)
                     }
 
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     Button(
                         enabled = !isLoading,
@@ -424,34 +370,24 @@ fun CreateOfferDialog(
                                 startDate = startDate,
                                 endDate = endDate
                             )
-
-                            vm.createOffer(offer) { success, message ->
+                            vm.createOffer(offer) { success, _ ->
                                 if (success) {
                                     vm.loadOffers()
                                     onDismiss()
                                 }
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00C853)
-                        )
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A859))
                     ) {
-
                         if (isLoading) {
-
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
                                 strokeWidth = 2.dp,
                                 color = Color.White
                             )
-
                         } else {
-
-                            Text(
-                                text = "Save",
-                                color = Color.White
-                            )
-
+                            Text("Save", color = Color.White, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -459,42 +395,34 @@ fun CreateOfferDialog(
         }
     }
 
-    // Start date picker
     if (openStart) {
         DatePickerDialog(
             onDismissRequest = { openStart = false },
             confirmButton = {
-                Button(onClick = {
-                    startDate = startState.selectedDateMillis?.let {
-                        formatDate(it)
-                    } ?: ""
-                    openStart = false
-                }) {
-                    Text("OK")
-                }
+                Button(
+                    onClick = {
+                        startDate = startState.selectedDateMillis?.let { formatDate(it) } ?: ""
+                        openStart = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A859))
+                ) { Text("OK") }
             }
-        ) {
-            DatePicker(state = startState)
-        }
+        ) { DatePicker(state = startState) }
     }
 
-    // End date picker
     if (openEnd) {
         DatePickerDialog(
             onDismissRequest = { openEnd = false },
             confirmButton = {
-                Button(onClick = {
-                    endDate = endState.selectedDateMillis?.let {
-                        formatDate(it)
-                    } ?: ""
-                    openEnd = false
-                }) {
-                    Text("OK")
-                }
+                Button(
+                    onClick = {
+                        endDate = endState.selectedDateMillis?.let { formatDate(it) } ?: ""
+                        openEnd = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A859))
+                ) { Text("OK") }
             }
-        ) {
-            DatePicker(state = endState)
-        }
+        ) { DatePicker(state = endState) }
     }
 }
 
@@ -503,64 +431,81 @@ fun formatDate(millis: Long): String {
     return sdf.format(Date(millis))
 }
 
-
 @Composable
 fun OfferCardItem(
     offer: OfferModel,
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth()
-            .clickable(onClick = onClick ),
-        shape = RoundedCornerShape(16.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(18.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            Color(0xFF00C853),
-                            Color(0xFF1E88E5)
-                        )
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFF24C16B), Color(0xFF0A6640))
                     )
                 )
                 .padding(16.dp)
         ) {
             Column {
 
-                Text(
-                    text = offer.title,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = Color.White
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = offer.title,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color.White
+                    )
 
-                Spacer(modifier = Modifier.height(7.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(Color.White.copy(alpha = 0.25f), RoundedCornerShape(50.dp))
+                            .padding(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "${offer.discount}% OFF",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
+                    }
+                }
 
-                Text(
-                    text = offer.description,
-                    color = Color.White
-                )
+                Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Text(text = offer.description, color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
 
-                Text(
-                    text = "Discount: ${offer.discount}%",
-                    color = Color.White
-                )
+                Spacer(modifier = Modifier.height(10.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+                HorizontalDivider(color = Color.White.copy(alpha = 0.3f), thickness = 1.dp)
 
-                Text(
-                    text = "Start: ${offer.startDate}",
-                    color = Color.White
-                )
+                Spacer(modifier = Modifier.height(10.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "End: ${offer.endDate}",
-                    color = Color.White
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Start: ${offer.startDate}",
+                        color = Color.White.copy(alpha = 0.85f),
+                        fontSize = 13.sp
+                    )
+                    Text(
+                        text = "End: ${offer.endDate}",
+                        color = Color.White.copy(alpha = 0.85f),
+                        fontSize = 13.sp
+                    )
+                }
             }
         }
     }
@@ -569,5 +514,7 @@ fun OfferCardItem(
 @Preview(showBackground = true)
 @Composable
 fun OfferPreview() {
-    OffersScreen()
+    DriveSafeTheme {
+        OffersScreen()
+    }
 }
