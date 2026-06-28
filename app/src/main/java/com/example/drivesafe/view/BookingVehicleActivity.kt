@@ -1,12 +1,13 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.app.TimePickerDialog
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,28 +22,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.viewmodel.BookingViewModel
+import java.text.SimpleDateFormat
 import java.util.Calendar
-import androidx.compose.ui.text.input.KeyboardType
+import java.util.Date
+import java.util.Locale
 
 
 class BookingVehicleActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val vehicleId = intent.getStringExtra("vehicleId") ?: ""
         setContent {
-            BookingVehicle()
+            BookingVehicle(vehicleId = vehicleId)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingVehicle() {
+fun BookingVehicle(vehicleId: String = "") {
 
     val context = LocalContext.current
 
@@ -54,10 +59,13 @@ fun BookingVehicle() {
     var pickupTime by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
 
+    var openDatePicker by remember { mutableStateOf(false) }
+    var openTimePicker by remember { mutableStateOf(false) }
+
+    val datePickerState = rememberDatePickerState()
+
     val bookingViewModel: BookingViewModel = viewModel()
-
     val message by bookingViewModel.message.collectAsState()
-
 
     LaunchedEffect(message) {
         message?.let {
@@ -65,6 +73,43 @@ fun BookingVehicle() {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                 bookingViewModel.clearMessage()
             }
+        }
+    }
+
+    if (openTimePicker) {
+        val cal = Calendar.getInstance()
+        TimePickerDialog(
+            context,
+            { _, h, m -> pickupTime = String.format("%02d:%02d", h, m) },
+            cal.get(Calendar.HOUR_OF_DAY),
+            cal.get(Calendar.MINUTE),
+            true
+        ).apply {
+            setOnDismissListener { openTimePicker = false }
+            show()
+        }
+        openTimePicker = false
+    }
+
+    if (openDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { openDatePicker = false },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        pickupDate = datePickerState.selectedDateMillis
+                            ?.let { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(it)) }
+                            ?: ""
+                        openDatePicker = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A859))
+                ) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { openDatePicker = false }) { Text("Cancel") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
         }
     }
 
@@ -79,14 +124,8 @@ fun BookingVehicle() {
                     )
                 },
                 navigationIcon = {
-                    IconButton(
-                        onClick = { }
-                    ) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = null,
-                            tint = Color.Black
-                        )
+                    IconButton(onClick = { (context as Activity).finish() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.Black)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -95,7 +134,7 @@ fun BookingVehicle() {
             )
         },
         containerColor = Color(0xFFEAF8EE)
-    ){ padding ->
+    ) { padding ->
 
         LazyColumn(
             modifier = Modifier
@@ -109,34 +148,20 @@ fun BookingVehicle() {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.White
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
 
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
 
-                        Text(
-                            text = "Personal Details",
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text(text = "Personal Details", fontWeight = FontWeight.Bold)
 
                         Spacer(modifier = Modifier.height(12.dp))
 
                         OutlinedTextField(
                             value = fullName,
-                            onValueChange = {
-                                fullName = it
-                            },
+                            onValueChange = { fullName = it },
                             label = { Text("Full Name") },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Default.Person,
-                                    contentDescription = null
-                                )
-                            },
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -144,30 +169,18 @@ fun BookingVehicle() {
 
                         OutlinedTextField(
                             value = phoneNumber,
-                            onValueChange = {
-                                phoneNumber = it.filter { ch -> ch.isDigit() }
-                            },
+                            onValueChange = { phoneNumber = it.filter { ch -> ch.isDigit() } },
                             label = { Text("Phone Number") },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number
-                            ),
-                            leadingIcon = {
-                                Icon(Icons.Default.Call, contentDescription = null)
-                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            leadingIcon = { Icon(Icons.Default.Call, contentDescription = null) },
                             modifier = Modifier.fillMaxWidth()
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        Text(
-                            text = "Rental Plan",
-                            fontWeight = FontWeight.Bold
-                        )
+                        Text(text = "Rental Plan", fontWeight = FontWeight.Bold)
 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
                                 selected = rentalPlan == "Hourly",
                                 onClick = {
@@ -177,11 +190,8 @@ fun BookingVehicle() {
                                     pickupTime = ""
                                 }
                             )
-
                             Text("Hourly")
-
                             Spacer(modifier = Modifier.width(16.dp))
-
                             RadioButton(
                                 selected = rentalPlan == "Daily",
                                 onClick = {
@@ -191,84 +201,64 @@ fun BookingVehicle() {
                                     pickupTime = ""
                                 }
                             )
-
                             Text("Daily")
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // DATE PICKER
-                        OutlinedTextField(
-                            value = pickupDate,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Pickup Date") },
-                            trailingIcon = {
-                                Icon(
-                                    Icons.Default.DateRange,
-                                    contentDescription = null,
-                                    modifier = Modifier.clickable {
-
-                                        val cal = Calendar.getInstance()
-
-                                        DatePickerDialog(
-                                            context,
-                                            { _, y, m, d ->
-                                                pickupDate = "$d/${m + 1}/$y"
-                                            },
-                                            cal.get(Calendar.YEAR),
-                                            cal.get(Calendar.MONTH),
-                                            cal.get(Calendar.DAY_OF_MONTH)
-                                        ).show()
-                                    }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { openDatePicker = true }
+                                .border(1.dp, Color(0xFF00A859), RoundedCornerShape(12.dp))
+                                .padding(14.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = if (pickupDate.isEmpty()) "Select Pickup Date" else pickupDate,
+                                    color = if (pickupDate.isEmpty()) Color.Gray else Color.Black,
+                                    modifier = Modifier.weight(1f)
                                 )
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                                Icon(
+                                    imageVector = Icons.Default.DateRange,
+                                    contentDescription = null,
+                                    tint = Color(0xFF00A859)
+                                )
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-
                         // TIME PICKER
-                        OutlinedTextField(
-                            value = pickupTime,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Pickup Time") },
-                            trailingIcon = {
-                                Icon(
-                                    Icons.Default.Schedule,
-                                    contentDescription = null,
-                                    modifier = Modifier.clickable {
-
-                                        val cal = Calendar.getInstance()
-
-                                        TimePickerDialog(
-                                            context,
-                                            { _, h, m ->
-                                                pickupTime = String.format("%02d:%02d", h, m)
-                                            },
-                                            cal.get(Calendar.HOUR_OF_DAY),
-                                            cal.get(Calendar.MINUTE),
-                                            true
-                                        ).show()
-                                    }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { openTimePicker = true }
+                                .border(1.dp, Color(0xFF00A859), RoundedCornerShape(12.dp))
+                                .padding(14.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = if (pickupTime.isEmpty()) "Select Pickup Time" else pickupTime,
+                                    color = if (pickupTime.isEmpty()) Color.Gray else Color.Black,
+                                    modifier = Modifier.weight(1f)
                                 )
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                                Icon(
+                                    imageVector = Icons.Default.Schedule,
+                                    contentDescription = null,
+                                    tint = Color(0xFF00A859)
+                                )
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
                         OutlinedTextField(
                             value = duration,
-                            onValueChange = {
-                                duration = it.filter { ch -> ch.isDigit() }
-                            },
+                            onValueChange = { duration = it.filter { ch -> ch.isDigit() } },
                             label = { Text("Duration") },
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number
-                            ),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -276,7 +266,6 @@ fun BookingVehicle() {
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // BOOK BUTTON
                 Button(
                     onClick = {
                         bookingViewModel.validateAndBook(
@@ -291,9 +280,7 @@ fun BookingVehicle() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(55.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2E7D32)
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
                 ) {
                     Text("Book Now", color = Color.White)
                 }

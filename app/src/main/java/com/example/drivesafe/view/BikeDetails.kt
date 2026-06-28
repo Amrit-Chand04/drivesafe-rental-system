@@ -1,6 +1,7 @@
 package com.example.drivesafe.view
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -311,9 +312,9 @@ fun BikeDetailsBody(
 
                         Button(
                             onClick = {
-
-                                // open booking screen
-
+                                val intent = Intent(context, BookingVehicleActivity::class.java)
+                                intent.putExtra("vehicleId", bikeId)
+                                context.startActivity(intent)
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
