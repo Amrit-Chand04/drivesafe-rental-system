@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.drivesafe.ui.theme.DriveSafeTheme
+import com.example.drivesafe.viewmodel.FavoriteViewModel
 import com.example.drivesafe.viewmodel.KycViewModel
 import com.example.drivesafe.viewmodel.VehicleViewModel
 import com.example.drivesafe.R
@@ -61,8 +64,10 @@ fun CarSearchBody() {
     val context = LocalContext.current
     val vehicleViewModel: VehicleViewModel = viewModel()
     val kycViewModel: KycViewModel = viewModel()
+    val favoriteViewModel: FavoriteViewModel = viewModel()
 
     val bikes by vehicleViewModel.vehicles.collectAsState()
+    val favoriteIds by favoriteViewModel.favoriteIds.collectAsState()
 
     var showFilterDialog by remember { mutableStateOf(false) }
     var showKycDialog by remember { mutableStateOf(false) }
@@ -74,9 +79,8 @@ fun CarSearchBody() {
     val isLoading = vehicleViewModel.isLoading.collectAsState().value
 
     LaunchedEffect(Unit) {
-        vehicleViewModel.getVehicles { success, message, list ->
-
-        }
+        vehicleViewModel.getVehicles { _, _, _ -> }
+        favoriteViewModel.loadFavorites()
     }
 
     val filteredCars = remember(selectedPriceFilter, bikes) {
@@ -377,6 +381,8 @@ fun CarSearchBody() {
                             items(filteredCars) { car ->
                                 CarCard(
                                     vehicle = car,
+                                    isFavorite = favoriteIds.contains(car.vehicleId),
+                                    onFavoriteClick = { favoriteViewModel.toggleFavorite(car.vehicleId) },
                                     onBook = {
                                         kycViewModel.checkKycStatus { isVerified ->
                                             if (isVerified) {
@@ -401,6 +407,8 @@ fun CarSearchBody() {
 @Composable
 fun CarCard(
     vehicle: VehicleFirebaseModel,
+    isFavorite: Boolean = false,
+    onFavoriteClick: () -> Unit = {},
     onBook: () -> Unit
 ) {
     //debugging
@@ -418,83 +426,96 @@ fun CarCard(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
 
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
 
-
-            // IMAGE FROM CLOUDINARY URL
-            AsyncImage(
-                model = vehicle.vehicleImage,
-                contentDescription = vehicle.name,
+            Row(
                 modifier = Modifier
-                    .width(130.dp)
-                    .height(180.dp),
-                contentScale = ContentScale.Crop
-            )
-
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-
-            Column(
-                modifier = Modifier.weight(1f)
+                    .fillMaxSize()
+                    .padding(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-
-                Text(
-                    text = vehicle.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                // IMAGE FROM CLOUDINARY URL
+                AsyncImage(
+                    model = vehicle.vehicleImage,
+                    contentDescription = vehicle.name,
+                    modifier = Modifier
+                        .width(130.dp)
+                        .height(180.dp),
+                    contentScale = ContentScale.Crop
                 )
 
+                Spacer(modifier = Modifier.width(12.dp))
 
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
-
-
-                Text(
-                    text = "Type: ${vehicle.type}"
-                )
-
-                Text(
-                    text = "Number: ${vehicle.number}"
-                )
-
-                Text(
-                    text = "Price: ${vehicle.price}"
-                )
-
-                Text(
-                    text = "Status: ${vehicle.status}",
-                    color = Color(0xFF00A859),
-                    fontWeight = FontWeight.Bold
-                )
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
 
 
-                Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = vehicle.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
 
 
-                Row {
+                    Spacer(
+                        modifier = Modifier.height(6.dp)
+                    )
 
-                    Button(
-                        onClick = onBook,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00A859)
-                        )
-                    ){
-                        Text(
-                            text = "Book",
-                            fontSize = 12.sp
-                        )
+
+                    Text(
+                        text = "Type: ${vehicle.type}"
+                    )
+
+                    Text(
+                        text = "Number: ${vehicle.number}"
+                    )
+
+                    Text(
+                        text = "Price: ${vehicle.price}"
+                    )
+
+                    Text(
+                        text = "Status: ${vehicle.status}",
+                        color = Color(0xFF00A859),
+                        fontWeight = FontWeight.Bold
+                    )
+
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+
+                    Row {
+
+                        Button(
+                            onClick = onBook,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00A859)
+                            )
+                        ){
+                            Text(
+                                text = "Book",
+                                fontSize = 12.sp
+                            )
+                        }
+
                     }
-
                 }
+            }
+
+            IconButton(
+                onClick = onFavoriteClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    contentDescription = "Favorite",
+                    tint = if (isFavorite) Color(0xFF00A859) else Color.Black
+                )
             }
         }
     }
