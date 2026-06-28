@@ -235,8 +235,12 @@ class KycRepoImpl(
             })
     }
 
-    override fun updateKycStatus(uid: String, status: String, callback: (Boolean) -> Unit) {
-        database.child("kyc").child(uid).child("status").setValue(status)
+    override fun updateKycStatus(uid: String, status: String, rejectionReason: String, callback: (Boolean) -> Unit) {
+        val updates = mutableMapOf<String, Any>("status" to status)
+        if (status == "rejected" && rejectionReason.isNotBlank()) {
+            updates["rejectionReason"] = rejectionReason
+        }
+        database.child("kyc").child(uid).updateChildren(updates)
             .addOnSuccessListener { callback(true) }
             .addOnFailureListener { callback(false) }
     }

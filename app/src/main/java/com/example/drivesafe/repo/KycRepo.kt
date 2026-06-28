@@ -19,7 +19,7 @@ interface KycRepo {
 
     fun getAllKycRecords(callback: (List<KycFirebaseModel>) -> Unit)
 
-    fun updateKycStatus(uid: String, status: String, callback: (Boolean) -> Unit)
+    fun updateKycStatus(uid: String, status: String, rejectionReason: String = "", callback: (Boolean) -> Unit)
 
     fun getFileNameFromUri(
         context: Context,

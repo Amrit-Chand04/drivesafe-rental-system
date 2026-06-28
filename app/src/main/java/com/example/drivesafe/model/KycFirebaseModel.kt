@@ -6,5 +6,6 @@ data class KycFirebaseModel(
     val phone: String = "",
     val doc: String = "",
     val photo: String = "",
-    val status: String = "pending"
+    val status: String = "pending",
+    val rejectionReason: String = ""
 )

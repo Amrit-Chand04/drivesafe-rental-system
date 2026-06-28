@@ -90,11 +90,11 @@ class KycViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun updateKycStatus(uid: String, status: String) {
-        repo.updateKycStatus(uid, status) { success ->
+    fun updateKycStatus(uid: String, status: String, rejectionReason: String = "") {
+        repo.updateKycStatus(uid, status, rejectionReason) { success ->
             if (success) {
                 _allKycList.value = _allKycList.value.map { kyc ->
-                    if (kyc.uid == uid) kyc.copy(status = status) else kyc
+                    if (kyc.uid == uid) kyc.copy(status = status, rejectionReason = rejectionReason) else kyc
                 }
             }
         }
