@@ -5,17 +5,17 @@
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="LoginActivity (2)">
+      <SelectionState runConfigName="ManageKycVerification">
         <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="LoginActivity (3)">
+      <SelectionState runConfigName="UserDashboard">
         <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="LoginActivity (4)">
+      <SelectionState runConfigName="OffersActivity">
         <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="UserDashboard (1)">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>

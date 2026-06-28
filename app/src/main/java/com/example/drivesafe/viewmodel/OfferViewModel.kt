@@ -45,9 +45,11 @@ class OfferViewModel(
                 _isLoading.value = true
 
                 repo.createOffer(model) { success, message ->
-
                     _isLoading.value = false
                     _toast.value = message
+                    if (success) {
+                        repo.setActiveOffer(model.discount) { }
+                    }
                     callback(success, message)
                 }
             }
@@ -62,19 +64,30 @@ class OfferViewModel(
     val offers: StateFlow<List<OfferModel>> = _offers
 
 
-    fun loadOffers() {
-        repo.getOffers { success, message, list ->
+    private fun isExpired(offer: OfferModel): Boolean {
+        val endDate = sdf.parse(offer.endDate) ?: return false
+        return endDate.before(today)
+    }
 
+    fun loadOffers() {
+        repo.getOffers { success, _, list ->
             if (success && list != null) {
-                _offers.value = list
+                val (expired, active) = list.partition { isExpired(it) }
+                expired.forEach {
+                    repo.deleteOffer(it.id) { _, _ -> }
+                    repo.clearActiveOffer { }
+                }
+                _offers.value = active
             } else {
                 _offers.value = emptyList()
             }
         }
-
     }
 
-    fun deleteOffer(id: String, callback: (Boolean, String) -> Unit){
-        repo.deleteOffer(id,callback)
+    fun deleteOffer(id: String, callback: (Boolean, String) -> Unit) {
+        repo.deleteOffer(id) { success, message ->
+            if (success) repo.clearActiveOffer { }
+            callback(success, message)
+        }
     }
 }

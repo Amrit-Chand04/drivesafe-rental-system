@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -472,9 +473,39 @@ fun CarCard(
                         text = "Number: ${vehicle.number}"
                     )
 
-                    Text(
-                        text = "Price: ${vehicle.price}"
-                    )
+                    if (vehicle.discount > 0) {
+                        val original = vehicle.price.filter(Char::isDigit).toIntOrNull() ?: 0
+                        val discounted = original - (original * vehicle.discount / 100)
+                        Text(
+                            text = "Rs. $original",
+                            fontSize = 13.sp,
+                            color = Color.Gray,
+                            textDecoration = TextDecoration.LineThrough
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Rs. $discounted",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF00A859)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .background(Color(0xFFFF6B00), RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "${vehicle.discount}% OFF",
+                                    fontSize = 10.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    } else {
+                        Text(text = "Price: ${vehicle.price}")
+                    }
 
                     Text(
                         text = "Status: ${vehicle.status}",

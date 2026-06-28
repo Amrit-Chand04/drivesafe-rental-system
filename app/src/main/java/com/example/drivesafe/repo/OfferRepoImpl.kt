@@ -9,6 +9,9 @@ class OfferRepoImpl : OfferRepo{
     private val offerRef: DatabaseReference =
         FirebaseDatabase.getInstance().getReference("offers")
 
+    private val activeOfferRef: DatabaseReference =
+        FirebaseDatabase.getInstance().getReference("activeOffer")
+
     override fun createOffer(
         model: OfferModel,
         callback: (Boolean, String) -> Unit
@@ -57,6 +60,18 @@ class OfferRepoImpl : OfferRepo{
                 callback(false, "${it.exception?.message}")
             }
         }
+    }
+
+    override fun setActiveOffer(discount: Int, callback: (Boolean) -> Unit) {
+        activeOfferRef.child("discount").setValue(discount)
+            .addOnSuccessListener { callback(true) }
+            .addOnFailureListener { callback(false) }
+    }
+
+    override fun clearActiveOffer(callback: (Boolean) -> Unit) {
+        activeOfferRef.removeValue()
+            .addOnSuccessListener { callback(true) }
+            .addOnFailureListener { callback(false) }
     }
 
 }
