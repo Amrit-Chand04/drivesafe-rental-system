@@ -59,6 +59,7 @@ fun OffersScreen() {
     val vm: OfferViewModel = viewModel()
 
     val offersList by vm.offers.collectAsState()
+    val isLoading by vm.isLoading.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
     var selectedOffer by remember { mutableStateOf<OfferModel?>(null) }
@@ -176,33 +177,44 @@ fun OffersScreen() {
                         shape = RoundedCornerShape(28.dp)
                     )
             ) {
-                if (offersList.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No active offers available.",
-                            fontSize = 16.sp,
-                            color = Color.Gray
-                        )
+                when {
+                    isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = Color(0xFF00A859))
+                        }
                     }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(vertical = 8.dp)
-                    ) {
-                        items(offersList) { offer ->
-                            OfferCardItem(
-                                offer = offer,
-                                onClick = {
-                                    selectedOffer = offer
-                                    showDeleteDialog = true
-                                }
+                    offersList.isEmpty() -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No active offers available.",
+                                fontSize = 16.sp,
+                                color = Color.Gray
                             )
+                        }
+                    }
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(vertical = 8.dp)
+                        ) {
+                            items(offersList) { offer ->
+                                OfferCardItem(
+                                    offer = offer,
+                                    onClick = {
+                                        selectedOffer = offer
+                                        showDeleteDialog = true
+                                    }
+                                )
+                            }
                         }
                     }
                 }

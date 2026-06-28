@@ -73,7 +73,9 @@ class OfferViewModel(
     }
 
     fun loadOffers() {
+        _isLoading.value = true
         repo.getOffers { success, _, list ->
+            _isLoading.value = false
             if (success && list != null) {
                 val (expired, active) = list.partition { isExpired(it) }
                 expired.forEach { repo.deleteOffer(it.id) { _, _ -> } }
