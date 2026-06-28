@@ -47,7 +47,7 @@ class OfferViewModel(
                         repo.createOffer(model) { success, message ->
                             _isLoading.value = false
                             _toast.value = message
-                            if (success) {
+                            if (success && !start!!.after(today)) {
                                 repo.setActiveOffer(model.discount) { }
                                 repo.applyOfferToVehicles(model.discount) { }
                             }
@@ -72,6 +72,11 @@ class OfferViewModel(
         return endDate.before(today)
     }
 
+    private fun hasStarted(offer: OfferModel): Boolean {
+        val startDate = sdf.parse(offer.startDate) ?: return false
+        return !startDate.after(today)
+    }
+
     fun loadOffers() {
         _isLoading.value = true
         repo.getOffers { success, _, list ->
@@ -82,6 +87,12 @@ class OfferViewModel(
                 if (expired.isNotEmpty()) {
                     repo.clearActiveOffer { }
                     repo.clearOfferFromVehicles { }
+                }
+                active.forEach { offer ->
+                    if (hasStarted(offer)) {
+                        repo.setActiveOffer(offer.discount) { }
+                        repo.applyOfferToVehicles(offer.discount) { }
+                    }
                 }
                 _offers.value = active
             } else {
