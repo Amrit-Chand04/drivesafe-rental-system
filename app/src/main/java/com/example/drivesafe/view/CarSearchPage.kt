@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -89,22 +90,17 @@ fun CarSearchBody() {
             it.type.equals("Car", ignoreCase = true)
         }
 
+        fun effectivePrice(it: com.example.drivesafe.model.VehicleFirebaseModel): Int =
+            if (it.offerPercentage > 0 && it.discountedPrice > 0) it.discountedPrice
+            else it.price.filter(Char::isDigit).toIntOrNull() ?: 0
+
         when (selectedPriceFilter) {
 
-            "Low" -> carList.filter {
-                val price = it.price.filter(Char::isDigit).toIntOrNull() ?: 0
-                price < 3000
-            }
+            "Low" -> carList.filter { effectivePrice(it) < 3000 }
 
-            "Medium" -> carList.filter {
-                val price = it.price.filter(Char::isDigit).toIntOrNull() ?: 0
-                price in 3000..7000
-            }
+            "Medium" -> carList.filter { effectivePrice(it) in 3000..7000 }
 
-            "High" -> carList.filter {
-                val price = it.price.filter(Char::isDigit).toIntOrNull() ?: 0
-                price > 7000
-            }
+            "High" -> carList.filter { effectivePrice(it) > 7000 }
 
             else -> carList
         }
@@ -472,9 +468,38 @@ fun CarCard(
                         text = "Number: ${vehicle.number}"
                     )
 
-                    Text(
-                        text = "Price: ${vehicle.price}"
-                    )
+                    if (vehicle.offerPercentage > 0 && vehicle.discountedPrice > 0) {
+                        val original = vehicle.price.filter(Char::isDigit).toIntOrNull() ?: 0
+                        Text(
+                            text = "Rs. $original",
+                            fontSize = 13.sp,
+                            color = Color.Gray,
+                            textDecoration = TextDecoration.LineThrough
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Rs. ${vehicle.discountedPrice}",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF00A859)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .background(Color(0xFFFF6B00), RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "${vehicle.offerPercentage}% OFF",
+                                    fontSize = 10.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    } else {
+                        Text(text = "Price: ${vehicle.price}")
+                    }
 
                     Text(
                         text = "Status: ${vehicle.status}",

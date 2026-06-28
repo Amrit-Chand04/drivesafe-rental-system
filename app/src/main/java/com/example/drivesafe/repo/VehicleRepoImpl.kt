@@ -24,7 +24,6 @@ class VehicleRepoImpl(private val context: Context) : VehicleRepo {
         )
     )
 
-    // Points directly to the "vehicles" node for cleaner, error-free paths
     private val vehicleRef = FirebaseDatabase.getInstance().reference.child("vehicles")
 
     override fun addVehicle(vehicle: VehicleModel, callback: (Boolean, String) -> Unit) {
@@ -97,23 +96,13 @@ class VehicleRepoImpl(private val context: Context) : VehicleRepo {
     }
 
     override fun getVehicles(callback: (Boolean, String, List<VehicleFirebaseModel>) -> Unit) {
-
         vehicleRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val list = mutableListOf<VehicleFirebaseModel>()
-
-                for (data in snapshot.children) {
-                    val firebaseVehicle =
-                        data.getValue(VehicleFirebaseModel::class.java)
-
-                    firebaseVehicle?.let {
-                        list.add(it)
-                    }
+                val vehicles = snapshot.children.mapNotNull {
+                    it.getValue(VehicleFirebaseModel::class.java)
                 }
-
-                callback(true, "Loaded", list)
+                callback(true, "Loaded", vehicles)
             }
-
             override fun onCancelled(error: DatabaseError) {
                 callback(false, error.message, emptyList())
             }
@@ -163,8 +152,7 @@ class VehicleRepoImpl(private val context: Context) : VehicleRepo {
 
                 val imageUrl = vehicle.vehicleImage
 
-                // If new image selected (content://), upload it
-                // If old image exists (http/https), keep it
+
                 val finalImageUrl = if (
                     imageUrl != null &&
                     (imageUrl.startsWith("http://") ||

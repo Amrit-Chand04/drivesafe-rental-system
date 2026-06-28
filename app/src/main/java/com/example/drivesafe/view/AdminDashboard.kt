@@ -288,7 +288,8 @@ fun AdminBody(
                                 }
 
                                 "KYC\nVerification" -> {
-                                    println("KYC clicked")
+                                    val intent = Intent(context, ManageKycVerification::class.java)
+                                    context.startActivity(intent)
                                 }
                             }
                         }

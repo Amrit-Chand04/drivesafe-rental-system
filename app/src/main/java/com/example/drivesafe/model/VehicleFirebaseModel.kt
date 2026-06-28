@@ -12,5 +12,8 @@ data class VehicleFirebaseModel(
     var description: String = "",
     var capacity: String = "",
     var engine: String = "",
-    var speed: String = ""
+    var speed: String = "",
+    var offerId: String = "",
+    var offerPercentage: Int = 0,
+    var discountedPrice: Int = 0
 )
