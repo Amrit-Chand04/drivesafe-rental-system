@@ -25,7 +25,6 @@ class VehicleRepoImpl(private val context: Context) : VehicleRepo {
     )
 
     private val vehicleRef = FirebaseDatabase.getInstance().reference.child("vehicles")
-    private val activeOfferRef = FirebaseDatabase.getInstance().reference.child("activeOffer")
 
     override fun addVehicle(vehicle: VehicleModel, callback: (Boolean, String) -> Unit) {
         Executors.newSingleThreadExecutor().execute {
@@ -97,31 +96,16 @@ class VehicleRepoImpl(private val context: Context) : VehicleRepo {
     }
 
     override fun getVehicles(callback: (Boolean, String, List<VehicleFirebaseModel>) -> Unit) {
-        var currentVehicles: List<VehicleFirebaseModel> = emptyList()
-        var currentDiscount: Int = 0
-
-        fun deliver() {
-            callback(true, "Loaded", currentVehicles.map { it.copy(discount = currentDiscount) })
-        }
-
         vehicleRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                currentVehicles = snapshot.children.mapNotNull {
+                val vehicles = snapshot.children.mapNotNull {
                     it.getValue(VehicleFirebaseModel::class.java)
                 }
-                deliver()
+                callback(true, "Loaded", vehicles)
             }
             override fun onCancelled(error: DatabaseError) {
                 callback(false, error.message, emptyList())
             }
-        })
-
-        activeOfferRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                currentDiscount = snapshot.child("discount").getValue(Int::class.java) ?: 0
-                deliver()
-            }
-            override fun onCancelled(error: DatabaseError) { }
         })
     }
 
@@ -168,8 +152,7 @@ class VehicleRepoImpl(private val context: Context) : VehicleRepo {
 
                 val imageUrl = vehicle.vehicleImage
 
-                // If new image selected (content://), upload it
-                // If old image exists (http/https), keep it
+
                 val finalImageUrl = if (
                     imageUrl != null &&
                     (imageUrl.startsWith("http://") ||

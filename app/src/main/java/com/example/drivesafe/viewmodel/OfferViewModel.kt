@@ -49,6 +49,7 @@ class OfferViewModel(
                     _toast.value = message
                     if (success) {
                         repo.setActiveOffer(model.discount) { }
+                        repo.applyOfferToVehicles(model.discount) { }
                     }
                     callback(success, message)
                 }
@@ -73,9 +74,10 @@ class OfferViewModel(
         repo.getOffers { success, _, list ->
             if (success && list != null) {
                 val (expired, active) = list.partition { isExpired(it) }
-                expired.forEach {
-                    repo.deleteOffer(it.id) { _, _ -> }
+                expired.forEach { repo.deleteOffer(it.id) { _, _ -> } }
+                if (expired.isNotEmpty()) {
                     repo.clearActiveOffer { }
+                    repo.clearOfferFromVehicles { }
                 }
                 _offers.value = active
             } else {
@@ -86,7 +88,10 @@ class OfferViewModel(
 
     fun deleteOffer(id: String, callback: (Boolean, String) -> Unit) {
         repo.deleteOffer(id) { success, message ->
-            if (success) repo.clearActiveOffer { }
+            if (success) {
+                repo.clearActiveOffer { }
+                repo.clearOfferFromVehicles { }
+            }
             callback(success, message)
         }
     }

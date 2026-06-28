@@ -90,22 +90,17 @@ fun CarSearchBody() {
             it.type.equals("Car", ignoreCase = true)
         }
 
+        fun effectivePrice(it: com.example.drivesafe.model.VehicleFirebaseModel): Int =
+            if (it.offerPercentage > 0 && it.discountedPrice > 0) it.discountedPrice
+            else it.price.filter(Char::isDigit).toIntOrNull() ?: 0
+
         when (selectedPriceFilter) {
 
-            "Low" -> carList.filter {
-                val price = it.price.filter(Char::isDigit).toIntOrNull() ?: 0
-                price < 3000
-            }
+            "Low" -> carList.filter { effectivePrice(it) < 3000 }
 
-            "Medium" -> carList.filter {
-                val price = it.price.filter(Char::isDigit).toIntOrNull() ?: 0
-                price in 3000..7000
-            }
+            "Medium" -> carList.filter { effectivePrice(it) in 3000..7000 }
 
-            "High" -> carList.filter {
-                val price = it.price.filter(Char::isDigit).toIntOrNull() ?: 0
-                price > 7000
-            }
+            "High" -> carList.filter { effectivePrice(it) > 7000 }
 
             else -> carList
         }
@@ -473,9 +468,8 @@ fun CarCard(
                         text = "Number: ${vehicle.number}"
                     )
 
-                    if (vehicle.discount > 0) {
+                    if (vehicle.offerPercentage > 0 && vehicle.discountedPrice > 0) {
                         val original = vehicle.price.filter(Char::isDigit).toIntOrNull() ?: 0
-                        val discounted = original - (original * vehicle.discount / 100)
                         Text(
                             text = "Rs. $original",
                             fontSize = 13.sp,
@@ -484,7 +478,7 @@ fun CarCard(
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "Rs. $discounted",
+                                text = "Rs. ${vehicle.discountedPrice}",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF00A859)
@@ -496,7 +490,7 @@ fun CarCard(
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                             ) {
                                 Text(
-                                    text = "${vehicle.discount}% OFF",
+                                    text = "${vehicle.offerPercentage}% OFF",
                                     fontSize = 10.sp,
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold

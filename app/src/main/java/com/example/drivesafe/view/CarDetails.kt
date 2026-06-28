@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -280,19 +281,26 @@ fun CarDetailsBody(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
 
-
                             CarFeatureBox(
                                 title = "Number",
                                 value = data.number,
                                 modifier = Modifier.weight(1f)
                             )
 
-
-                            CarFeatureBox(
-                                title = "Price",
-                                value = data.price,
-                                modifier = Modifier.weight(1f)
-                            )
+                            if (data.offerPercentage > 0 && data.discountedPrice > 0) {
+                                CarPriceBox(
+                                    originalPrice = data.price,
+                                    discountedPrice = data.discountedPrice,
+                                    offerPercentage = data.offerPercentage,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            } else {
+                                CarFeatureBox(
+                                    title = "Price",
+                                    value = data.price,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
 
                         }
 
@@ -370,4 +378,31 @@ fun CarFeatureBox(
     }
 }
 
-
+@Composable
+fun CarPriceBox(
+    originalPrice: String,
+    discountedPrice: Int,
+    offerPercentage: Int,
+    modifier: Modifier
+) {
+    Card(
+        modifier = modifier.height(65.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFEDEDED))
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Price", fontSize = 10.sp, color = Color.Gray)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "Rs. $discountedPrice",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+        }
+    }
+}

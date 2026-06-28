@@ -22,4 +22,8 @@ interface OfferRepo {
     fun setActiveOffer(discount: Int, callback: (Boolean) -> Unit)
 
     fun clearActiveOffer(callback: (Boolean) -> Unit)
+
+    fun applyOfferToVehicles(discount: Int, callback: (Boolean) -> Unit)
+
+    fun clearOfferFromVehicles(callback: (Boolean) -> Unit)
 }
