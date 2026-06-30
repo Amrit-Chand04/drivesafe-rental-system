@@ -8,6 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -59,6 +62,7 @@ import android.content.Context
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.drivesafe.viewmodel.ChatViewModel
 import com.example.drivesafe.viewmodel.UserViewModel
 import com.example.drivesafe.viewmodel.VehicleViewModel
 
@@ -80,15 +84,51 @@ fun User() {
 
     var selectedIndex by remember { mutableStateOf(0) }
 
-    var currentScreen1 by remember { mutableStateOf("home") }
-
     val vm: UserViewModel = viewModel()
     val user by vm.user.collectAsState()
+
+    val chatViewModel: ChatViewModel = viewModel()
 
     LaunchedEffect(Unit) {
         vm.loadCurrentUser()
     }
 
+    UserDashboardScaffold(
+        selectedIndex = selectedIndex,
+        onItemSelected = { index -> selectedIndex = index }
+    ) { padding ->
+
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+
+            when (selectedIndex) {
+                0 -> UserBody(
+                    onCarClick = {
+                        context.startActivity(Intent(context, CarSearchPage::class.java))
+                    },
+                    onBikeClick = {
+                        context.startActivity(
+                            Intent(context, BikeSearchPage::class.java)
+                        )
+                    }
+                )
+                1 -> UserAdminChatBody(chatViewModel)
+                2 -> BookingScreen()
+                3 -> SettingsScreen()
+            }
+        }
+    }
+}
+
+@Composable
+fun UserDashboardScaffold(
+    selectedIndex: Int,
+    onItemSelected: (Int) -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFFE8F5E9),
@@ -114,7 +154,7 @@ fun User() {
 
                     NavigationBarItem(
                         selected = selectedIndex == index,
-                        onClick = { selectedIndex = index },
+                        onClick = { onItemSelected(index) },
 
                         icon = {
                             Icon(
@@ -145,35 +185,7 @@ fun User() {
             }
         }
 
-    ) { padding ->
-
-        Box(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-
-            when (selectedIndex) {
-                0 -> {
-                    when (currentScreen1) {
-                        "home" -> UserBody(
-                            onCarClick = {
-                                context.startActivity(Intent(context, CarSearchPage::class.java))
-                            },
-                            onBikeClick = {
-                                context.startActivity(
-                                    Intent(context, BikeSearchPage::class.java)
-                                )
-                            }
-                        )
-                    }
-                }
-                1 -> InboxScreen()
-                2 -> BookingScreen()
-                3 -> SettingsScreen()
-            }
-        }
-    }
+    ) { padding -> content(padding) }
 }
 
 
@@ -191,6 +203,7 @@ fun UserBody(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
 
     ) {
@@ -445,13 +458,6 @@ fun UserBody(
         }
     }
 }
-@Composable
-fun InboxScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Inbox Screen")
-    }
-}
-
 @Composable
 fun BookingScreen() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

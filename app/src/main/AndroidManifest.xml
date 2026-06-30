@@ -40,7 +40,8 @@
             android:name=".view.AdminUserChatActivity"
             android:exported="true"
             android:label="@string/title_activity_admin_user_chat"
-            android:theme="@style/Theme.DriveSafe">
+            android:theme="@style/Theme.DriveSafe"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -163,7 +164,8 @@
             android:name=".view.UserChatActivity"
             android:exported="true"
             android:label="@string/title_activity_user_chat"
-            android:theme="@style/Theme.DriveSafe">
+            android:theme="@style/Theme.DriveSafe"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

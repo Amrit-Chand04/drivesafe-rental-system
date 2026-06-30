@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -57,7 +58,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
+import com.example.drivesafe.viewmodel.ChatViewModel
 
 class AdminDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +84,38 @@ fun AdminApp() {
 
     var currentScreen by remember { mutableStateOf("dashboard") }
 
+    val chatViewModel: ChatViewModel = viewModel()
 
+    AdminDashboardScaffold(
+        selectedIndex = selectedIndex,
+        onItemSelected = { index -> selectedIndex = index }
+    ) { padding ->
+
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+
+            when (selectedIndex) {
+                0 -> AdminBody(
+                    currentScreen = currentScreen,
+                    onScreenChange = { currentScreen = it }
+                )
+                1 -> AdminChatBody(chatViewModel)
+                2 -> OffersScreen()
+                3 -> SettingsScreen()
+            }
+        }
+    }
+}
+
+@Composable
+fun AdminDashboardScaffold(
+    selectedIndex: Int,
+    onItemSelected: (Int) -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFFE8F5E9),
@@ -113,7 +147,7 @@ fun AdminApp() {
 
                     NavigationBarItem(
                         selected = selectedIndex == index,
-                        onClick = { selectedIndex = index },
+                        onClick = { onItemSelected(index) },
 
                         icon = {
                             Icon(
@@ -144,25 +178,7 @@ fun AdminApp() {
             }
         }
 
-    ) { padding ->
-
-        Box(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-
-            when (selectedIndex) {
-                0 -> AdminBody(
-                    currentScreen = currentScreen,
-                    onScreenChange = { currentScreen = it }
-                )
-                1 -> InboxScreen1()
-                2 -> OffersScreen()
-                3 -> SettingsScreen()
-            }
-        }
-    }
+    ) { padding -> content(padding) }
 }
 
 
@@ -381,15 +397,6 @@ fun AdminCard(
                 textAlign = TextAlign.Center
             )
         }
-    }
-}
-
-
-
-@Composable
-fun InboxScreen1() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Inbox Screen")
     }
 }
 
