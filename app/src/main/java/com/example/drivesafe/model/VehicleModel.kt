@@ -7,6 +7,7 @@ data class VehicleModel(
     var name: String = "",
     var type: String = "",
     var number: String = "",
+    var brand: String = "",
     var status: String = "",
     var vehicleImage: Uri? = null,
     var price: String = "",

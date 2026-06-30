@@ -223,6 +223,7 @@ fun FavoriteVehicleCard(
 
                     Text(text = "Type: ${vehicle.type}")
                     Text(text = "Number: ${vehicle.number}")
+                    Text(text = "Brand: ${vehicle.brand}")
                     Text(text = "Price: ${vehicle.price}")
                     Text(
                         text = "Status: ${vehicle.status}",

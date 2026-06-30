@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -170,7 +171,7 @@ fun UserScreen() {
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = {(context as Activity).finish() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
                     }
                 },

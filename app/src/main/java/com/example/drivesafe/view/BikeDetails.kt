@@ -1,6 +1,7 @@
 package com.example.drivesafe.view
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -282,19 +284,43 @@ fun BikeDetailsBody(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
 
-
                             BikeFeatureBox(
                                 title = "Number",
                                 value = data.number,
                                 modifier = Modifier.weight(1f)
                             )
 
-
                             BikeFeatureBox(
-                                title = "Price",
-                                value = data.price,
+                                title = "Brand",
+                                value = data.brand,
                                 modifier = Modifier.weight(1f)
                             )
+
+                        }
+
+                    }
+
+                    item {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+
+                            if (data.offerPercentage > 0 && data.discountedPrice > 0) {
+                                VehiclePriceBox(
+                                    originalPrice = data.price,
+                                    discountedPrice = data.discountedPrice,
+                                    offerPercentage = data.offerPercentage,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            } else {
+                                BikeFeatureBox(
+                                    title = "Price",
+                                    value = data.price,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
 
                         }
 
@@ -303,9 +329,12 @@ fun BikeDetailsBody(
 
                         Button(
                             onClick = {
-
-                                // open booking screen
-
+                                val effectivePrice = if (data.offerPercentage > 0 && data.discountedPrice > 0)
+                                    data.discountedPrice.toString() else data.price
+                                val intent = Intent(context, BookingVehicleActivity::class.java)
+                                intent.putExtra("vehicleId", bikeId)
+                                intent.putExtra("vehiclePrice", effectivePrice)
+                                context.startActivity(intent)
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -364,6 +393,35 @@ fun BikeFeatureBox(
 
             Text(
                 text = value,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+        }
+    }
+}
+
+@Composable
+fun VehiclePriceBox(
+    originalPrice: String,
+    discountedPrice: Int,
+    offerPercentage: Int,
+    modifier: Modifier
+) {
+    Card(
+        modifier = modifier.height(65.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFEDEDED))
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = "Price", fontSize = 10.sp, color = Color.Gray)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "Rs. $discountedPrice",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black

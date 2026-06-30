@@ -196,12 +196,13 @@ class UserRepoImpl : UserRepo {
                     .getReference("kyc")
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(kycSnapshot: DataSnapshot) {
-                            val kycByPhone = mutableMapOf<String, KycFirebaseModel>()
+                            val kycByUid = mutableMapOf<String, KycFirebaseModel>()
 
                             for (kycChild in kycSnapshot.children) {
+                                val uid = kycChild.key ?: continue
                                 val kyc = kycChild.getValue(KycFirebaseModel::class.java)
-                                if (kyc != null && kyc.phone.isNotBlank()) {
-                                    kycByPhone[kyc.phone] = kyc
+                                if (kyc != null) {
+                                    kycByUid[uid] = kyc
                                 }
                             }
 
@@ -213,7 +214,7 @@ class UserRepoImpl : UserRepo {
                                     allUsers.add(
                                         UserWithKyc(
                                             user = user,
-                                            kyc = kycByPhone[user.phone]
+                                            kyc = kycByUid[user.uid]
                                         )
                                     )
                                 }

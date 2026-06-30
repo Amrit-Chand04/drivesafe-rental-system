@@ -428,6 +428,10 @@ fun AddVehicleDialog(
         mutableStateOf(vehicle?.number ?: "")
     }
 
+    var vehicleBrand by remember {
+        mutableStateOf(vehicle?.brand ?: "")
+    }
+
     var status by remember {
         mutableStateOf(vehicle?.status ?: "Available")
     }
@@ -558,6 +562,17 @@ fun AddVehicleDialog(
                     value = vehicleNumber,
                     onValueChange = { vehicleNumber = it },
                     label = { Text("Vehicle Number") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Vehicle Brand
+                OutlinedTextField(
+                    value = vehicleBrand,
+                    onValueChange = { vehicleBrand = it },
+                    label = { Text("Brand") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -746,6 +761,7 @@ fun AddVehicleDialog(
                         vehicleName.isBlank() ||
                         vehicleType.isBlank() ||
                         vehicleNumber.isBlank() ||
+                        vehicleBrand.isBlank() ||
                         pricePerDay.isBlank() ||
                         description.isBlank() ||
                         capacity.isBlank() ||
@@ -769,6 +785,7 @@ fun AddVehicleDialog(
                             type = vehicleType,
                             fuelType = fuelType,
                             number = vehicleNumber,
+                            brand = vehicleBrand,
                             status = status,
                             vehicleImage = vehicleImage,
                             price = "Rs. $pricePerDay/Day",
@@ -796,6 +813,7 @@ fun AddVehicleDialog(
                                     vehicle.type != vehicleType ||
                                     vehicle.fuelType != fuelType ||
                                     vehicle.number != vehicleNumber ||
+                                    vehicle.brand != vehicleBrand ||
                                     vehicle.status != status ||
                                     vehicle.price != "Rs. $pricePerDay/Day" ||
                                     vehicle.description != description ||
@@ -822,6 +840,7 @@ fun AddVehicleDialog(
                             type = vehicleType,
                             fuelType = fuelType,
                             number = vehicleNumber,
+                            brand = vehicleBrand,
                             status = status,
                             price = "Rs. $pricePerDay/Day",
                             description = description,
@@ -984,6 +1003,10 @@ fun VehicleCard(
 
                 Text(
                     text = "Number: ${vehicle.number}"
+                )
+
+                Text(
+                    text = "Brand: ${vehicle.brand}"
                 )
 
                 Text(

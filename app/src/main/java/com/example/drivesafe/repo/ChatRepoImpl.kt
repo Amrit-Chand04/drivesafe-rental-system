@@ -1,10 +1,13 @@
 package com.example.drivesafe.repo
 
+import android.util.Log
 import com.example.drivesafe.model.ChatListModel
 import com.example.drivesafe.model.MessageModel
 import com.google.firebase.database.*
 
 class ChatRepoImpl : ChatRepo {
+
+    private val tag = "ChatRepoImpl"
 
     private val database = FirebaseDatabase.getInstance().reference
 
@@ -35,10 +38,12 @@ class ChatRepoImpl : ChatRepo {
                         callback(true, "Message sent")
                     }
                     .addOnFailureListener {
+                        Log.e(tag, "chatList update failed for $userId: ${it.message}")
                         callback(false, it.message ?: "Chat list update failed")
                     }
             }
             .addOnFailureListener {
+                Log.e(tag, "sendMessage($chatId) failed: ${it.message}")
                 callback(false, it.message ?: "Message failed")
             }
     }
@@ -49,22 +54,26 @@ class ChatRepoImpl : ChatRepo {
     ) {
         database.child("chats")
             .child(chatId)
-            .orderByChild("timestamp")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val list = mutableListOf<MessageModel>()
 
                     for (data in snapshot.children) {
-                        val message = data.getValue(MessageModel::class.java)
-                        if (message != null) {
-                            list.add(message)
+                        try {
+                            val message = data.getValue(MessageModel::class.java)
+                            if (message != null) {
+                                list.add(message)
+                            }
+                        } catch (e: Exception) {
+                            Log.e(tag, "Skipping malformed message ${data.key}: ${e.message}")
                         }
                     }
 
-                    callback(list)
+                    callback(list.sortedBy { it.timestamp })
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    Log.e(tag, "getMessages($chatId) cancelled: ${error.message}")
                     callback(emptyList())
                 }
             })
@@ -72,22 +81,26 @@ class ChatRepoImpl : ChatRepo {
 
     override fun getChatList(callback: (List<ChatListModel>) -> Unit) {
         database.child("chatList")
-            .orderByChild("lastTime")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val list = mutableListOf<ChatListModel>()
 
                     for (data in snapshot.children) {
-                        val chat = data.getValue(ChatListModel::class.java)
-                        if (chat != null) {
-                            list.add(chat)
+                        try {
+                            val chat = data.getValue(ChatListModel::class.java)
+                            if (chat != null) {
+                                list.add(chat)
+                            }
+                        } catch (e: Exception) {
+                            Log.e(tag, "Skipping malformed chat ${data.key}: ${e.message}")
                         }
                     }
 
-                    callback(list.reversed())
+                    callback(list.sortedByDescending { it.lastTime })
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    Log.e(tag, "getChatList cancelled: ${error.message}")
                     callback(emptyList())
                 }
             })
@@ -101,10 +114,16 @@ class ChatRepoImpl : ChatRepo {
             .child(userId)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    callback(snapshot.getValue(ChatListModel::class.java))
+                    try {
+                        callback(snapshot.getValue(ChatListModel::class.java))
+                    } catch (e: Exception) {
+                        Log.e(tag, "Malformed chat preview for $userId: ${e.message}")
+                        callback(null)
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    Log.e(tag, "getUserChatPreview($userId) cancelled: ${error.message}")
                     callback(null)
                 }
             })
@@ -118,6 +137,9 @@ class ChatRepoImpl : ChatRepo {
             .child(userId)
             .child("unreadForAdmin")
             .setValue(0)
+            .addOnFailureListener {
+                Log.e(tag, "markAdminChatAsRead($userId) failed: ${it.message}")
+            }
 
         database.child("chats")
             .child(chatId)
@@ -132,6 +154,9 @@ class ChatRepoImpl : ChatRepo {
                     }
                 }
             }
+            .addOnFailureListener {
+                Log.e(tag, "markAdminChatAsRead($userId) read fetch failed: ${it.message}")
+            }
     }
 
     override fun markUserChatAsRead(userId: String) {
@@ -142,6 +167,9 @@ class ChatRepoImpl : ChatRepo {
             .child(userId)
             .child("unreadForUser")
             .setValue(0)
+            .addOnFailureListener {
+                Log.e(tag, "markUserChatAsRead($userId) failed: ${it.message}")
+            }
 
         database.child("chats")
             .child(chatId)
@@ -155,6 +183,9 @@ class ChatRepoImpl : ChatRepo {
                         data.ref.child("isSeen").setValue(true)
                     }
                 }
+            }
+            .addOnFailureListener {
+                Log.e(tag, "markUserChatAsRead($userId) read fetch failed: ${it.message}")
             }
     }
 }
