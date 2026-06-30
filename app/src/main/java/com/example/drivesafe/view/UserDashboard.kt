@@ -227,7 +227,7 @@ fun UserBody(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                IconButton(onClick = {}) {
+                IconButton(onClick = {context.startActivity(Intent(context, NotificationActivity::class.java))}) {
                     Icon(
                         Icons.Default.Notifications,
                         contentDescription = "Notifications",

@@ -300,14 +300,7 @@ fun ChangePasswordBody() {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            Color(0xFF0066FF),
-                                            Color(0xFF16D64D)
-                                        )
-                                    )
-                                ),
+                                .background(Color(0xFF23B14D)),
                             contentAlignment = Alignment.Center
                         ) {
                             if (loading) {
