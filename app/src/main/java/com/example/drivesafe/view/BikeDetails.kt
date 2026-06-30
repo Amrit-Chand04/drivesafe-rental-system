@@ -290,6 +290,23 @@ fun BikeDetailsBody(
                                 modifier = Modifier.weight(1f)
                             )
 
+                            BikeFeatureBox(
+                                title = "Brand",
+                                value = data.brand,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                        }
+
+                    }
+
+                    item {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+
                             if (data.offerPercentage > 0 && data.discountedPrice > 0) {
                                 VehiclePriceBox(
                                     originalPrice = data.price,

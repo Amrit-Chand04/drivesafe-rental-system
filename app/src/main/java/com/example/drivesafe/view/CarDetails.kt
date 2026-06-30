@@ -288,6 +288,23 @@ fun CarDetailsBody(
                                 modifier = Modifier.weight(1f)
                             )
 
+                            CarFeatureBox(
+                                title = "Brand",
+                                value = data.brand,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                        }
+
+                    }
+
+                    item {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+
                             if (data.offerPercentage > 0 && data.discountedPrice > 0) {
                                 CarPriceBox(
                                     originalPrice = data.price,

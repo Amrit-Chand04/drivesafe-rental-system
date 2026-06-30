@@ -6,6 +6,7 @@ data class VehicleFirebaseModel(
     var type: String = "",
     var fuelType: String = "",
     var number: String = "",
+    var brand: String = "",
     var status: String = "",
     var vehicleImage: String = "",
     var price: String = "",

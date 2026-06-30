@@ -2,6 +2,7 @@ package com.example.drivesafe.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -59,6 +60,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.viewmodel.UserViewModel
+import com.example.drivesafe.viewmodel.VehicleViewModel
 
 class UserDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -184,6 +186,7 @@ fun UserBody(
 
     val context = LocalContext.current
     var text by remember { mutableStateOf("") }
+    val vehicleViewModel: VehicleViewModel = viewModel()
 
     Column(
         modifier = Modifier
@@ -269,8 +272,43 @@ fun UserBody(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            ElevatedButton(onClick = { },
-                modifier = Modifier.size(width = 100.dp, height = 50.dp)) {
+            ElevatedButton(
+                onClick = {
+                    val brandQuery = text.trim()
+
+                    if (brandQuery.isBlank()) {
+                        Toast.makeText(
+                            context,
+                            "Please enter a brand name",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@ElevatedButton
+                    }
+
+                    vehicleViewModel.getVehicles { _, _, list ->
+
+                        val matches = list.filter {
+                            (it.type.equals("Car", ignoreCase = true) ||
+                                    it.type.equals("Bike", ignoreCase = true)) &&
+                                    it.brand.contains(brandQuery, ignoreCase = true)
+                        }
+
+                        if (matches.isNotEmpty()) {
+                            context.startActivity(
+                                Intent(context, BrandSearch::class.java)
+                                    .putExtra("brand", brandQuery)
+                            )
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "No vehicles found for this brand.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                },
+                modifier = Modifier.size(width = 100.dp, height = 50.dp)
+            ) {
                 Text(
                     text = "Search",
                     fontSize = 16.sp

@@ -467,6 +467,10 @@ fun BikeCard(
                         text = "Number: ${vehicle.number}"
                     )
 
+                    Text(
+                        text = "Brand: ${vehicle.brand}"
+                    )
+
                     if (vehicle.offerPercentage > 0 && vehicle.discountedPrice > 0) {
                         val original = vehicle.price.filter(Char::isDigit).toIntOrNull() ?: 0
                         Text(
