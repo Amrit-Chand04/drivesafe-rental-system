@@ -39,16 +39,28 @@ class BookingVehicleActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val vehicleId = intent.getStringExtra("vehicleId") ?: ""
+        val vehicleName = intent.getStringExtra("vehicleName") ?: ""
+        val vehicleImage = intent.getStringExtra("vehicleImage") ?: ""
         val vehiclePrice = intent.getStringExtra("vehiclePrice") ?: "0"
         setContent {
-            BookingVehicle(vehicleId = vehicleId, vehiclePrice = vehiclePrice)
+            BookingVehicle(
+                vehicleId = vehicleId,
+                vehicleName = vehicleName,
+                vehicleImage = vehicleImage,
+                vehiclePrice = vehiclePrice
+            )
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingVehicle(vehicleId: String = "", vehiclePrice: String = "0") {
+fun BookingVehicle(
+    vehicleId: String = "",
+    vehicleName: String = "",
+    vehicleImage: String = "",
+    vehiclePrice: String = "0"
+) {
 
     val context = LocalContext.current
     val vm: BookingViewModel = viewModel()
@@ -300,7 +312,11 @@ fun BookingVehicle(vehicleId: String = "", vehiclePrice: String = "0") {
                             rentalPlan = rentalPlan,
                             pickupDate = pickupDate,
                             pickupTime = pickupTime,
-                            duration = duration
+                            duration = duration,
+                            vehicleId = vehicleId,
+                            vehicleName = vehicleName,
+                            vehicleImage = vehicleImage,
+                            vehiclePrice = vehiclePrice,
                         )
                     },
                     modifier = Modifier

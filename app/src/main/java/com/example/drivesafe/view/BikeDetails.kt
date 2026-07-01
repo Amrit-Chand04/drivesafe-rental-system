@@ -316,6 +316,8 @@ fun BikeDetailsBody(
                                     data.discountedPrice.toString() else data.price
                                 val intent = Intent(context, BookingVehicleActivity::class.java)
                                 intent.putExtra("vehicleId", bikeId)
+                                intent.putExtra("vehicleName", data.name)
+                                intent.putExtra("vehicleImage", data.vehicleImage)
                                 intent.putExtra("vehiclePrice", effectivePrice)
                                 context.startActivity(intent)
                             },

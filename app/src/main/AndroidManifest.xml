@@ -15,6 +15,17 @@
         android:theme="@style/Theme.DriveSafe"
         tools:replace="android:fullBackupContent">
         <activity
+            android:name=".view.MyBookingsActivity"
+            android:exported="true"
+            android:label="@string/title_activity_my_bookings"
+            android:theme="@style/Theme.DriveSafe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".view.BrandSearch"
             android:exported="true"
             android:label="@string/title_activity_brand_search"

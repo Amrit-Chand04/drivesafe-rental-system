@@ -116,7 +116,7 @@ fun User() {
                     }
                 )
                 1 -> UserAdminChatBody(chatViewModel)
-                2 -> BookingScreen()
+                2 -> MyBookingScreen()
                 3 -> SettingsScreen()
             }
         }
@@ -456,12 +456,6 @@ fun UserBody(
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-    }
-}
-@Composable
-fun BookingScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Booking Screen")
     }
 }
 

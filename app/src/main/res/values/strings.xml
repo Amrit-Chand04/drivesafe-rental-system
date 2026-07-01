@@ -37,4 +37,5 @@
     <string name="title_activity_favorites">FavoritesActivity</string>
     <string name="title_activity_manage_kyc_verification">ManageKycVerification</string>
     <string name="title_activity_brand_search">BrandSearch</string>
+    <string name="title_activity_my_bookings">MyBookingsActivity</string>
 </resources>
