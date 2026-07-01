@@ -15,5 +15,6 @@ data class BookingModel(
     val vehicleImage: String = "",
     val vehiclePrice: String = "",
     val status: String = "PENDING",
-    val paymentStatus: String = "PAID_FAKE"
+    val paymentStatus: String = "PAID_FAKE",
+    val rejectionReason: String = ""
 )

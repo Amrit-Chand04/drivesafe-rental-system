@@ -73,5 +73,56 @@ class BookingRepoImpl : BookingRepo {
                 }
             })
     }
+
+    override fun getAllBookings(callback: (Boolean, String, List<BookingModel>) -> Unit) {
+        db.child("bookings")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val bookings = snapshot.children.mapNotNull { child ->
+                        child.getValue(BookingModel::class.java)?.copy(
+                            bookingId = child.key ?: ""
+                        )
+                    }
+                    callback(
+                        true,
+                        if (bookings.isEmpty()) "No bookings found" else "Bookings loaded",
+                        bookings
+                    )
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    callback(false, error.message, emptyList())
+                }
+            })
+    }
+
+    override fun updateBookingStatus(
+        bookingId: String,
+        status: String,
+        rejectionReason: String,
+        callback: (Boolean, String) -> Unit
+    ) {
+        if (bookingId.isBlank()) {
+            callback(false, "Invalid booking id")
+            return
+        }
+
+        val updates = mutableMapOf<String, Any>("status" to status)
+        if (status.equals("REJECTED", ignoreCase = true)) {
+            updates["rejectionReason"] = rejectionReason
+        } else {
+            updates["rejectionReason"] = ""
+        }
+
+        db.child("bookings")
+            .child(bookingId)
+            .updateChildren(updates)
+            .addOnSuccessListener {
+                callback(true, "Booking $status")
+            }
+            .addOnFailureListener { error ->
+                callback(false, error.localizedMessage ?: "Failed to update booking")
+            }
+    }
 }
 

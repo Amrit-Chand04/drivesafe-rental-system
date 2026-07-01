@@ -159,7 +159,7 @@ fun MyBookingScreen() {
                                         Text(text = "Duration: ${booking.duration}")
 
                                         val isRedStatus = booking.status.equals("pending", ignoreCase = true) ||
-                                                booking.status.equals("reject", ignoreCase = true)
+                                                booking.status.equals("rejected", ignoreCase = true)
 
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically

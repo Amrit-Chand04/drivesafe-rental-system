@@ -112,4 +112,26 @@ class BookingViewModel : ViewModel() {
             }
         }
     }
+
+    fun loadAllBookings() {
+        _isLoading.value = true
+        repo.getAllBookings { success, msg, list ->
+            _isLoading.value = false
+            if (success) {
+                _bookings.value = list
+            } else {
+                _bookings.value = emptyList()
+                _message.value = msg
+            }
+        }
+    }
+
+    fun updateBookingStatus(bookingId: String, status: String, rejectionReason: String = "") {
+        repo.updateBookingStatus(bookingId, status, rejectionReason) { success, msg ->
+            _message.value = msg
+            if (success) {
+                loadAllBookings()
+            }
+        }
+    }
 }
