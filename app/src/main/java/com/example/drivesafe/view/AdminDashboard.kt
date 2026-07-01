@@ -303,6 +303,8 @@ fun AdminBody(
 
                                 "Bookings" -> {
                                     println("Bookings clicked")
+                                    val intent = Intent(context, ManageBookings::class.java)
+                                    context.startActivity(intent)
                                 }
 
                                 "KYC\nVerification" -> {
