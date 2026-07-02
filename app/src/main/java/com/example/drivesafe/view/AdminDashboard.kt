@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -42,6 +43,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,9 +60,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
 import com.example.drivesafe.viewmodel.ChatViewModel
+import com.example.drivesafe.viewmodel.UserViewModel
 
 class AdminDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,7 +143,7 @@ fun AdminDashboardScaffold(
 
                 val items = listOf(
                     "Home" to Icons.Default.Home,
-                    "Inbox" to Icons.Default.Notifications,
+                    "Inbox" to Icons.Default.ChatBubbleOutline,
                     "Offers" to Icons.Default.Add,
                     "Settings" to Icons.Default.Settings
                 )
@@ -189,6 +194,13 @@ fun AdminBody(
 ) {
 
     val context = LocalContext.current
+
+    val userViewModel: UserViewModel = viewModel()
+    val user by userViewModel.user.collectAsState()
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        userViewModel.loadCurrentUser()
+    }
 
     var showProfileScreen by remember {
         mutableStateOf(false)
@@ -266,9 +278,9 @@ fun AdminBody(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Admin",
-            fontSize = 36.sp,
-            fontWeight = FontWeight.Bold
+            text = user?.fullName ?: "Admin",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.SemiBold
         )
 
         Spacer(modifier = Modifier.height(50.dp))

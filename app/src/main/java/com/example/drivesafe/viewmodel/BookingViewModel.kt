@@ -1,5 +1,6 @@
 package com.example.drivesafe.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.example.drivesafe.model.BookingModel
 import com.example.drivesafe.repo.BookingRepo
@@ -11,6 +12,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class BookingViewModel : ViewModel() {
 
@@ -43,6 +47,7 @@ class BookingViewModel : ViewModel() {
     fun validateAndBook(
         fullName: String,
         phoneNumber: String,
+        pickupLocation: String,
         rentalPlan: String,
         pickupDate: String,
         pickupTime: String,
@@ -50,11 +55,13 @@ class BookingViewModel : ViewModel() {
         vehicleId: String,
         vehicleName: String,
         vehicleImage: String,
-        vehiclePrice: String
+        vehiclePrice: String,
+        vehicleNumber: String
     ) {
         when {
             fullName.isBlank() -> _message.value = "Enter Full Name"
             phoneNumber.isBlank() -> _message.value = "Enter Phone Number"
+            pickupLocation.isBlank() -> _message.value = "Enter Pickup Location"
             pickupDate.isBlank() -> _message.value = "Select Pickup Date"
             pickupTime.isBlank() -> _message.value = "Select Pickup Time"
             duration.isBlank() -> _message.value = "Enter Duration"
@@ -71,6 +78,7 @@ class BookingViewModel : ViewModel() {
                         userId = "",
                         fullName = fullName,
                         phoneNumber = phoneNumber,
+                        pickupLocation = pickupLocation,
                         rentalPlan = rentalPlan,
                         pickupDate = pickupDate,
                         pickupTime = pickupTime,
@@ -79,6 +87,8 @@ class BookingViewModel : ViewModel() {
                         vehicleName = vehicleName,
                         vehicleImage = vehicleImage,
                         vehiclePrice = vehiclePrice,
+                        vehicleNumber = vehicleNumber,
+                        bookingDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date()),
                         status = "PENDING",
                         paymentStatus = "PAID_FAKE"
                     )
@@ -98,6 +108,12 @@ class BookingViewModel : ViewModel() {
 
     fun clearMessage() {
         _message.value = null
+    }
+
+    fun generateBookingPdf(context: Context, booking: BookingModel) {
+        repo.generateBookingPdf(context, booking) { success, msg ->
+            _message.value = msg
+        }
     }
 
     fun loadMyBookings() {

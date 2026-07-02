@@ -59,8 +59,10 @@ import androidx.compose.ui.unit.sp
 import com.example.drivesafe.R
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 import android.content.Context
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.viewmodel.ChatViewModel
 import com.example.drivesafe.viewmodel.UserViewModel
@@ -89,7 +91,7 @@ fun User() {
 
     val chatViewModel: ChatViewModel = viewModel()
 
-    LaunchedEffect(Unit) {
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         vm.loadCurrentUser()
     }
 
@@ -106,6 +108,7 @@ fun User() {
 
             when (selectedIndex) {
                 0 -> UserBody(
+                    userName = user?.fullName ?: "User",
                     onCarClick = {
                         context.startActivity(Intent(context, CarSearchPage::class.java))
                     },
@@ -145,7 +148,7 @@ fun UserDashboardScaffold(
 
                 val items = listOf(
                     "Home" to Icons.Default.Home,
-                    "Inbox" to Icons.Default.Notifications,
+                    "Inbox" to Icons.Default.ChatBubbleOutline,
                     "Booking" to Icons.Default.Add,
                     "Settings" to Icons.Default.Settings
                 )
@@ -192,6 +195,7 @@ fun UserDashboardScaffold(
 
 @Composable
 fun UserBody(
+    userName: String,
     onCarClick: () -> Unit,
     onBikeClick: () -> Unit
 ) {
@@ -258,9 +262,9 @@ fun UserBody(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "User",
+            text = userName,
             fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground
         )
 
@@ -268,8 +272,7 @@ fun UserBody(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -362,12 +365,12 @@ fun UserBody(
                 ) {
 
                     Image(
-                        painter = painterResource(id = R.drawable.redcar),
+                        painter = painterResource(id = R.drawable.car_red),
                         contentDescription = "Vehicle",
                         modifier = Modifier.size(100.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
                         text = "CAR",
@@ -406,7 +409,7 @@ fun UserBody(
                         modifier = Modifier.size(100.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
 
                     Text(
                         text = "BIKE",

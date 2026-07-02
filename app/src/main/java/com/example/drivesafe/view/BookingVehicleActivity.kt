@@ -42,12 +42,14 @@ class BookingVehicleActivity : ComponentActivity() {
         val vehicleName = intent.getStringExtra("vehicleName") ?: ""
         val vehicleImage = intent.getStringExtra("vehicleImage") ?: ""
         val vehiclePrice = intent.getStringExtra("vehiclePrice") ?: "0"
+        val vehicleNumber = intent.getStringExtra("vehicleNumber") ?: ""
         setContent {
             BookingVehicle(
                 vehicleId = vehicleId,
                 vehicleName = vehicleName,
                 vehicleImage = vehicleImage,
-                vehiclePrice = vehiclePrice
+                vehiclePrice = vehiclePrice,
+                vehicleNumber = vehicleNumber
             )
         }
     }
@@ -59,7 +61,8 @@ fun BookingVehicle(
     vehicleId: String = "",
     vehicleName: String = "",
     vehicleImage: String = "",
-    vehiclePrice: String = "0"
+    vehiclePrice: String = "0",
+    vehicleNumber: String = ""
 ) {
 
     val context = LocalContext.current
@@ -70,6 +73,7 @@ fun BookingVehicle(
 
     var fullName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
+    var pickupLocation by remember { mutableStateOf("") }
     var rentalPlan by remember { mutableStateOf("Hourly") }
     var pickupDate by remember { mutableStateOf("") }
     var pickupTime by remember { mutableStateOf("") }
@@ -176,6 +180,17 @@ fun BookingVehicle(
                             label = { Text("Phone Number") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             leadingIcon = { Icon(Icons.Default.Call, contentDescription = null) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedTextField(
+                            value = pickupLocation,
+                            onValueChange = { pickupLocation = it },
+                            label = { Text("Pickup Location") },
+                            leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
+                            singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -309,6 +324,7 @@ fun BookingVehicle(
                         vm.validateAndBook(
                             fullName = fullName,
                             phoneNumber = phoneNumber,
+                            pickupLocation = pickupLocation,
                             rentalPlan = rentalPlan,
                             pickupDate = pickupDate,
                             pickupTime = pickupTime,
@@ -317,6 +333,7 @@ fun BookingVehicle(
                             vehicleName = vehicleName,
                             vehicleImage = vehicleImage,
                             vehiclePrice = vehiclePrice,
+                            vehicleNumber = vehicleNumber,
                         )
                     },
                     modifier = Modifier

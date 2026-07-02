@@ -323,10 +323,10 @@ fun BookingCard(
 
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(text = "Phone: ${booking.phoneNumber}", fontSize = 14.sp)
-                        Text(text = "Plan: ${booking.rentalPlan}", fontSize = 14.sp)
+                        Text(text = "Plan: ${booking.rentalPlan} (${booking.duration})", fontSize = 14.sp)
                         Text(text = "Pickup Date: ${booking.pickupDate}", fontSize = 14.sp)
                         Text(text = "Pickup Time: ${booking.pickupTime}", fontSize = 14.sp)
-                        Text(text = "Duration: ${booking.duration}", fontSize = 14.sp)
+                        Text(text = "Location: ${booking.pickupLocation}", fontSize = 14.sp)
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
