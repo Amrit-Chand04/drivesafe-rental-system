@@ -1,6 +1,7 @@
 package com.example.drivesafe.view
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -305,13 +306,19 @@ fun CarDetailsBody(
                         }
 
                     }
+
                     item {
 
                         Button(
                             onClick = {
-
-                                // open booking screen
-
+                                val effectivePrice = if (data.offerPercentage > 0 && data.discountedPrice > 0)
+                                    data.discountedPrice.toString() else data.price
+                                val intent = Intent(context, BookingVehicleActivity::class.java)
+                                intent.putExtra("vehicleId", carId)
+                                intent.putExtra("vehicleName", data.name)
+                                intent.putExtra("vehicleImage", data.vehicleImage)
+                                intent.putExtra("vehiclePrice", effectivePrice)
+                                context.startActivity(intent)
                             },
                             modifier = Modifier
                                 .fillMaxWidth()

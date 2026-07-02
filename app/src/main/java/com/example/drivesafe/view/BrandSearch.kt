@@ -6,14 +6,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,11 +20,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,48 +30,41 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.example.drivesafe.model.VehicleFirebaseModel
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 import com.example.drivesafe.viewmodel.FavoriteViewModel
 import com.example.drivesafe.viewmodel.KycViewModel
 import com.example.drivesafe.viewmodel.VehicleViewModel
-import com.example.drivesafe.R
-import com.example.drivesafe.model.VehicleFirebaseModel
 
-class CarSearchPage : ComponentActivity() {
+class BrandSearch : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
+
+        val brand = intent.getStringExtra("brand") ?: ""
 
         setContent {
             DriveSafeTheme {
-                CarSearchBody()
+                BrandSearchBody(brand = brand)
             }
         }
     }
 }
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CarSearchBody() {
+fun BrandSearchBody(brand: String) {
 
     val context = LocalContext.current
     val vehicleViewModel: VehicleViewModel = viewModel()
     val kycViewModel: KycViewModel = viewModel()
     val favoriteViewModel: FavoriteViewModel = viewModel()
 
-    val bikes by vehicleViewModel.vehicles.collectAsState()
+    val vehicles by vehicleViewModel.vehicles.collectAsState()
     val favoriteIds by favoriteViewModel.favoriteIds.collectAsState()
 
-    var showFilterDialog by remember { mutableStateOf(false) }
     var showKycDialog by remember { mutableStateOf(false) }
-
-    var selectedPriceFilter by remember {
-        mutableStateOf("All")
-    }
 
     val isLoading = vehicleViewModel.isLoading.collectAsState().value
 
@@ -85,25 +73,11 @@ fun CarSearchBody() {
         favoriteViewModel.loadFavorites()
     }
 
-    val filteredCars = remember(selectedPriceFilter, bikes) {
-
-        val carList = bikes.filter {
-            it.type.equals("Car", ignoreCase = true)
-        }
-
-        fun effectivePrice(it: com.example.drivesafe.model.VehicleFirebaseModel): Int =
-            if (it.offerPercentage > 0 && it.discountedPrice > 0) it.discountedPrice
-            else it.price.filter(Char::isDigit).toIntOrNull() ?: 0
-
-        when (selectedPriceFilter) {
-
-            "Low" -> carList.filter { effectivePrice(it) < 3000 }
-
-            "Medium" -> carList.filter { effectivePrice(it) in 3000..7000 }
-
-            "High" -> carList.filter { effectivePrice(it) > 7000 }
-
-            else -> carList
+    val filteredVehicles = remember(brand, vehicles) {
+        vehicles.filter {
+            (it.type.equals("Car", ignoreCase = true) ||
+                    it.type.equals("Bike", ignoreCase = true)) &&
+                    it.brand.contains(brand, ignoreCase = true)
         }
     }
 
@@ -145,101 +119,12 @@ fun CarSearchBody() {
         )
     }
 
-    if (showFilterDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                showFilterDialog = false
-            },
-            containerColor = Color.White,
-            shape = RoundedCornerShape(20.dp),
-
-            title = {
-                Text(
-                    text = "Filter by Price",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-            },
-
-            text = {
-
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-
-                    val filters = listOf(
-                        "All" to "All",
-                        "Low" to "Below Rs. 3000",
-                        "Medium" to "Rs. 3000 - Rs. 7000",
-                        "High" to "Above Rs. 7000"
-                    )
-
-                    filters.forEach { (key, label) ->
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    color = if (selectedPriceFilter == key)
-                                        Color(0xFFE8F5E9)
-                                    else
-                                        Color.Transparent,
-                                    shape = RoundedCornerShape(12.dp)
-                                )
-                                .clickable {
-                                    selectedPriceFilter = key
-                                    showFilterDialog = false
-                                }
-                                .padding(
-                                    horizontal = 14.dp,
-                                    vertical = 12.dp
-                                ),
-
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            Text(
-                                text = label,
-                                modifier = Modifier.fillMaxWidth(),
-                                fontSize = 15.sp,
-                                fontWeight = if (selectedPriceFilter == key)
-                                    FontWeight.Bold
-                                else
-                                    FontWeight.Normal,
-                                color = if (selectedPriceFilter == key)
-                                    Color(0xFF00A859)
-                                else
-                                    Color.Black
-                            )
-                        }
-                    }
-                }
-            },
-
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showFilterDialog = false
-                    }
-                ) {
-                    Text(
-                        "Close",
-                        color = Color(0xFF00A859),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        )
-    }
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Car Search",
+                        text = "Brand Search",
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -281,57 +166,15 @@ fun CarSearchBody() {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.width(60.dp)
-                ) {
-
-                    Button(
-                        onClick = {
-                            showFilterDialog = true
-                        },
-                        shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White
-                        ),
-                        modifier = Modifier.size(55.dp),
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-
-                        Image(
-                            painter = painterResource(id = R.drawable.filter),
-                            contentDescription = "Filter",
-                            modifier = Modifier.size(22.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
-
-
-                    Text(
-                        text = selectedPriceFilter,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF00A859),
-                        maxLines = 1
-                    )
-                }
-            }
-
-
             Text(
-                text = "Recommend For You",
+                text = "Results for \"$brand\"",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color.Black
             )
+
             Spacer(modifier = Modifier.height(12.dp))
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -356,13 +199,13 @@ fun CarSearchBody() {
                         }
                     }
 
-                    filteredCars.isEmpty() -> {
+                    filteredVehicles.isEmpty() -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No bikes found",
+                                text = "No vehicles found for this brand.",
                                 color = Color.Gray
                             )
                         }
@@ -375,16 +218,23 @@ fun CarSearchBody() {
                                 .padding(8.dp),
                             verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
-                            items(filteredCars) { car ->
-                                CarCard(
-                                    vehicle = car,
-                                    isFavorite = favoriteIds.contains(car.vehicleId),
-                                    onFavoriteClick = { favoriteViewModel.toggleFavorite(car.vehicleId) },
+                            items(filteredVehicles) { vehicle ->
+                                BrandVehicleCard(
+                                    vehicle = vehicle,
+                                    isFavorite = favoriteIds.contains(vehicle.vehicleId),
+                                    onFavoriteClick = {
+                                        favoriteViewModel.toggleFavorite(vehicle.vehicleId)
+                                    },
                                     onBook = {
                                         kycViewModel.checkKycStatus { isVerified ->
                                             if (isVerified) {
-                                                val intent = Intent(context, CarDetails::class.java)
-                                                intent.putExtra("carId", car.vehicleId)
+                                                val intent = if (vehicle.type.equals("Car", ignoreCase = true)) {
+                                                    Intent(context, CarDetails::class.java)
+                                                        .putExtra("carId", vehicle.vehicleId)
+                                                } else {
+                                                    Intent(context, BikeDetails::class.java)
+                                                        .putExtra("bikeId", vehicle.vehicleId)
+                                                }
                                                 context.startActivity(intent)
                                             } else {
                                                 showKycDialog = true
@@ -402,20 +252,17 @@ fun CarSearchBody() {
 }
 
 @Composable
-fun CarCard(
+fun BrandVehicleCard(
     vehicle: VehicleFirebaseModel,
     isFavorite: Boolean = false,
     onFavoriteClick: () -> Unit = {},
     onBook: () -> Unit
 ) {
-    //debugging
-
-    println("VEHICLE IMAGE URL = ${vehicle.vehicleImage}")
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(242.dp),
+            .height(220.dp),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -438,8 +285,7 @@ fun CarCard(
                     contentDescription = vehicle.name,
                     modifier = Modifier
                         .width(130.dp)
-                        .height(210.dp)
-                        .clip(RoundedCornerShape(16.dp)),
+                        .height(180.dp),
                     contentScale = ContentScale.Crop
                 )
 
@@ -449,18 +295,15 @@ fun CarCard(
                     modifier = Modifier.weight(1f)
                 ) {
 
-
                     Text(
                         text = vehicle.name,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
 
-
                     Spacer(
                         modifier = Modifier.height(6.dp)
                     )
-
 
                     Text(
                         text = "Type: ${vehicle.type}"
@@ -513,9 +356,7 @@ fun CarCard(
                         fontWeight = FontWeight.Bold
                     )
 
-
                     Spacer(modifier = Modifier.height(10.dp))
-
 
                     Row {
 
@@ -525,13 +366,12 @@ fun CarCard(
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFF00A859)
                             )
-                        ){
+                        ) {
                             Text(
                                 text = "Book",
                                 fontSize = 12.sp
                             )
                         }
-
                     }
                 }
             }
@@ -558,8 +398,8 @@ fun CarCard(
     heightDp = 800
 )
 @Composable
-fun BikePreview() {
+fun BrandSearchPreview() {
     DriveSafeTheme {
-        CarSearchBody()
+        BrandSearchBody(brand = "")
     }
 }

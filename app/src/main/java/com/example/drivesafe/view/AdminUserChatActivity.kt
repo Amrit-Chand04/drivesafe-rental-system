@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -17,17 +18,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.drivesafe.R
 import com.example.drivesafe.model.ChatListModel
 import com.example.drivesafe.model.MessageModel
-import com.example.drivesafe.repo.ChatRepoImpl
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 import com.example.drivesafe.viewmodel.ChatViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class AdminUserChatActivity : ComponentActivity() {
 
@@ -40,9 +40,7 @@ class AdminUserChatActivity : ComponentActivity() {
 
         setContent {
             DriveSafeTheme {
-                val chatViewModel = remember {
-                    ChatViewModel(ChatRepoImpl())
-                }
+                val chatViewModel: ChatViewModel = viewModel()
 
                 AdminUserChatBody(
                     userId = userId,
@@ -65,16 +63,13 @@ fun AdminUserChatBody(
     val chatId = "chat_$userId"
 
     var messageText by remember { mutableStateOf("") }
-    var messages by remember { mutableStateOf(listOf<MessageModel>()) }
+    val messages by chatViewModel.messages.collectAsState()
 
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
         chatViewModel.markAdminChatAsRead(userId)
-
-        chatViewModel.getMessages(chatId) { list ->
-            messages = list
-        }
+        chatViewModel.loadMessages(chatId)
     }
 
     LaunchedEffect(messages.size) {
@@ -84,8 +79,18 @@ fun AdminUserChatBody(
     }
 
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = { (context as Activity).finish() }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.outline_arrow_back_ios_24),
+                            contentDescription = "Back",
+                            tint = Color.Black
+                        )
+                    }
+                },
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
@@ -111,16 +116,11 @@ fun AdminUserChatBody(
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Black
                             )
-                            Text(
-                                text = "Online",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = Color(0xFFE8F5E9)
                 )
             )
         }
@@ -163,11 +163,12 @@ fun AdminUserChatBody(
                 }
 
                 items(messages) { msg ->
-                    AdminMessageBubble(
+                    ChatMessageBubble(
                         message = msg.message,
                         senderName = msg.senderName,
-                        time = formatAdminUserChatTime(msg.timestamp),
-                        isMine = msg.senderRole == "admin"
+                        time = formatChatTime(msg.timestamp),
+                        isMine = msg.senderRole == "admin",
+                        mineLabel = "Admin"
                     )
                 }
             }
@@ -175,7 +176,7 @@ fun AdminUserChatBody(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(Color(0xFFE8F5E9))
                     .padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -246,86 +247,3 @@ fun AdminUserChatBody(
     }
 }
 
-@Composable
-fun AdminMessageBubble(
-    message: String,
-    senderName: String,
-    time: String,
-    isMine: Boolean
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
-    ) {
-
-        if (!isMine) {
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .background(Color(0xFFE1F7EA), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = senderName.firstOrNull()?.uppercase() ?: "U",
-                    color = Color(0xFF00A859),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-        }
-
-        Card(
-            modifier = Modifier.widthIn(max = 260.dp),
-            shape = RoundedCornerShape(
-                topStart = 18.dp,
-                topEnd = 18.dp,
-                bottomStart = if (isMine) 18.dp else 4.dp,
-                bottomEnd = if (isMine) 4.dp else 18.dp
-            ),
-            colors = CardDefaults.cardColors(
-                containerColor = if (isMine) Color(0xFFE0FFD8) else Color.White
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(12.dp)
-            ) {
-                Text(
-                    text = if (isMine) "Admin" else senderName,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00A859)
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = message,
-                    fontSize = 16.sp,
-                    color = Color.Black
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = time,
-                    fontSize = 11.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.align(Alignment.End)
-                )
-            }
-        }
-    }
-}
-
-fun formatAdminUserChatTime(timestamp: Long): String {
-    return try {
-        val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
-        sdf.format(Date(timestamp))
-    } catch (e: Exception) {
-        ""
-    }
-}

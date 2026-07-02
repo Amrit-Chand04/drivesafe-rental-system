@@ -15,6 +15,39 @@
         android:theme="@style/Theme.DriveSafe"
         tools:replace="android:fullBackupContent">
         <activity
+            android:name=".view.ManageBookings"
+            android:exported="true"
+            android:label="@string/title_activity_manage_bookings"
+            android:theme="@style/Theme.DriveSafe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.MyBookingsActivity"
+            android:exported="true"
+            android:label="@string/title_activity_my_bookings"
+            android:theme="@style/Theme.DriveSafe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.BrandSearch"
+            android:exported="true"
+            android:label="@string/title_activity_brand_search"
+            android:theme="@style/Theme.DriveSafe">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".view.ProfileUpdate"
             android:exported="true"
             android:label="@string/title_activity_profile_update"
@@ -29,7 +62,8 @@
             android:name=".view.AdminUserChatActivity"
             android:exported="true"
             android:label="@string/title_activity_admin_user_chat"
-            android:theme="@style/Theme.DriveSafe">
+            android:theme="@style/Theme.DriveSafe"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -152,7 +186,8 @@
             android:name=".view.UserChatActivity"
             android:exported="true"
             android:label="@string/title_activity_user_chat"
-            android:theme="@style/Theme.DriveSafe">
+            android:theme="@style/Theme.DriveSafe"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

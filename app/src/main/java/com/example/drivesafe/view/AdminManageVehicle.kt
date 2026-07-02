@@ -27,6 +27,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -428,6 +429,10 @@ fun AddVehicleDialog(
         mutableStateOf(vehicle?.number ?: "")
     }
 
+    var vehicleBrand by remember {
+        mutableStateOf(vehicle?.brand ?: "")
+    }
+
     var status by remember {
         mutableStateOf(vehicle?.status ?: "Available")
     }
@@ -558,6 +563,17 @@ fun AddVehicleDialog(
                     value = vehicleNumber,
                     onValueChange = { vehicleNumber = it },
                     label = { Text("Vehicle Number") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Vehicle Brand
+                OutlinedTextField(
+                    value = vehicleBrand,
+                    onValueChange = { vehicleBrand = it },
+                    label = { Text("Brand") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -746,6 +762,7 @@ fun AddVehicleDialog(
                         vehicleName.isBlank() ||
                         vehicleType.isBlank() ||
                         vehicleNumber.isBlank() ||
+                        vehicleBrand.isBlank() ||
                         pricePerDay.isBlank() ||
                         description.isBlank() ||
                         capacity.isBlank() ||
@@ -769,6 +786,7 @@ fun AddVehicleDialog(
                             type = vehicleType,
                             fuelType = fuelType,
                             number = vehicleNumber,
+                            brand = vehicleBrand,
                             status = status,
                             vehicleImage = vehicleImage,
                             price = "Rs. $pricePerDay/Day",
@@ -796,6 +814,7 @@ fun AddVehicleDialog(
                                     vehicle.type != vehicleType ||
                                     vehicle.fuelType != fuelType ||
                                     vehicle.number != vehicleNumber ||
+                                    vehicle.brand != vehicleBrand ||
                                     vehicle.status != status ||
                                     vehicle.price != "Rs. $pricePerDay/Day" ||
                                     vehicle.description != description ||
@@ -822,6 +841,7 @@ fun AddVehicleDialog(
                             type = vehicleType,
                             fuelType = fuelType,
                             number = vehicleNumber,
+                            brand = vehicleBrand,
                             status = status,
                             price = "Rs. $pricePerDay/Day",
                             description = description,
@@ -914,127 +934,118 @@ fun VehicleCard(
 
     println("VEHICLE IMAGE URL = ${vehicle.vehicleImage}")
 
-    var imageLoading by remember { mutableStateOf(true) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(220.dp),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-
-        Row(
+        Card(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(6.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth()
+                .height(220.dp),
+            shape = RoundedCornerShape(22.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
+            elevation = CardDefaults.cardElevation(4.dp)
         ) {
 
-
-            // IMAGE FROM CLOUDINARY URL
-            Box(
+            Row(
                 modifier = Modifier
-                    .width(130.dp)
-                    .height(180.dp),
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .padding(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+
+
+                // IMAGE FROM CLOUDINARY URL
                 AsyncImage(
                     model = vehicle.vehicleImage,
                     contentDescription = vehicle.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    onSuccess = { imageLoading = false },
-                    onError = { imageLoading = false }
+                    modifier = Modifier
+                        .width(130.dp)
+                        .height(238.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+
+                    contentScale = ContentScale.Crop
                 )
 
-                if (imageLoading) {
-                    CircularProgressIndicator()
-                }
-            }
+                Spacer(modifier = Modifier.width(12.dp))
 
 
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
 
 
-                Text(
-                    text = vehicle.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                    Text(
+                        text = vehicle.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
 
 
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
+                    Spacer(
+                        modifier = Modifier.height(6.dp)
+                    )
 
 
-                Text(
-                    text = "Type: ${vehicle.type}"
-                )
+                    Text(
+                        text = "Type: ${vehicle.type}"
+                    )
 
-                Text(
-                    text = "Number: ${vehicle.number}"
-                )
+                    Text(
+                        text = "Number: ${vehicle.number}"
+                    )
 
-                Text(
-                    text = "Price: ${vehicle.price}"
-                )
+                    Text(
+                        text = "Brand: ${vehicle.brand}"
+                    )
 
-                Text(
-                    text = "Status: ${vehicle.status}",
-                    color = Color(0xFF00A859),
-                    fontWeight = FontWeight.Bold
-                )
+                    Text(
+                        text = "Price: ${vehicle.price}"
+                    )
 
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-
-                Row {
-
-                    Button(
-                        onClick = onEdit,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF00A859)
-                        )
-                    ){
-                        Text(
-                            text = "Edit",
-                            fontSize = 10.sp
-                        )
-                    }
+                    Text(
+                        text = "Status: ${vehicle.status}",
+                        color = Color(0xFF00A859),
+                        fontWeight = FontWeight.Bold
+                    )
 
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
 
-                    Button(
-                        onClick = onDelete,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red
-                        )
-                    ){
-                        Text(
-                            text = "Delete",
-                            fontSize = 10.sp
-                        )
+                    Row {
+
+                        Button(
+                            onClick = onEdit,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF00A859)
+                            )
+                        ){
+                            Text(
+                                text = "Edit",
+                                fontSize = 10.sp
+                            )
+                        }
+
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+
+                        Button(
+                            onClick = onDelete,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red
+                            )
+                        ){
+                            Text(
+                                text = "Delete",
+                                fontSize = 10.sp
+                            )
+                        }
                     }
                 }
             }
         }
-    }
 }
 
 @Preview(

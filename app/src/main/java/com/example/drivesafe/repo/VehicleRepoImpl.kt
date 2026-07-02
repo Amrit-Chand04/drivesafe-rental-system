@@ -70,6 +70,7 @@ class VehicleRepoImpl(private val context: Context) : VehicleRepo {
                     type = vehicle.type,
                     fuelType = vehicle.fuelType,
                     number = vehicle.number,
+                    brand = vehicle.brand,
                     status = vehicle.status,
                     vehicleImage = imageUrl,
                     price = vehicle.price,
@@ -222,6 +223,8 @@ class VehicleRepoImpl(private val context: Context) : VehicleRepo {
                     fuelType = vehicle.fuelType,
 
                     number = vehicle.number,
+
+                    brand = vehicle.brand,
 
                     status = vehicle.status,
 

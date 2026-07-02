@@ -2,11 +2,14 @@ package com.example.drivesafe.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -58,7 +62,9 @@ import android.content.Context
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.drivesafe.viewmodel.ChatViewModel
 import com.example.drivesafe.viewmodel.UserViewModel
+import com.example.drivesafe.viewmodel.VehicleViewModel
 
 class UserDashboard : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,15 +84,51 @@ fun User() {
 
     var selectedIndex by remember { mutableStateOf(0) }
 
-    var currentScreen1 by remember { mutableStateOf("home") }
-
     val vm: UserViewModel = viewModel()
     val user by vm.user.collectAsState()
+
+    val chatViewModel: ChatViewModel = viewModel()
 
     LaunchedEffect(Unit) {
         vm.loadCurrentUser()
     }
 
+    UserDashboardScaffold(
+        selectedIndex = selectedIndex,
+        onItemSelected = { index -> selectedIndex = index }
+    ) { padding ->
+
+        Box(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+        ) {
+
+            when (selectedIndex) {
+                0 -> UserBody(
+                    onCarClick = {
+                        context.startActivity(Intent(context, CarSearchPage::class.java))
+                    },
+                    onBikeClick = {
+                        context.startActivity(
+                            Intent(context, BikeSearchPage::class.java)
+                        )
+                    }
+                )
+                1 -> UserAdminChatBody(chatViewModel)
+                2 -> MyBookingScreen()
+                3 -> SettingsScreen()
+            }
+        }
+    }
+}
+
+@Composable
+fun UserDashboardScaffold(
+    selectedIndex: Int,
+    onItemSelected: (Int) -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color(0xFFE8F5E9),
@@ -112,7 +154,7 @@ fun User() {
 
                     NavigationBarItem(
                         selected = selectedIndex == index,
-                        onClick = { selectedIndex = index },
+                        onClick = { onItemSelected(index) },
 
                         icon = {
                             Icon(
@@ -143,35 +185,7 @@ fun User() {
             }
         }
 
-    ) { padding ->
-
-        Box(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-
-            when (selectedIndex) {
-                0 -> {
-                    when (currentScreen1) {
-                        "home" -> UserBody(
-                            onCarClick = {
-                                context.startActivity(Intent(context, CarSearchPage::class.java))
-                            },
-                            onBikeClick = {
-                                context.startActivity(
-                                    Intent(context, BikeSearchPage::class.java)
-                                )
-                            }
-                        )
-                    }
-                }
-                1 -> InboxScreen()
-                2 -> BookingScreen()
-                3 -> SettingsScreen()
-            }
-        }
-    }
+    ) { padding -> content(padding) }
 }
 
 
@@ -182,11 +196,14 @@ fun UserBody(
     onBikeClick: () -> Unit
 ) {
 
+    val context = LocalContext.current
     var text by remember { mutableStateOf("") }
+    val vehicleViewModel: VehicleViewModel = viewModel()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
 
     ) {
@@ -210,7 +227,7 @@ fun UserBody(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                IconButton(onClick = {}) {
+                IconButton(onClick = {context.startActivity(Intent(context, NotificationActivity::class.java))}) {
                     Icon(
                         Icons.Default.Notifications,
                         contentDescription = "Notifications",
@@ -220,8 +237,7 @@ fun UserBody(
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                IconButton(onClick = {
-                }) {
+                IconButton(onClick = {context.startActivity(Intent(context, ProfileUpdate::class.java))}) {
                     Icon(
                         Icons.Default.Person,
                         contentDescription = "Profile",
@@ -269,8 +285,43 @@ fun UserBody(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            ElevatedButton(onClick = { },
-                modifier = Modifier.size(width = 100.dp, height = 50.dp)) {
+            ElevatedButton(
+                onClick = {
+                    val brandQuery = text.trim()
+
+                    if (brandQuery.isBlank()) {
+                        Toast.makeText(
+                            context,
+                            "Please enter a brand name",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@ElevatedButton
+                    }
+
+                    vehicleViewModel.getVehicles { _, _, list ->
+
+                        val matches = list.filter {
+                            (it.type.equals("Car", ignoreCase = true) ||
+                                    it.type.equals("Bike", ignoreCase = true)) &&
+                                    it.brand.contains(brandQuery, ignoreCase = true)
+                        }
+
+                        if (matches.isNotEmpty()) {
+                            context.startActivity(
+                                Intent(context, BrandSearch::class.java)
+                                    .putExtra("brand", brandQuery)
+                            )
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "No vehicles found for this brand.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                },
+                modifier = Modifier.size(width = 100.dp, height = 50.dp)
+            ) {
                 Text(
                     text = "Search",
                     fontSize = 16.sp
@@ -405,19 +456,6 @@ fun UserBody(
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-    }
-}
-@Composable
-fun InboxScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Inbox Screen")
-    }
-}
-
-@Composable
-fun BookingScreen() {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Booking Screen")
     }
 }
 
