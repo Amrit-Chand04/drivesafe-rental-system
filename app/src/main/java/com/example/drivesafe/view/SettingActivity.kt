@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -23,16 +25,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.drivesafe.ui.theme.AppThemeState
 import com.example.drivesafe.ui.theme.DriveSafeTheme
+import com.example.drivesafe.viewmodel.ThemeViewModel
 import com.example.drivesafe.viewmodel.UserViewModel
 
 class SettingActivity : ComponentActivity() {
@@ -54,12 +58,30 @@ fun SettingsScreen() {
     val vm: UserViewModel = viewModel()
     val user by vm.user.collectAsState()
 
+    val themeViewModel: ThemeViewModel = viewModel()
+    val selectedTheme by themeViewModel.selectedTheme.collectAsState()
+
+    val isDarkTheme = when (selectedTheme) {
+        "Dark" -> true
+        "Light" -> false
+        else -> isSystemInDarkTheme()
+    }
+
+    val backgroundColor = if (isDarkTheme) Color(0xFF121212) else Color(0xFFE8F5E9)
+    val cardColor = if (isDarkTheme) Color(0xFF1E1E1E) else Color.White
+    val textColor = if (isDarkTheme) Color.White else Color.Black
+
     var showAppearance by remember { mutableStateOf(false) }
-    var selectedTheme by remember { mutableStateOf("System") }
 
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     val isLoggedOut by vm.isLoggedOut.collectAsState()
+
+    val view = LocalView.current
+    SideEffect {
+        val window = (view.context as Activity).window
+        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkTheme
+    }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         vm.loadCurrentUser()
@@ -85,7 +107,9 @@ fun SettingsScreen() {
                 showLogoutDialog = false
             },
 
-            containerColor = Color(0xFFE8F5E9),
+            containerColor = backgroundColor,
+            titleContentColor = textColor,
+            textContentColor = textColor,
 
             title = {
                 Text("Logout")
@@ -122,7 +146,7 @@ fun SettingsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFE8F5E9))
+            .background(backgroundColor)
             .padding(horizontal = 16.dp)
     ) {
 
@@ -130,7 +154,7 @@ fun SettingsScreen() {
             text = "Settings",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = textColor,
             modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
         )
 
@@ -227,31 +251,43 @@ fun SettingsScreen() {
                 item {
                     SettingsItem(
                         title = "Favourite",
+                        cardColor = cardColor,
+                        titleColor = textColor,
                         onClick = { context.startActivity(Intent(context, FavoritesActivity::class.java)) }
                     )
                 }
                 item {
                     SettingsItem(
                         title = "Complete KYC",
+                        cardColor = cardColor,
+                        titleColor = textColor,
                         onClick = { context.startActivity(Intent(context, KycActivity::class.java)) }
                     )
                 }
             }
 
-            item { SettingsItem(title = "Appearance", onClick = { onAppearanceClick() }) }
+            item {
+                SettingsItem(
+                    title = "Appearance",
+                    cardColor = cardColor,
+                    titleColor = textColor,
+                    onClick = { onAppearanceClick() }
+                )
+            }
 
             if (showAppearance) {
                 item {
                     Column(modifier = Modifier.padding(start = 20.dp)) {
                         listOf("Light", "Dark", "System").forEach { theme ->
+                            val isSelected = theme == selectedTheme
                             Text(
-                                text = theme,
-                                color = MaterialTheme.colorScheme.onSurface,
+                                text = if (isSelected) "$theme  ✓" else theme,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) Color(0xFF24C16B) else textColor,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        selectedTheme = theme
-                                        AppThemeState.theme.value = theme
+                                        themeViewModel.setTheme(theme)
                                         showAppearance = false
                                     }
                                     .padding(8.dp)
@@ -264,6 +300,8 @@ fun SettingsScreen() {
             item {
                 SettingsItem(
                     title = "Password Change",
+                    cardColor = cardColor,
+                    titleColor = textColor,
                     onClick = { context.startActivity(Intent(context, ChangePasswordActivity::class.java)) }
                 )
             }
@@ -271,6 +309,7 @@ fun SettingsScreen() {
             item {
                 SettingsItem(
                     title = "Log Out",
+                    cardColor = cardColor,
                     titleColor = Color.Red,
                     onClick = { showLogoutDialog = true }
                 )
@@ -282,7 +321,8 @@ fun SettingsScreen() {
 @Composable
 fun SettingsItem(
     title: String,
-    titleColor: Color = MaterialTheme.colorScheme.onSurface,
+    cardColor: Color = Color.White,
+    titleColor: Color = Color.Black,
     onClick: () -> Unit
 ) {
 
@@ -295,7 +335,7 @@ fun SettingsItem(
         shape = RoundedCornerShape(20.dp),
 
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = cardColor
         ),
 
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -318,7 +358,7 @@ fun SettingsItem(
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = titleColor
             )
         }
     }
