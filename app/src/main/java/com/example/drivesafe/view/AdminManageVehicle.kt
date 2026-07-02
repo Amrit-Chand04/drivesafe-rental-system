@@ -359,7 +359,7 @@ fun VehicleBody(){
                 .verticalScroll(rememberScrollState())
         ) {
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(7.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),

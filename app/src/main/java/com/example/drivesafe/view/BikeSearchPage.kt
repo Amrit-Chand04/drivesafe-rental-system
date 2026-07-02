@@ -77,6 +77,8 @@ fun BikeSearchBody() {
         mutableStateOf("All")
     }
 
+    var searchQuery by remember { mutableStateOf("") }
+
     val isLoading = vehicleViewModel.isLoading.collectAsState().value
 
     LaunchedEffect(Unit) {
@@ -84,10 +86,18 @@ fun BikeSearchBody() {
         favoriteViewModel.loadFavorites()
     }
 
-    val filteredBikes = remember(selectedPriceFilter, bikes) {
+    val filteredBikes = remember(selectedPriceFilter, searchQuery, bikes) {
 
         val bikeList = bikes.filter {
             it.type.equals("Bike", ignoreCase = true)
+        }
+
+        val bySearch = if (searchQuery.isBlank()) {
+            bikeList
+        } else {
+            bikeList.filter {
+                it.name.contains(searchQuery, ignoreCase = true)
+            }
         }
 
         fun effectivePrice(it: com.example.drivesafe.model.VehicleFirebaseModel): Int =
@@ -96,13 +106,13 @@ fun BikeSearchBody() {
 
         when(selectedPriceFilter){
 
-            "Low" -> bikeList.filter { effectivePrice(it) < 3000 }
+            "Low" -> bySearch.filter { effectivePrice(it) < 3000 }
 
-            "Medium" -> bikeList.filter { effectivePrice(it) in 3000..7000 }
+            "Medium" -> bySearch.filter { effectivePrice(it) in 3000..7000 }
 
-            "High" -> bikeList.filter { effectivePrice(it) > 7000 }
+            "High" -> bySearch.filter { effectivePrice(it) > 7000 }
 
-            else -> bikeList
+            else -> bySearch
         }
     }
 
@@ -255,11 +265,11 @@ fun BikeSearchBody() {
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFEAF8EE)
+                    containerColor = Color(0xFFE8F5E9)
                 )
             )
         },
-        containerColor = Color(0xFFEAF8EE)
+        containerColor = Color(0xFFE8F5E9)
     ) { paddingValues ->
 
         Column(
@@ -270,23 +280,30 @@ fun BikeSearchBody() {
                 .padding(horizontal = 16.dp),
         ) {
 
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp),
-                thickness = 1.dp,
-                color = Color.LightGray
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = {
+                        Text(
+                            text = "Search vehicles...",
+                            fontSize = 13.sp
+                        )
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(55.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    singleLine = true
+                )
+
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.width(60.dp)

@@ -103,7 +103,7 @@ fun ForgetPasswordBody() {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color(0xFF2E7D32)
+                        tint = Color.Black
                     )
                 }
             }
