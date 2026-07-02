@@ -38,6 +38,21 @@ fun formatChatTime(timestamp: Long): String {
     }
 }
 
+private val chatDayFormat = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+
+fun chatDayKey(timestamp: Long): String = chatDayFormat.format(Date(timestamp))
+
+fun formatChatDate(timestamp: Long): String {
+    val today = chatDayFormat.format(Date())
+    val yesterday = chatDayFormat.format(Date(System.currentTimeMillis() - 86_400_000L))
+
+    return when (chatDayFormat.format(Date(timestamp))) {
+        today -> "Today"
+        yesterday -> "Yesterday"
+        else -> SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(timestamp))
+    }
+}
+
 @Composable
 fun ChatListCard(
     name: String,
