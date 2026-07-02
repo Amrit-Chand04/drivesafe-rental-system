@@ -95,6 +95,7 @@ class UserViewModel(private val repo: UserRepo = UserRepoImpl()) : ViewModel() {
             return
         }
 
+        _loading.value = true
         repo.register(email, password) { success, message, uid ->
             if (success) {
                 val user = UserModel(
@@ -106,6 +107,7 @@ class UserViewModel(private val repo: UserRepo = UserRepoImpl()) : ViewModel() {
                 )
 
                 repo.addUser(uid, user) { addSuccess, addMessage ->
+                    _loading.value = false
                     if (addSuccess) {
                         _message.value = "Signup Successful"
                         onSuccess()
@@ -115,6 +117,7 @@ class UserViewModel(private val repo: UserRepo = UserRepoImpl()) : ViewModel() {
                     }
                 }
             } else {
+                _loading.value = false
                 _message.value = if (message.contains("already", ignoreCase = true)) {
                     "Email already in use."
                 } else {

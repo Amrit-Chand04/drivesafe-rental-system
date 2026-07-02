@@ -1,5 +1,7 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -7,17 +9,23 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -78,6 +86,9 @@ fun SignUpScreen(enableBackend: Boolean = true) {
     val message by userViewModel?.message?.collectAsState(initial = null)
         ?: remember { mutableStateOf(null) }
 
+    val isLoading by userViewModel?.loading?.collectAsState(initial = false)
+        ?: remember { mutableStateOf(false) }
+
     LaunchedEffect(message) {
         message?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -96,15 +107,30 @@ fun SignUpScreen(enableBackend: Boolean = true) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, start = 8.dp)
+            ) {
+                IconButton(
+                    onClick = { (context as Activity).finish() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color(0xFF2E7D32)
+                    )
+                }
+            }
+
 
             Image(
                 painter = painterResource(id = R.drawable.logo_for_app),
                 contentDescription = "Logo",
-                modifier = Modifier.size(130.dp)
+                modifier = Modifier.size(116.dp)
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Column(
                 modifier = Modifier
@@ -231,6 +257,7 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                             confirmPassword = ""
                         }
                     },
+                    enabled = !isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(58.dp),
@@ -244,10 +271,33 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                     )
                 ) {
 
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = Color.White
+                        )
+                    } else {
+                        Text(
+                            text = "Sign Up",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(25.dp))
+
+                Row {
+                    Text("Already have an account?")
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "Sign Up",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                        text = "Login",
+                        color = Color(0xFF2E7D32),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable {
+                            (context as Activity).finish()
+                        }
                     )
                 }
             }

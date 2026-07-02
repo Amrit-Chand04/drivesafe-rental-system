@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -8,10 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,15 +17,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -59,7 +64,6 @@ class ForgetPassword : ComponentActivity() {
     }
 }
 
-
 @Composable
 fun ForgetPasswordBody() {
 
@@ -68,219 +72,138 @@ fun ForgetPasswordBody() {
 
     val forgetPasswordViewModel: UserViewModel = viewModel()
     val message by forgetPasswordViewModel.message.collectAsState()
+    val isLoading by forgetPasswordViewModel.loading.collectAsState()
 
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFE8F5E9))
-    ) {
+    LaunchedEffect(message) {
+        message?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            forgetPasswordViewModel.clearMessage()
+        }
+    }
+
+    Scaffold { padding ->
+
         Column(
-            modifier = Modifier.fillMaxSize().padding(17.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFE8F5E9))
+                .padding(padding)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(50.dp))
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, start = 8.dp)
             ) {
-                Image(
-                    painter = painterResource(R.drawable.logo_for_app),
-                    contentDescription = null,
-                    modifier = Modifier.size(130.dp)
-
-                )
+                IconButton(
+                    onClick = { (context as Activity).finish() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color(0xFF2E7D32)
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(80.dp))
+            Image(
+                painter = painterResource(id = R.drawable.logo_for_app),
+                contentDescription = "Logo",
+                modifier = Modifier.size(116.dp)
+            )
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Column (
-                Modifier.fillMaxWidth().wrapContentHeight().background(
-                    color = Color(0xFFFFFFFF),
-                    shape = RoundedCornerShape(20.dp)
-                ).padding(13.dp)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .shadow(10.dp, RoundedCornerShape(25.dp))
+                    .background(Color.White, RoundedCornerShape(25.dp))
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    "Forgot Password?", style = TextStyle(
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    text = "Forgot Password?",
+                    style = TextStyle(fontSize = 30.sp, fontWeight = FontWeight.Bold)
                 )
 
-                Spacer(modifier = Modifier.height(21.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Enter your email to receive a reset code.",
-                    fontSize = 18.sp,
+                    text = "Enter your email to receive a reset link.",
+                    fontSize = 14.sp,
                     color = Color.Gray,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(40.dp))
-
-
-                Text(
-                    text = "Email Address",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(25.dp))
 
                 OutlinedTextField(
                     value = email,
-                    onValueChange = {
-                        email = it
-                    },
-                    shape = RoundedCornerShape(12.dp),
+                    onValueChange = { email = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = {
-                        Text("Enter your email")
-                    },
+                    placeholder = { Text("Email") },
                     singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        unfocusedIndicatorColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Gray.copy(alpha = 0.1f),
-                        focusedContainerColor = Color.Gray.copy(alpha = 0.1f),
-                        focusedIndicatorColor = Color.Blue,
-                    )
+                    shape = RoundedCornerShape(15.dp)
                 )
 
-                Spacer(modifier = Modifier.height(37.dp))
+                Spacer(modifier = Modifier.height(25.dp))
 
-                // Reset Button
-                ElevatedButton (
-
+                ElevatedButton(
                     onClick = {
-                        if (email.isNotBlank()) {
-                            forgetPasswordViewModel.sendPasswordResetEmail(email)
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Please enter your email address",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        forgetPasswordViewModel.sendPasswordResetEmail(email)
                     },
-
+                    enabled = !isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(60.dp),
-
-                    shape = RoundedCornerShape(18.dp),
-
+                        .height(58.dp),
+                    shape = RoundedCornerShape(50.dp),
+                    colors = ButtonDefaults.elevatedButtonColors(
+                        containerColor = Color(0xFF2E7D32),
+                        contentColor = Color.White
+                    ),
                     elevation = ButtonDefaults.elevatedButtonElevation(
                         defaultElevation = 8.dp
-                    ),
-
-                    colors = ButtonDefaults.elevatedButtonColors(
-                        containerColor = Color.Transparent
-                    ),
-
-                    contentPadding = PaddingValues()
+                    )
                 ) {
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    colors = listOf(
-                                        Color(0xFF0066FF),
-                                        Color(0xFF16D64D)
-                                    )
-                                )
-                            ),
-
-                        contentAlignment = Alignment.Center
-                    ) {
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            Text(
-                                text = "Send Reset Code",
-                                color = Color.White,
-                                fontSize = 20.sp
-                            )
-
-                        }
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = Color.White
+                        )
+                    } else {
+                        Text(
+                            text = "Send Reset Link",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(17.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                if (!message.isNullOrEmpty()) {
-
-                    Text(
-                        text = message ?: "",
-                        color = if (
-                            message?.contains("successfully", true) == true
-                        ) Color(0xFF16D64D)
-                        else Color.Red,
-                        fontSize = 15.sp
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(37.dp))
-
-                // OR DIVIDER
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Divider(
-                        modifier = Modifier.weight(1f),
-                        color = Color.LightGray
-                    )
-
-                    Text(
-                        text = "  OR  ",
-                        color = Color.Gray,
-                        fontSize = 16.sp
-                    )
-
-                    Divider(
-                        modifier = Modifier.weight(1f),
-                        color = Color.LightGray
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(37.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-
-                    Text(
-                        text = "Remember your password? ",
-                        fontSize = 16.sp,
-                        color = Color.Gray
-                    )
-
+                Row {
+                    Text("Remember your password?")
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = "Sign In",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF0066FF),
+                        color = Color(0xFF2E7D32),
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable {
-                            (context as? ComponentActivity)?.finish()
+                            (context as Activity).finish()
                         }
                     )
-
-                    Spacer(modifier = Modifier.height(50.dp))
                 }
-
             }
-
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

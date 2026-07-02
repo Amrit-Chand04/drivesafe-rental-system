@@ -268,7 +268,7 @@ fun UserBody(
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(25.dp))
 
         Row(
             modifier = Modifier

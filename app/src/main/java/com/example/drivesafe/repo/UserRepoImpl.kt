@@ -89,17 +89,32 @@ class UserRepoImpl : UserRepo {
         email: String,
         callback: (Boolean, String) -> Unit
     ) {
-        auth.sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    callback(true, "Password reset email sent successfully")
-                } else {
-                    callback(
-                        false,
-                        task.exception?.message ?: "Failed to send reset email"
-                    )
+        ref.orderByChild("email").equalTo(email)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    if (!snapshot.exists()) {
+                        callback(false, "This email is not registered")
+                        return
+                    }
+
+                    auth.sendPasswordResetEmail(email)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                callback(true, "Password reset email sent successfully")
+                            } else {
+                                callback(
+                                    false,
+                                    task.exception?.message ?: "Failed to send reset email"
+                                )
+                            }
+                        }
                 }
-            }
+
+                override fun onCancelled(error: DatabaseError) {
+                    callback(false, error.message)
+                }
+            })
     }
 
     override fun addUser(
