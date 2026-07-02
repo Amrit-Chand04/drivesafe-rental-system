@@ -98,7 +98,7 @@ fun AdminChatBody(chatViewModel: ChatViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 80.dp),
+                    .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = Color(0xFF24C16B))
@@ -107,7 +107,7 @@ fun AdminChatBody(chatViewModel: ChatViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 80.dp),
+                    .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

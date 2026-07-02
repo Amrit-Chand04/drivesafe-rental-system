@@ -39,16 +39,31 @@ class BookingVehicleActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val vehicleId = intent.getStringExtra("vehicleId") ?: ""
+        val vehicleName = intent.getStringExtra("vehicleName") ?: ""
+        val vehicleImage = intent.getStringExtra("vehicleImage") ?: ""
         val vehiclePrice = intent.getStringExtra("vehiclePrice") ?: "0"
+        val vehicleNumber = intent.getStringExtra("vehicleNumber") ?: ""
         setContent {
-            BookingVehicle(vehicleId = vehicleId, vehiclePrice = vehiclePrice)
+            BookingVehicle(
+                vehicleId = vehicleId,
+                vehicleName = vehicleName,
+                vehicleImage = vehicleImage,
+                vehiclePrice = vehiclePrice,
+                vehicleNumber = vehicleNumber
+            )
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingVehicle(vehicleId: String = "", vehiclePrice: String = "0") {
+fun BookingVehicle(
+    vehicleId: String = "",
+    vehicleName: String = "",
+    vehicleImage: String = "",
+    vehiclePrice: String = "0",
+    vehicleNumber: String = ""
+) {
 
     val context = LocalContext.current
     val vm: BookingViewModel = viewModel()
@@ -58,6 +73,7 @@ fun BookingVehicle(vehicleId: String = "", vehiclePrice: String = "0") {
 
     var fullName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
+    var pickupLocation by remember { mutableStateOf("") }
     var rentalPlan by remember { mutableStateOf("Hourly") }
     var pickupDate by remember { mutableStateOf("") }
     var pickupTime by remember { mutableStateOf("") }
@@ -164,6 +180,17 @@ fun BookingVehicle(vehicleId: String = "", vehiclePrice: String = "0") {
                             label = { Text("Phone Number") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             leadingIcon = { Icon(Icons.Default.Call, contentDescription = null) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedTextField(
+                            value = pickupLocation,
+                            onValueChange = { pickupLocation = it },
+                            label = { Text("Pickup Location") },
+                            leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
+                            singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -297,10 +324,16 @@ fun BookingVehicle(vehicleId: String = "", vehiclePrice: String = "0") {
                         vm.validateAndBook(
                             fullName = fullName,
                             phoneNumber = phoneNumber,
+                            pickupLocation = pickupLocation,
                             rentalPlan = rentalPlan,
                             pickupDate = pickupDate,
                             pickupTime = pickupTime,
-                            duration = duration
+                            duration = duration,
+                            vehicleId = vehicleId,
+                            vehicleName = vehicleName,
+                            vehicleImage = vehicleImage,
+                            vehiclePrice = vehiclePrice,
+                            vehicleNumber = vehicleNumber,
                         )
                     },
                     modifier = Modifier

@@ -288,23 +288,6 @@ fun CarDetailsBody(
                                 modifier = Modifier.weight(1f)
                             )
 
-                            CarFeatureBox(
-                                title = "Brand",
-                                value = data.brand,
-                                modifier = Modifier.weight(1f)
-                            )
-
-                        }
-
-                    }
-
-                    item {
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-
                             if (data.offerPercentage > 0 && data.discountedPrice > 0) {
                                 CarPriceBox(
                                     originalPrice = data.price,
@@ -323,6 +306,7 @@ fun CarDetailsBody(
                         }
 
                     }
+
                     item {
 
                         Button(
@@ -331,7 +315,10 @@ fun CarDetailsBody(
                                     data.discountedPrice.toString() else data.price
                                 val intent = Intent(context, BookingVehicleActivity::class.java)
                                 intent.putExtra("vehicleId", carId)
+                                intent.putExtra("vehicleName", data.name)
+                                intent.putExtra("vehicleImage", data.vehicleImage)
                                 intent.putExtra("vehiclePrice", effectivePrice)
+                                intent.putExtra("vehicleNumber", data.number)
                                 context.startActivity(intent)
                             },
                             modifier = Modifier

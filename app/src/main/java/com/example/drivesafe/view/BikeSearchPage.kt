@@ -23,6 +23,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -413,7 +414,7 @@ fun BikeCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp),
+            .height(242.dp),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -436,7 +437,9 @@ fun BikeCard(
                     contentDescription = vehicle.name,
                     modifier = Modifier
                         .width(130.dp)
-                        .height(180.dp),
+                        .height(210.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+
                     contentScale = ContentScale.Crop
                 )
 
