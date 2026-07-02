@@ -305,7 +305,7 @@ fun UserBody(
                 onValueChange = {text = it},
                 modifier = Modifier.weight(1f),
                 placeholder = {
-                    Text("Search vehicle")
+                    Text("Search by vehicle name")
                 },
                 singleLine = true
             )
@@ -314,12 +314,12 @@ fun UserBody(
 
             ElevatedButton(
                 onClick = {
-                    val brandQuery = text.trim()
+                    val query = text.trim()
 
-                    if (brandQuery.isBlank()) {
+                    if (query.isBlank()) {
                         Toast.makeText(
                             context,
-                            "Please enter a brand name",
+                            "Please enter a brand or vehicle name",
                             Toast.LENGTH_SHORT
                         ).show()
                         return@ElevatedButton
@@ -330,18 +330,19 @@ fun UserBody(
                         val matches = list.filter {
                             (it.type.equals("Car", ignoreCase = true) ||
                                     it.type.equals("Bike", ignoreCase = true)) &&
-                                    it.brand.contains(brandQuery, ignoreCase = true)
+                                    (it.brand.contains(query, ignoreCase = true) ||
+                                            it.name.contains(query, ignoreCase = true))
                         }
 
                         if (matches.isNotEmpty()) {
                             context.startActivity(
                                 Intent(context, BrandSearch::class.java)
-                                    .putExtra("brand", brandQuery)
+                                    .putExtra("brand", query)
                             )
                         } else {
                             Toast.makeText(
                                 context,
-                                "No vehicles found for this brand.",
+                                "No vehicles found.",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }

@@ -78,7 +78,8 @@ fun BrandSearchBody(brand: String) {
         vehicles.filter {
             (it.type.equals("Car", ignoreCase = true) ||
                     it.type.equals("Bike", ignoreCase = true)) &&
-                    it.brand.contains(brand, ignoreCase = true)
+                    (it.brand.contains(brand, ignoreCase = true) ||
+                            it.name.contains(brand, ignoreCase = true))
         }
     }
 
@@ -206,7 +207,7 @@ fun BrandSearchBody(brand: String) {
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "No vehicles found for this brand.",
+                                text = "No vehicles found.",
                                 color = Color.Gray
                             )
                         }
