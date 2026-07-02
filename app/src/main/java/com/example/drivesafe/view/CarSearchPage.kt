@@ -97,7 +97,8 @@ fun CarSearchBody() {
             carList
         } else {
             carList.filter {
-                it.name.contains(searchQuery, ignoreCase = true)
+                it.name.contains(searchQuery, ignoreCase = true) ||
+                    it.brand.contains(searchQuery, ignoreCase = true)
             }
         }
 

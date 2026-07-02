@@ -78,7 +78,9 @@ fun VehicleBody(){
     var showEditDialog by remember { mutableStateOf(false) }
     var selectedVehicle by remember { mutableStateOf<VehicleFirebaseModel?>(null) }
 
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by remember {
+        mutableStateOf((context as? Activity)?.intent?.getStringExtra("searchQuery") ?: "")
+    }
 
     var showFilterDialog by remember { mutableStateOf(false) }
     var selectedPriceFilter by remember { mutableStateOf("All") }
@@ -113,7 +115,8 @@ fun VehicleBody(){
             byCategory
         } else {
             byCategory.filter {
-                it.name.contains(searchQuery, ignoreCase = true)
+                it.name.contains(searchQuery, ignoreCase = true) ||
+                    it.brand.contains(searchQuery, ignoreCase = true)
             }
         }
 
