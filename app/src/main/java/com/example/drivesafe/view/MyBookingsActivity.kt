@@ -205,7 +205,7 @@ fun MyBookingCard(
                     Text(text = "Plan: ${booking.rentalPlan} (${booking.duration})", fontSize = 13.sp)
                     Text(text = "Pickup Date: ${booking.pickupDate}", fontSize = 13.sp)
                     Text(text = "Pickup Time: ${booking.pickupTime}", fontSize = 13.sp)
-                    Text(text = "Pickup Location: ${booking.pickupLocation}", fontSize = 13.sp)
+                    Text(text = "Location: ${booking.pickupLocation}", fontSize = 13.sp)
 
                     val isRedStatus = booking.status.equals("PENDING", true) ||
                             booking.status.equals("REJECTED", true)
