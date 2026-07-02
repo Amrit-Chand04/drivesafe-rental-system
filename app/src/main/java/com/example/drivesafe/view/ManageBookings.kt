@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,13 +25,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,7 +35,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -57,7 +51,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -90,6 +83,7 @@ fun ManageBookingScreen() {
     var rejectBookingId by remember { mutableStateOf<String?>(null) }
     var rejectReason by remember { mutableStateOf("") }
     var acceptBookingId by remember { mutableStateOf<String?>(null) }
+    var reasonDialogText by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         vm.loadAllBookings()
@@ -100,6 +94,22 @@ fun ManageBookingScreen() {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             vm.clearMessage()
         }
+    }
+
+    if (reasonDialogText != null) {
+        AlertDialog(
+            onDismissRequest = { reasonDialogText = null },
+            title = { Text(text = "Rejection Reason") },
+            text = { Text(text = reasonDialogText ?: "") },
+            confirmButton = {
+                Button(
+                    onClick = { reasonDialogText = null },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                ) {
+                    Text("OK")
+                }
+            }
+        )
     }
 
     if (acceptBookingId != null) {
@@ -240,14 +250,14 @@ fun ManageBookingScreen() {
 
                 else -> {
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(14.dp),
-                        contentPadding = PaddingValues(bottom = 16.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(bookings) { booking ->
                             BookingCard(
                                 booking = booking,
                                 onAcceptClick = { acceptBookingId = booking.bookingId },
-                                onRejectClick = { rejectBookingId = booking.bookingId }
+                                onRejectClick = { rejectBookingId = booking.bookingId },
+                                onViewReasonClick = { reasonDialogText = booking.rejectionReason }
                             )
                         }
                     }
@@ -255,239 +265,163 @@ fun ManageBookingScreen() {
             }
         }
     }
-}
-
-private data class StatusStyle(
-    val label: String,
-    val icon: ImageVector,
-    val color: Color,
-    val background: Color
-)
-
-private fun statusStyleOf(status: String): StatusStyle = when (status.uppercase()) {
-    "ACCEPTED" -> StatusStyle("Booking Confirmed", Icons.Default.CheckCircle, Color(0xFF2E7D32), Color(0xFFE8F5E9))
-    "REJECTED" -> StatusStyle("Booking Rejected", Icons.Default.Close, Color(0xFFC62828), Color(0xFFFFEBEE))
-    else -> StatusStyle("Pending Review", Icons.Default.Schedule, Color(0xFFEF6C00), Color(0xFFFFF3E0))
 }
 
 @Composable
 fun BookingCard(
     booking: BookingModel,
     onAcceptClick: () -> Unit,
-    onRejectClick: () -> Unit
+    onRejectClick: () -> Unit,
+    onViewReasonClick: () -> Unit
 ) {
-    val isPending = !booking.status.equals("ACCEPTED", true) &&
-            !booking.status.equals("REJECTED", true)
-    val statusStyle = statusStyleOf(booking.status)
+    val isRejected = booking.status.equals("REJECTED", true) && booking.rejectionReason.isNotBlank()
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Column {
+        Box(modifier = Modifier.fillMaxWidth()) {
 
-            // Status banner
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(statusStyle.background)
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(10.dp)
             ) {
-                Icon(
-                    imageVector = statusStyle.icon,
-                    contentDescription = null,
-                    tint = statusStyle.color,
-                    modifier = Modifier.size(16.dp)
+
+                AsyncImage(
+                    model = booking.vehicleImage,
+                    contentDescription = booking.vehicleName,
+                    modifier = Modifier
+                        .width(140.dp)
+                        .height(185.dp)
+                        .clip(RoundedCornerShape(18.dp)),
+                    contentScale = ContentScale.Crop
                 )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = statusStyle.label,
-                    color = statusStyle.color,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp
-                )
-            }
 
-            Column(modifier = Modifier.padding(14.dp)) {
+                Spacer(modifier = Modifier.width(14.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
 
-                    AsyncImage(
-                        model = booking.vehicleImage,
-                        contentDescription = booking.vehicleName,
-                        modifier = Modifier
-                            .size(width = 100.dp, height = 130.dp)
-                            .clip(RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Crop
+                    Text(
+                        text = booking.vehicleName,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2E7D32),
+                        modifier = if (isRejected) Modifier.padding(end = 90.dp) else Modifier
                     )
 
-                    Spacer(modifier = Modifier.width(14.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "Name: ", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Text(text = booking.fullName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    }
 
-                        Text(
-                            text = booking.vehicleName,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1B1B1B)
-                        )
+                    Spacer(modifier = Modifier.height(6.dp))
 
-                        Spacer(modifier = Modifier.height(6.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(text = "Phone: ${booking.phoneNumber}", fontSize = 14.sp)
+                        Text(text = "Plan: ${booking.rentalPlan}", fontSize = 14.sp)
+                        Text(text = "Pickup Date: ${booking.pickupDate}", fontSize = 14.sp)
+                        Text(text = "Pickup Time: ${booking.pickupTime}", fontSize = 14.sp)
+                        Text(text = "Duration: ${booking.duration}", fontSize = 14.sp)
+                    }
 
-                        InfoRow(icon = Icons.Default.Person, text = booking.fullName)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        InfoRow(icon = Icons.Default.Phone, text = booking.phoneNumber)
+                    Spacer(modifier = Modifier.height(8.dp))
 
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+
+                        Text(text = "Status: ", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+
+                        val statusColor = when (booking.status.uppercase()) {
+                            "ACCEPTED" -> Color(0xFF2E7D32)
+                            "REJECTED" -> Color(0xFFC62828)
+                            else -> Color(0xFFFF9800)
+                        }
+                        val statusBg = when (booking.status.uppercase()) {
+                            "ACCEPTED" -> Color(0xFFE8F5E9)
+                            "REJECTED" -> Color(0xFFFFEBEE)
+                            else -> Color(0xFFFFF3E0)
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .background(statusBg, RoundedCornerShape(50))
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = booking.status,
+                                color = statusColor,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp
+                            )
+                        }
+                    }
+
+                    if (!booking.status.equals("ACCEPTED", true) &&
+                        !booking.status.equals("REJECTED", true)
+                    ) {
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Payment",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.Gray
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            val paymentPaid = booking.paymentStatus.equals("PAID", true)
-                            StatusChip(
-                                label = booking.paymentStatus,
-                                textColor = if (paymentPaid) Color(0xFF1565C0) else Color(0xFFE65100),
-                                backgroundColor = if (paymentPaid) Color(0xFFE3F2FD) else Color(0xFFFFF3E0)
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    InfoTile(
-                        icon = Icons.Default.CalendarMonth,
-                        label = "Pickup",
-                        value = "${booking.pickupDate} • ${booking.pickupTime}",
-                        modifier = Modifier.weight(1f)
-                    )
-                    InfoTile(
-                        icon = Icons.Default.Timer,
-                        label = "Duration",
-                        value = "${booking.rentalPlan} • ${booking.duration}",
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                if (booking.status.equals("REJECTED", true) && booking.rejectionReason.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFFFF5F5), RoundedCornerShape(12.dp))
-                            .padding(10.dp)
-                    ) {
-                        Text(
-                            text = "Reason: ${booking.rejectionReason}",
-                            fontSize = 12.sp,
-                            color = Color(0xFFC62828)
-                        )
-                    }
-                }
-
-                if (isPending) {
-                    Spacer(modifier = Modifier.height(14.dp))
-                    HorizontalDivider(color = Color(0xFFEEEEEE))
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Button(
-                            onClick = onRejectClick,
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Reject")
-                        }
+                            Button(
+                                onClick = onRejectClick,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(34.dp),
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828))
+                            ) {
+                                Text("Reject", fontSize = 12.sp)
+                            }
 
-                        Button(
-                            onClick = onAcceptClick,
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Accept")
+                            Button(
+                                onClick = onAcceptClick,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(34.dp),
+                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                            ) {
+                                Text("Accept", fontSize = 12.sp)
+                            }
                         }
                     }
                 }
             }
+
+            if (isRejected) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 10.dp, end = 10.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(Color(0xFFFFEBEE))
+                        .clickable(onClick = onViewReasonClick)
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Visibility,
+                        contentDescription = "View Reason",
+                        tint = Color(0xFFC62828),
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Reason",
+                        color = Color(0xFFC62828),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp
+                    )
+                }
+            }
         }
-    }
-}
-
-@Composable
-fun InfoRow(icon: ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = Color.Gray,
-            modifier = Modifier.size(14.dp)
-        )
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(text = text, fontSize = 13.sp, color = Color.DarkGray)
-    }
-}
-
-@Composable
-fun InfoTile(icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .background(Color(0xFFF4F6F4), RoundedCornerShape(14.dp))
-            .padding(10.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = Color(0xFF2E7D32),
-                modifier = Modifier.size(13.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color.Gray)
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = value, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1B1B1B))
-    }
-}
-
-@Composable
-fun StatusChip(label: String, textColor: Color, backgroundColor: Color) {
-    Box(
-        modifier = Modifier
-            .background(backgroundColor, RoundedCornerShape(50))
-            .padding(horizontal = 10.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = label,
-            color = textColor,
-            fontWeight = FontWeight.Bold,
-            fontSize = 11.sp
-        )
     }
 }
 
