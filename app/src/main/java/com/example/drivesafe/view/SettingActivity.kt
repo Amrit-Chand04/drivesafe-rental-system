@@ -28,6 +28,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.ui.theme.AppThemeState
 import com.example.drivesafe.ui.theme.DriveSafeTheme
@@ -59,7 +61,7 @@ fun SettingsScreen() {
 
     val isLoggedOut by vm.isLoggedOut.collectAsState()
 
-    LaunchedEffect(Unit) {
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         vm.loadCurrentUser()
     }
 

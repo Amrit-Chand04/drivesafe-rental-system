@@ -1,5 +1,6 @@
 package com.example.drivesafe.repo
 
+import android.content.Context
 import com.example.drivesafe.model.BookingModel
 
 interface BookingRepo {
@@ -12,4 +13,5 @@ interface BookingRepo {
         rejectionReason: String = "",
         callback: (Boolean, String) -> Unit
     )
+    fun generateBookingPdf(context: Context, booking: BookingModel, callback: (Boolean, String) -> Unit)
 }

@@ -12,8 +12,13 @@ class FavoriteViewModel(private val repo: FavoriteRepo = FavoriteRepoImpl()) : V
     private val _favoriteIds = MutableStateFlow<Set<String>>(emptySet())
     val favoriteIds: StateFlow<Set<String>> = _favoriteIds.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     fun loadFavorites(callback: (Boolean, String) -> Unit = { _, _ -> }) {
+        _isLoading.value = true
         repo.getFavorites { success, message, ids ->
+            _isLoading.value = false
             if (success) {
                 _favoriteIds.value = ids
             }

@@ -319,6 +319,7 @@ fun BikeDetailsBody(
                                 intent.putExtra("vehicleName", data.name)
                                 intent.putExtra("vehicleImage", data.vehicleImage)
                                 intent.putExtra("vehiclePrice", effectivePrice)
+                                intent.putExtra("vehicleNumber", data.number)
                                 context.startActivity(intent)
                             },
                             modifier = Modifier

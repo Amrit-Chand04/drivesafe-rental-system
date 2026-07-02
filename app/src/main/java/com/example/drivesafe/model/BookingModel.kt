@@ -6,6 +6,8 @@ data class BookingModel(
     val bookingId: String = "",
     val fullName: String = "",
     val phoneNumber: String = "",
+    val email: String = "",
+    val pickupLocation: String = "",
     val rentalPlan: String = "",
     val pickupDate: String = "",
     val pickupTime: String = "",
@@ -14,6 +16,8 @@ data class BookingModel(
     val vehicleName: String = "",
     val vehicleImage: String = "",
     val vehiclePrice: String = "",
+    val vehicleNumber: String = "",
+    val bookingDate: String = "",
     val status: String = "PENDING",
     val paymentStatus: String = "PAID_FAKE",
     val rejectionReason: String = ""

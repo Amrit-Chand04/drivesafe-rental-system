@@ -1,6 +1,7 @@
 package com.example.drivesafe.view
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -42,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -66,10 +69,19 @@ fun MyBookingScreen() {
     val vm: BookingViewModel = viewModel()
     val bookings by vm.bookings.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
+    val message by vm.message.collectAsState()
+    val context = LocalContext.current
     var reasonDialogText by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         vm.loadMyBookings()
+    }
+
+    LaunchedEffect(message) {
+        message?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            vm.clearMessage()
+        }
     }
 
     if (reasonDialogText != null) {
@@ -134,7 +146,8 @@ fun MyBookingScreen() {
                     items(bookings) { booking ->
                         MyBookingCard(
                             booking = booking,
-                            onViewReasonClick = { reasonDialogText = booking.rejectionReason }
+                            onViewReasonClick = { reasonDialogText = booking.rejectionReason },
+                            onDownloadClick = { vm.generateBookingPdf(context, booking) }
                         )
                     }
                 }
@@ -146,9 +159,11 @@ fun MyBookingScreen() {
 @Composable
 fun MyBookingCard(
     booking: BookingModel,
-    onViewReasonClick: () -> Unit
+    onViewReasonClick: () -> Unit,
+    onDownloadClick: () -> Unit
 ) {
     val isRejected = booking.status.equals("REJECTED", true) && booking.rejectionReason.isNotBlank()
+    val isAccepted = booking.status.equals("ACCEPTED", true)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -182,15 +197,15 @@ fun MyBookingCard(
                         text = booking.vehicleName,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = if (isRejected) Modifier.padding(end = 90.dp) else Modifier
+                        modifier = if (isRejected || isAccepted) Modifier.padding(end = 90.dp) else Modifier
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    Text(text = "Plan: ${booking.rentalPlan}", fontSize = 13.sp)
+                    Text(text = "Plan: ${booking.rentalPlan} (${booking.duration})", fontSize = 13.sp)
                     Text(text = "Pickup Date: ${booking.pickupDate}", fontSize = 13.sp)
                     Text(text = "Pickup Time: ${booking.pickupTime}", fontSize = 13.sp)
-                    Text(text = "Duration: ${booking.duration}", fontSize = 13.sp)
+                    Text(text = "Pickup Location: ${booking.pickupLocation}", fontSize = 13.sp)
 
                     val isRedStatus = booking.status.equals("PENDING", true) ||
                             booking.status.equals("REJECTED", true)
@@ -243,6 +258,33 @@ fun MyBookingCard(
                     Text(
                         text = "Reason",
                         color = Color(0xFFC62828),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp
+                    )
+                }
+            }
+
+            if (isAccepted) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 10.dp, end = 10.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(Color(0xFFE8F5E9))
+                        .clickable(onClick = onDownloadClick)
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Download,
+                        contentDescription = "Download PDF",
+                        tint = Color(0xFF2E7D32),
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "PDF",
+                        color = Color(0xFF2E7D32),
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp
                     )
