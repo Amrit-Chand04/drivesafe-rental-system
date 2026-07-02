@@ -150,6 +150,7 @@ fun BookingVehicle(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
+                .imePadding()
         ) {
             item {
                 Card(

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -30,6 +31,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -132,16 +134,17 @@ fun ChangePasswordBody() {
                 .fillMaxSize()
                 .background(Color(0xFFE8F5E9))
                 .padding(padding)
+                .imePadding()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             Image(
                 painter = painterResource(id = R.drawable.logo_for_app),
                 contentDescription = "Logo",
-                modifier = Modifier.size(116.dp)
+                modifier = Modifier.size(106.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -177,7 +180,7 @@ fun ChangePasswordBody() {
                     value = oldPassword,
                     onValueChange = { oldPassword = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Old Password") },
+                    placeholder = { Text("Old Password", color = Color.Gray) },
                     singleLine = true,
                     visualTransformation =
                         if (oldPasswordVisible) VisualTransformation.None
@@ -191,11 +194,17 @@ fun ChangePasswordBody() {
                                     if (oldPasswordVisible) painterResource(R.drawable.baseline_visibility_24)
                                     else painterResource(R.drawable.baseline_visibility_off_24),
                                 contentDescription = null,
-                                tint = Color(0xFF2E7D32)
+                                tint = Color(0xFF24C16B)
                             )
                         }
                     },
-                    shape = RoundedCornerShape(15.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedIndicatorColor = Color(0xFF24C16B),
+                        unfocusedIndicatorColor = Color(0xFFE0E0E0)
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(15.dp))
@@ -204,7 +213,7 @@ fun ChangePasswordBody() {
                     value = newPassword,
                     onValueChange = { newPassword = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("New Password") },
+                    placeholder = { Text("New Password", color = Color.Gray) },
                     singleLine = true,
                     visualTransformation =
                         if (newPasswordVisible) VisualTransformation.None
@@ -218,11 +227,17 @@ fun ChangePasswordBody() {
                                     if (newPasswordVisible) painterResource(R.drawable.baseline_visibility_24)
                                     else painterResource(R.drawable.baseline_visibility_off_24),
                                 contentDescription = null,
-                                tint = Color(0xFF2E7D32)
+                                tint = Color(0xFF24C16B)
                             )
                         }
                     },
-                    shape = RoundedCornerShape(15.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedIndicatorColor = Color(0xFF24C16B),
+                        unfocusedIndicatorColor = Color(0xFFE0E0E0)
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(15.dp))
@@ -231,7 +246,7 @@ fun ChangePasswordBody() {
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Confirm Password") },
+                    placeholder = { Text("Confirm Password", color = Color.Gray) },
                     singleLine = true,
                     visualTransformation =
                         if (confirmPasswordVisible) VisualTransformation.None
@@ -245,11 +260,17 @@ fun ChangePasswordBody() {
                                     if (confirmPasswordVisible) painterResource(R.drawable.baseline_visibility_24)
                                     else painterResource(R.drawable.baseline_visibility_off_24),
                                 contentDescription = null,
-                                tint = Color(0xFF2E7D32)
+                                tint = Color(0xFF24C16B)
                             )
                         }
                     },
-                    shape = RoundedCornerShape(15.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedIndicatorColor = Color(0xFF24C16B),
+                        unfocusedIndicatorColor = Color(0xFFE0E0E0)
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(25.dp))
@@ -270,7 +291,7 @@ fun ChangePasswordBody() {
                         .height(58.dp),
                     shape = RoundedCornerShape(50.dp),
                     colors = ButtonDefaults.elevatedButtonColors(
-                        containerColor = Color(0xFF2E7D32),
+                        containerColor = Color(0xFF23B14D),
                         contentColor = Color.White
                     ),
                     elevation = ButtonDefaults.elevatedButtonElevation(
