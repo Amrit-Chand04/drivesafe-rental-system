@@ -118,11 +118,6 @@ fun BookingVehicle(
         message?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             vm.clearMessage()
-
-            if (it == "Booking Confirmed") {
-                context.startActivity(Intent(context, UserDashboard::class.java))
-                (context as Activity).finish()
-            }
         }
     }
 
@@ -392,6 +387,17 @@ fun BookingVehicle(
                                         khalti.close()
                                         if (result.status == "Completed" && !paymentHandled) {
                                             onKhaltiPaymentCompleted(result.payload?.transactionId ?: "")
+
+                                            // Go straight to the dashboard instead of
+                                            // flashing the booking form again while the
+                                            // Firebase write finishes in the background.
+                                            // Clear the whole task so the old Car/Bike
+                                            // search-details trail isn't left behind on
+                                            // the back stack under the new dashboard.
+                                            val dashboardIntent = Intent(context, UserDashboard::class.java)
+                                            dashboardIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                            context.startActivity(dashboardIntent)
                                         } else if (result.status != "Completed") {
                                             Toast.makeText(
                                                 context,
