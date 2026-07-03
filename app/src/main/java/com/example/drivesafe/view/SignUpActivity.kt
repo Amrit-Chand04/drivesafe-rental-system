@@ -257,6 +257,9 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                             phone = ""
                             password = ""
                             confirmPassword = ""
+
+                            context.startActivity(Intent(context, LoginActivity::class.java))
+                            (context as Activity).finish()
                         }
                     },
                     enabled = !isLoading,
