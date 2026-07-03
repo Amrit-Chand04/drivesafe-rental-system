@@ -1,7 +1,5 @@
 package com.example.drivesafe.view
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -9,22 +7,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
@@ -45,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -55,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
-import com.example.drivesafe.viewmodel.UserViewModel
+import com.example.drivesafe.viewmodel.AuthViewModel
 
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +75,7 @@ fun SignUpScreen(enableBackend: Boolean = true) {
 
     val context = LocalContext.current
 
-    val userViewModel: UserViewModel? = if (enableBackend) viewModel() else null
+    val userViewModel: AuthViewModel? = if (enableBackend) viewModel() else null
 
     val message by userViewModel?.message?.collectAsState(initial = null)
         ?: remember { mutableStateOf(null) }
@@ -104,35 +97,19 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                 .fillMaxSize()
                 .background(Color(0xFFE8F5E9))
                 .padding(padding)
-                .imePadding()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, start = 8.dp)
-            ) {
-                IconButton(
-                    onClick = { (context as Activity).finish() }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.Black
-                    )
-                }
-            }
-
+            Spacer(modifier = Modifier.height(50.dp))
 
             Image(
                 painter = painterResource(id = R.drawable.logo_for_app),
                 contentDescription = "Logo",
-                modifier = Modifier.size(116.dp)
+                modifier = Modifier.size(130.dp)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Column(
                 modifier = Modifier
@@ -154,7 +131,9 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                 OutlinedTextField(
                     value = fullName,
                     onValueChange = { fullName = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("fullName"),
                     placeholder = { Text("Full Name") },
                     singleLine = true,
                     shape = RoundedCornerShape(15.dp)
@@ -165,7 +144,9 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("signupEmail"),
                     placeholder = { Text("Email") },
                     singleLine = true,
                     shape = RoundedCornerShape(15.dp)
@@ -176,7 +157,9 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { phone = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("phone"),
                     placeholder = { Text("Phone Number") },
                     singleLine = true,
                     shape = RoundedCornerShape(15.dp)
@@ -187,7 +170,9 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("signupPassword"),
                     placeholder = { Text("Password") },
                     singleLine = true,
                     visualTransformation =
@@ -214,7 +199,9 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("confirmPassword"),
                     placeholder = { Text("Confirm Password") },
                     singleLine = true,
                     visualTransformation =
@@ -257,15 +244,13 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                             phone = ""
                             password = ""
                             confirmPassword = ""
-
-                            context.startActivity(Intent(context, LoginActivity::class.java))
-                            (context as Activity).finish()
                         }
                     },
                     enabled = !isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(58.dp),
+                        .height(58.dp)
+                        .testTag("signupButton"),
                     shape = RoundedCornerShape(50.dp),
                     colors = ButtonDefaults.elevatedButtonColors(
                         containerColor = Color(0xFF2E7D32),
@@ -275,7 +260,6 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                         defaultElevation = 8.dp
                     )
                 ) {
-
                     if (isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
@@ -289,21 +273,6 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                             fontWeight = FontWeight.Bold
                         )
                     }
-                }
-
-                Spacer(modifier = Modifier.height(25.dp))
-
-                Row {
-                    Text("Already have an account?")
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Text(
-                        text = "Login",
-                        color = Color(0xFF2E7D32),
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {
-                            (context as Activity).finish()
-                        }
-                    )
                 }
             }
         }
