@@ -1,7 +1,10 @@
 package com.example.drivesafe.repo
 
 import com.example.drivesafe.model.UserModel
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.database.*
 
 class AuthRepoImpl(
@@ -61,7 +64,13 @@ class AuthRepoImpl(
                         }
                     })
                 } else {
-                    callback(false, task.exception?.message ?: "Login failed", null)
+                    val message = when (task.exception) {
+                        is FirebaseAuthInvalidUserException,
+                        is FirebaseAuthInvalidCredentialsException -> "Invalid email or password"
+                        is FirebaseNetworkException -> "Network error. Please check your internet connection"
+                        else -> "Login failed. Please try again"
+                    }
+                    callback(false, message, null)
                 }
             }
     }
