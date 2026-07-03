@@ -5,7 +5,9 @@ import com.example.drivesafe.model.VehicleFirebaseModel
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
-class OfferRepoImpl : OfferRepo{
+class OfferRepoImpl(
+    private val notificationRepo: NotificationRepo = NotificationRepoImpl()
+) : OfferRepo {
 
     private val offerRef: DatabaseReference =
         FirebaseDatabase.getInstance().getReference("offers")
@@ -26,6 +28,10 @@ class OfferRepoImpl : OfferRepo{
 
         offerRef.child(id).setValue(model).addOnCompleteListener {
             if (it.isSuccessful) {
+                notificationRepo.addNotification(
+                    title = "New Offer: ${model.title}",
+                    message = "${model.description} (${model.discount}% OFF)"
+                )
                 callback(true, "Offer created successfully")
             } else {
                 callback(false, "${it.exception?.message}")

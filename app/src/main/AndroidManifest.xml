@@ -16,165 +16,98 @@
         tools:replace="android:fullBackupContent">
         <activity
             android:name=".view.ManageBookings"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_manage_bookings"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.MyBookingsActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_my_bookings"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.BrandSearch"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_brand_search"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.ProfileUpdate"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_profile_update"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.AdminUserChatActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_admin_user_chat"
             android:theme="@style/Theme.DriveSafe"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".view.UserAdminChatActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_user_admin_chat"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.BookingVehicleActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_booking_vehicle"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.UserManage"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_user_manage"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.ChangePasswordActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_change_password"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.NewResetPassword"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_new_reset_password"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.OTPVerificationActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_otpverification"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.ForgetPassword"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_forget_password"
             android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.KycActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_kyc"
             android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.LoginActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_login"
             android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.SettingActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_setting"
             android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.OffersActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_offers"
             android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.AdminDashboard"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_admin_dashboard"
             android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.UserDashboard"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_user_dashboard"
             android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.SplashActivity"
             android:exported="true"
-            android:label="@string/title_activity_splash"
             android:theme="@style/Theme.DriveSafe">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -184,145 +117,73 @@
         </activity>
         <activity
             android:name=".view.UserChatActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_user_chat"
             android:theme="@style/Theme.DriveSafe"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".view.NotificationActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_notification"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.CustomerReview"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_customer_review"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.CarSearchPage"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_car_search_page"
             android:theme="@style/Theme.DriveSafe"
-            tools:ignore="MissingClass">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            tools:ignore="MissingClass" />
         <activity
             android:name=".view.CarDetails"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_car_details"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.BikeSearchPage"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_bike_search_page"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.BikeDetails"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_bike_details"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.AdminManageVehicle"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_admin_manage_vehicle"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.AdminChatActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_admin_chat"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.SignUpActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_sign_up"
-            android:theme="@style/Theme.DriveSafe">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".MainActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.DriveSafe" />
         <activity
             android:name=".view.FavoritesActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_favorites"
             android:theme="@style/Theme.DriveSafe"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".view.ManageKycVerification"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_activity_manage_kyc_verification"
             android:theme="@style/Theme.DriveSafe"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

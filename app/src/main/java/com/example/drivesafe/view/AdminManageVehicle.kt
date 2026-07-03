@@ -359,7 +359,7 @@ fun VehicleBody(){
                 .background(Color(0xFFE8F5E9))
                 .padding(paddingValues)
                 .padding(horizontal = 14.dp)
-                .imePadding()
+
                 .verticalScroll(rememberScrollState())
         ) {
 
@@ -623,7 +623,7 @@ fun AddVehicleDialog(
             Column(
                 modifier = Modifier
                     .heightIn(max = 500.dp)
-                    .imePadding()
+
                     .verticalScroll(rememberScrollState())
             ) {
 

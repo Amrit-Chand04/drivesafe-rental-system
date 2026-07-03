@@ -40,6 +40,10 @@ android {
 
 dependencies {
 
+    // Khalti native payment SDK (from docs.khalti.com/checkout/android) — published on
+    // Maven Central, so unlike eSewa's SDK, Gradle resolves everything automatically.
+    implementation("com.khalti:checkout-android:0.07.00")
+
     //cloudinary
     implementation("com.cloudinary:cloudinary-android:3.1.2")
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
