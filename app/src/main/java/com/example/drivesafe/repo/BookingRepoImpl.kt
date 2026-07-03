@@ -125,6 +125,15 @@ class BookingRepoImpl : BookingRepo {
             .child(bookingId)
             .updateChildren(updates)
             .addOnSuccessListener {
+                if (status.equals("ACCEPTED", ignoreCase = true)) {
+                    db.child("bookings").child(bookingId).child("vehicleId").get()
+                        .addOnSuccessListener { snapshot ->
+                            val vehicleId = snapshot.getValue(String::class.java)
+                            if (!vehicleId.isNullOrBlank()) {
+                                db.child("vehicles").child(vehicleId).child("status").setValue("Booked")
+                            }
+                        }
+                }
                 callback(true, "Booking $status")
             }
             .addOnFailureListener { error ->
