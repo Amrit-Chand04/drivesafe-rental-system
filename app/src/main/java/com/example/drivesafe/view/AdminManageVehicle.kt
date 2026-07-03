@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -242,7 +243,8 @@ fun VehicleBody(){
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Red
-                        )
+                        ),
+                        modifier = Modifier.testTag("confirmDeleteButton")
                     ) {
                         Text(
                             "Delete",
@@ -256,7 +258,8 @@ fun VehicleBody(){
                     Button(
                         onClick = {
                             showDeleteDialog = false
-                        }
+                        },
+                        modifier = Modifier.testTag("cancelDeleteButton")
                     ) {
                         Text("Cancel")
                     }
@@ -458,7 +461,7 @@ fun VehicleBody(){
                         containerColor = Color(0xFF00A859)
                     ),
                     shape = RoundedCornerShape(14.dp),
-                    modifier = Modifier.height(42.dp)
+                    modifier = Modifier.height(42.dp).testTag("addVehicleButton")
                 ) {
 
                     Text(
@@ -633,7 +636,7 @@ fun AddVehicleDialog(
                     onValueChange = { vehicleName = it },
                     label = { Text("Vehicle Name") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().testTag("vehicleNameField")
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -878,6 +881,7 @@ fun AddVehicleDialog(
         confirmButton = {
             Button(
                 enabled = !isLoading,
+                modifier = Modifier.testTag("saveButton"),
                 onClick = {
 
                     if (
@@ -998,7 +1002,10 @@ fun AddVehicleDialog(
         },
 
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.testTag("cancelButton")
+            ) {
                 Text("Cancel")
             }
         }

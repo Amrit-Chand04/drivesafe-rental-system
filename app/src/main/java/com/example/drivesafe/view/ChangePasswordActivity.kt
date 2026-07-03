@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -179,7 +180,7 @@ fun ChangePasswordBody() {
                 OutlinedTextField(
                     value = oldPassword,
                     onValueChange = { oldPassword = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("oldPasswordField"),
                     placeholder = { Text("Old Password", color = Color.Gray) },
                     singleLine = true,
                     visualTransformation =
@@ -212,7 +213,7 @@ fun ChangePasswordBody() {
                 OutlinedTextField(
                     value = newPassword,
                     onValueChange = { newPassword = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("newPasswordField"),
                     placeholder = { Text("New Password", color = Color.Gray) },
                     singleLine = true,
                     visualTransformation =
@@ -245,7 +246,7 @@ fun ChangePasswordBody() {
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("confirmPasswordField"),
                     placeholder = { Text("Confirm Password", color = Color.Gray) },
                     singleLine = true,
                     visualTransformation =
@@ -288,7 +289,8 @@ fun ChangePasswordBody() {
                     enabled = !loading,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(58.dp),
+                        .height(58.dp)
+                        .testTag("changePasswordButton"),
                     shape = RoundedCornerShape(50.dp),
                     colors = ButtonDefaults.elevatedButtonColors(
                         containerColor = Color(0xFF23B14D),
