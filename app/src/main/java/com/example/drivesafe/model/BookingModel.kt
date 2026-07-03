@@ -20,5 +20,6 @@ data class BookingModel(
     val bookingDate: String = "",
     val status: String = "PENDING",
     val paymentStatus: String = "PAID_FAKE",
+    val transactionRefId: String = "",
     val rejectionReason: String = ""
 )

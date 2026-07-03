@@ -2,11 +2,14 @@ package com.example.drivesafe.view
 
 import android.app.Activity
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,10 +31,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.viewmodel.BookingViewModel
+import com.example.drivesafe.viewmodel.EsewaViewModel
+import com.f1soft.esewapaymentsdk.EsewaConfiguration
+import com.f1soft.esewapaymentsdk.EsewaPayment
+import com.f1soft.esewapaymentsdk.ui.screens.EsewaPaymentActivity
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 
 class BookingVehicleActivity : ComponentActivity() {
@@ -83,6 +91,34 @@ fun BookingVehicle(
     var openTimePicker by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState()
+
+    val esewaViewModel: EsewaViewModel = viewModel()
+
+    val esewaLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val receipt = result.data?.getStringExtra(EsewaPayment.EXTRA_RESULT_MESSAGE) ?: ""
+
+            vm.confirmBooking(
+                fullName = fullName,
+                phoneNumber = phoneNumber,
+                pickupLocation = pickupLocation,
+                rentalPlan = rentalPlan,
+                pickupDate = pickupDate,
+                pickupTime = pickupTime,
+                duration = duration,
+                vehicleId = vehicleId,
+                vehicleName = vehicleName,
+                vehicleImage = vehicleImage,
+                vehiclePrice = vehiclePrice,
+                vehicleNumber = vehicleNumber,
+                transactionRefId = receipt
+            )
+        } else {
+            Toast.makeText(context, "Payment cancelled or failed", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(message) {
         message?.let {
@@ -322,20 +358,31 @@ fun BookingVehicle(
 
                 Button(
                     onClick = {
-                        vm.validateAndBook(
+                        val isValid = vm.validate(
                             fullName = fullName,
                             phoneNumber = phoneNumber,
                             pickupLocation = pickupLocation,
-                            rentalPlan = rentalPlan,
                             pickupDate = pickupDate,
                             pickupTime = pickupTime,
-                            duration = duration,
-                            vehicleId = vehicleId,
-                            vehicleName = vehicleName,
-                            vehicleImage = vehicleImage,
-                            vehiclePrice = vehiclePrice,
-                            vehicleNumber = vehicleNumber,
+                            duration = duration
                         )
+
+                        if (isValid) {
+                            val totalAmount = String.format("%.2f", estimatedPrice ?: 0.0)
+                            val productId = UUID.randomUUID().toString()
+
+                            val esewaConfiguration = esewaViewModel.buildConfiguration()
+                            val esewaPayment = esewaViewModel.buildPayment(
+                                amount = totalAmount,
+                                productName = vehicleName,
+                                productId = productId
+                            )
+
+                            val intent = Intent(context, EsewaPaymentActivity::class.java)
+                            intent.putExtra(EsewaConfiguration.ESEWA_CONFIGURATION, esewaConfiguration)
+                            intent.putExtra(EsewaPayment.ESEWA_PAYMENT, esewaPayment)
+                            esewaLauncher.launch(intent)
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

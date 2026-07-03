@@ -35,10 +35,25 @@ android {
 
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
 dependencies {
+
+    // eSewa native payment SDK (from developer.esewa.com.np/pages/Android) — the .aar
+    // isn't published to any repository, so it's dropped straight into app/libs/.
+    debugImplementation(files("libs/eSewaPaymentSdk-debug.aar"))
+    releaseImplementation(files("libs/eSewaPaymentSdk-release.aar"))
+
+    // Transitive dependencies the eSewa SDK needs (it ships as a raw .aar with no POM,
+    // so these aren't pulled in automatically).
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     //cloudinary
     implementation("com.cloudinary:cloudinary-android:3.1.2")
