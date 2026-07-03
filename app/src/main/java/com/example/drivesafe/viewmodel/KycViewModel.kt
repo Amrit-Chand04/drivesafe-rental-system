@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 
-class KycViewModel(application: Application) : AndroidViewModel(application) {
+class KycViewModel @JvmOverloads constructor(
+    application: Application,
     private val repo: KycRepo = KycRepoImpl(application.applicationContext)
+) : AndroidViewModel(application) {
 
     private val _toast = MutableStateFlow<String?>(null)
     val toast: StateFlow<String?> = _toast
