@@ -1,5 +1,7 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -7,16 +9,22 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
@@ -97,19 +105,34 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                 .fillMaxSize()
                 .background(Color(0xFFE8F5E9))
                 .padding(padding)
+                .imePadding()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, start = 8.dp)
+            ) {
+                IconButton(
+                    onClick = { (context as Activity).finish() }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.Black
+                    )
+                }
+            }
 
             Image(
                 painter = painterResource(id = R.drawable.logo_for_app),
                 contentDescription = "Logo",
-                modifier = Modifier.size(130.dp)
+                modifier = Modifier.size(116.dp)
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Column(
                 modifier = Modifier
@@ -244,6 +267,9 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                             phone = ""
                             password = ""
                             confirmPassword = ""
+
+                            context.startActivity(Intent(context, LoginActivity::class.java))
+                            (context as Activity).finish()
                         }
                     },
                     enabled = !isLoading,
@@ -273,6 +299,21 @@ fun SignUpScreen(enableBackend: Boolean = true) {
                             fontWeight = FontWeight.Bold
                         )
                     }
+                }
+
+                Spacer(modifier = Modifier.height(25.dp))
+
+                Row {
+                    Text("Already have an account?")
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        text = "Login",
+                        color = Color(0xFF2E7D32),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable {
+                            (context as Activity).finish()
+                        }
+                    )
                 }
             }
         }

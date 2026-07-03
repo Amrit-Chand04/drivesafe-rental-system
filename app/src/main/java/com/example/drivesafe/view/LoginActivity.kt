@@ -95,19 +95,20 @@ fun LoginScreen() {
                 .fillMaxSize()
                 .background(Color(0xFFE8F5E9))
                 .padding(paddingValues)
+                .imePadding()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(110.dp))
 
             Image(
-                painter = painterResource(id = R.drawable.logo_main),
+                painter = painterResource(id = R.drawable.logo_for_app),
                 contentDescription = "App Logo",
-                modifier = Modifier.size(180.dp)
+                modifier = Modifier.size(116.dp)
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Column(
                 modifier = Modifier
