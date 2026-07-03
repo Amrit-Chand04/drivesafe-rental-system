@@ -240,11 +240,13 @@ fun LoginScreen() {
                         text = "Sign Up",
                         color = Color(0xFF2E7D32),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {
-                            context.startActivity(
-                                Intent(context, SignUpActivity::class.java)
-                            )
-                        }
+                        modifier = Modifier
+                            .testTag("signup")
+                            .clickable {
+                                context.startActivity(
+                                    Intent(context, SignUpActivity::class.java)
+                                )
+                            }
                     )
                 }
             }
