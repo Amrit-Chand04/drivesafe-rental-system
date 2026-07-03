@@ -196,7 +196,6 @@ Notable test coverage:
 ## Team 
 
 - **Project:** DriveSafe — Vehicle Rental System
-- **Type:** College mini/major project
 - **Author(s):** Amrit Chand , Aman Rauniyar , Prajeeta Joshi , Gyanu Singh 
 
 
