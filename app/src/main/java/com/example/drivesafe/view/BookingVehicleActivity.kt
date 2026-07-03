@@ -6,10 +6,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,15 +29,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.viewmodel.BookingViewModel
-import com.example.drivesafe.viewmodel.EsewaViewModel
-import com.f1soft.esewapaymentsdk.EsewaConfiguration
-import com.f1soft.esewapaymentsdk.EsewaPayment
-import com.f1soft.esewapaymentsdk.ui.screens.EsewaPaymentActivity
+import com.example.drivesafe.viewmodel.KhaltiViewModel
+import com.khalti.checkout.Khalti
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import kotlin.math.roundToInt
 
 
 class BookingVehicleActivity : ComponentActivity() {
@@ -92,38 +89,40 @@ fun BookingVehicle(
 
     val datePickerState = rememberDatePickerState()
 
-    val esewaViewModel: EsewaViewModel = viewModel()
+    val khaltiViewModel: KhaltiViewModel = viewModel()
 
-    val esewaLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val receipt = result.data?.getStringExtra(EsewaPayment.EXTRA_RESULT_MESSAGE) ?: ""
+    // Khalti can call onPaymentResult more than once for a single payment (e.g. once
+    // before khalti.verify() and once after), so guard against booking twice for it.
+    var paymentHandled by remember { mutableStateOf(false) }
 
-            vm.confirmBooking(
-                fullName = fullName,
-                phoneNumber = phoneNumber,
-                pickupLocation = pickupLocation,
-                rentalPlan = rentalPlan,
-                pickupDate = pickupDate,
-                pickupTime = pickupTime,
-                duration = duration,
-                vehicleId = vehicleId,
-                vehicleName = vehicleName,
-                vehicleImage = vehicleImage,
-                vehiclePrice = vehiclePrice,
-                vehicleNumber = vehicleNumber,
-                transactionRefId = receipt
-            )
-        } else {
-            Toast.makeText(context, "Payment cancelled or failed", Toast.LENGTH_SHORT).show()
-        }
+    fun onKhaltiPaymentCompleted(transactionId: String) {
+        paymentHandled = true
+        vm.confirmBooking(
+            fullName = fullName,
+            phoneNumber = phoneNumber,
+            pickupLocation = pickupLocation,
+            rentalPlan = rentalPlan,
+            pickupDate = pickupDate,
+            pickupTime = pickupTime,
+            duration = duration,
+            vehicleId = vehicleId,
+            vehicleName = vehicleName,
+            vehicleImage = vehicleImage,
+            vehiclePrice = vehiclePrice,
+            vehicleNumber = vehicleNumber,
+            transactionRefId = transactionId
+        )
     }
 
     LaunchedEffect(message) {
         message?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             vm.clearMessage()
+
+            if (it == "Booking Confirmed") {
+                context.startActivity(Intent(context, UserDashboard::class.java))
+                (context as Activity).finish()
+            }
         }
     }
 
@@ -368,20 +367,50 @@ fun BookingVehicle(
                         )
 
                         if (isValid) {
-                            val totalAmount = String.format("%.2f", estimatedPrice ?: 0.0)
-                            val productId = UUID.randomUUID().toString()
+                            paymentHandled = false
+                            val amountPaisa = ((estimatedPrice ?: 0.0) * 100).roundToInt()
+                            val orderId = UUID.randomUUID().toString()
 
-                            val esewaConfiguration = esewaViewModel.buildConfiguration()
-                            val esewaPayment = esewaViewModel.buildPayment(
-                                amount = totalAmount,
-                                productName = vehicleName,
-                                productId = productId
-                            )
+                            khaltiViewModel.startPayment(
+                                amount = amountPaisa,
+                                purchaseOrderId = orderId,
+                                purchaseOrderName = vehicleName
+                            ) { config ->
+                                if (config == null) {
+                                    Toast.makeText(
+                                        context,
+                                        "Unable to start payment",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    return@startPayment
+                                }
 
-                            val intent = Intent(context, EsewaPaymentActivity::class.java)
-                            intent.putExtra(EsewaConfiguration.ESEWA_CONFIGURATION, esewaConfiguration)
-                            intent.putExtra(EsewaPayment.ESEWA_PAYMENT, esewaPayment)
-                            esewaLauncher.launch(intent)
+                                val khalti = Khalti.init(
+                                    context = context,
+                                    config = config,
+                                    onPaymentResult = { result, khalti ->
+                                        khalti.close()
+                                        if (result.status == "Completed" && !paymentHandled) {
+                                            onKhaltiPaymentCompleted(result.payload?.transactionId ?: "")
+                                        } else if (result.status != "Completed") {
+                                            Toast.makeText(
+                                                context,
+                                                "Payment ${result.status}",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    },
+                                    onMessage = { payload, khalti ->
+                                        if (payload.needsPaymentConfirmation) {
+                                            khalti.verify()
+                                        } else {
+                                            Toast.makeText(context, payload.message, Toast.LENGTH_SHORT).show()
+                                            khalti.close()
+                                        }
+                                    }
+                                )
+                                khalti.open()
+                            }
                         }
                     },
                     modifier = Modifier

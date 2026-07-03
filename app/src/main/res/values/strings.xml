@@ -39,10 +39,4 @@
     <string name="title_activity_brand_search">BrandSearch</string>
     <string name="title_activity_my_bookings">MyBookingsActivity</string>
     <string name="title_activity_manage_bookings">ManageBookings</string>
-
-    <!-- Overrides the eSewa SDK's own "regex_mobile_number" resource (same name = app
-         value wins over the library's). The SDK's bundled regex only recognizes real
-         telecom prefixes and rejects eSewa's own official test IDs (9711111111-14,
-         prefix "971"), so it's relaxed here to any 10-digit number starting with 9. -->
-    <string name="regex_mobile_number" translatable="false">^[9][0-9]{9}$</string>
 </resources>

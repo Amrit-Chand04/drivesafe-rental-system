@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DriveSafe"
-        tools:replace="android:fullBackupContent,android:theme">
+        tools:replace="android:fullBackupContent">
         <activity
             android:name=".view.ManageBookings"
             android:exported="true"
@@ -50,25 +50,6 @@
             android:exported="true"
             android:label="@string/title_activity_booking_vehicle"
             android:theme="@style/Theme.DriveSafe" />
-        <!-- eSewa native SDK screens: they extend AppCompatActivity, so they need
-             the SDK's own AppCompat/MaterialComponents-based theme, not Theme.DriveSafe. -->
-        <activity
-            android:name="com.f1soft.esewapaymentsdk.ui.screens.EsewaPaymentActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:theme="@style/EsewaSdkTheme" />
-        <activity
-            android:name="com.f1soft.esewapaymentsdk.ui.screens.ESewaLoginActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/EsewaSdkTheme" />
-        <activity
-            android:name="com.f1soft.esewapaymentsdk.ui.screens.ESewaPaymentConfirmActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/EsewaSdkTheme" />
         <activity
             android:name=".view.UserManage"
             android:exported="true"
