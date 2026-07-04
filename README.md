@@ -61,7 +61,7 @@ Renting a vehicle traditionally involves manual paperwork, in-person identity ch
 
 > Add screenshots of the app here once available, e.g.:
 >
-> | Splash | Login | User Dashboard | Vehicle Details | Booking | Admin Dashboard |
+> | Splash | Login | User Dashboard |Admin Dashboard |
 > |---|---|---|---|---|---|
 > | ![](docs/screenshots/splash.png) | ![](docs/screenshots/login.png) | ![](docs/screenshots/user_dashboard.png) | ![](docs/screenshots/details.png) | ![](docs/screenshots/booking.png) | ![](docs/screenshots/admin_dashboard.png) |
 
