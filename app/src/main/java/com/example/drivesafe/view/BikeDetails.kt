@@ -322,7 +322,9 @@ fun BikeDetailsBody(
                                     }
                                     else -> {
                                         val effectivePrice = if (data.offerPercentage > 0 && data.discountedPrice > 0)
-                                            data.discountedPrice.toString() else data.price
+                                            data.discountedPrice.toString()
+                                        else
+                                            data.price.filter(Char::isDigit)
                                         val intent = Intent(context, BookingVehicleActivity::class.java)
                                         intent.putExtra("vehicleId", bikeId)
                                         intent.putExtra("vehicleName", data.name)
