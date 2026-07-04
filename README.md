@@ -59,11 +59,13 @@ Renting a vehicle traditionally involves manual paperwork, in-person identity ch
 
 ## Screens
 
-> Add screenshots of the app here once available, e.g.:
->
-> | Splash | Login | User Dashboard |Admin Dashboard |
-> |---|---|---|---|---|---|
-> | ![](docs/screenshots/splash.png) | ![](docs/screenshots/login.png) | ![](docs/screenshots/user_dashboard.png) | ![](docs/screenshots/details.png) | ![](docs/screenshots/booking.png) | ![](docs/screenshots/admin_dashboard.png) |
+| Splash | Login | User Dashboard | Admin Dashboard |
+|---|---|---|---|
+| ![Splash](docs/screenshots/splash.png) | ![Login](docs/screenshots/login.png) | ![User Dashboard](docs/screenshots/user_dashboard.png) | ![Admin Dashboard](docs/screenshots/admin_dashboard.png) |
+
+| KYC Verified | Booking Form | Settings |
+|---|---|---|
+| ![KYC Verified](docs/screenshots/kyc_verified.png) | ![Booking Form](docs/screenshots/booking_form.png) | ![Settings](docs/screenshots/settings.png) |
 
 ## Architecture
 
