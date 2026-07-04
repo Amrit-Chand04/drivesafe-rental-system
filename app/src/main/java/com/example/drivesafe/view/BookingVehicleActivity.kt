@@ -2,6 +2,7 @@ package com.example.drivesafe.view
 
 import android.app.Activity
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -28,10 +29,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.viewmodel.BookingViewModel
+import com.example.drivesafe.viewmodel.KhaltiViewModel
+import com.khalti.checkout.Khalti
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
+import kotlin.math.roundToInt
 
 
 class BookingVehicleActivity : ComponentActivity() {
@@ -83,6 +88,31 @@ fun BookingVehicle(
     var openTimePicker by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState()
+
+    val khaltiViewModel: KhaltiViewModel = viewModel()
+
+    // Khalti can call onPaymentResult more than once for a single payment (e.g. once
+    // before khalti.verify() and once after), so guard against booking twice for it.
+    var paymentHandled by remember { mutableStateOf(false) }
+
+    fun onKhaltiPaymentCompleted(transactionId: String) {
+        paymentHandled = true
+        vm.confirmBooking(
+            fullName = fullName,
+            phoneNumber = phoneNumber,
+            pickupLocation = pickupLocation,
+            rentalPlan = rentalPlan,
+            pickupDate = pickupDate,
+            pickupTime = pickupTime,
+            duration = duration,
+            vehicleId = vehicleId,
+            vehicleName = vehicleName,
+            vehicleImage = vehicleImage,
+            vehiclePrice = vehiclePrice,
+            vehicleNumber = vehicleNumber,
+            transactionRefId = transactionId
+        )
+    }
 
     LaunchedEffect(message) {
         message?.let {
@@ -150,6 +180,7 @@ fun BookingVehicle(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
+                .imePadding()
         ) {
             item {
                 Card(
@@ -321,20 +352,72 @@ fun BookingVehicle(
 
                 Button(
                     onClick = {
-                        vm.validateAndBook(
+                        val isValid = vm.validate(
                             fullName = fullName,
                             phoneNumber = phoneNumber,
                             pickupLocation = pickupLocation,
-                            rentalPlan = rentalPlan,
                             pickupDate = pickupDate,
                             pickupTime = pickupTime,
-                            duration = duration,
-                            vehicleId = vehicleId,
-                            vehicleName = vehicleName,
-                            vehicleImage = vehicleImage,
-                            vehiclePrice = vehiclePrice,
-                            vehicleNumber = vehicleNumber,
+                            duration = duration
                         )
+
+                        if (isValid) {
+                            paymentHandled = false
+                            val amountPaisa = ((estimatedPrice ?: 0.0) * 100).roundToInt()
+                            val orderId = UUID.randomUUID().toString()
+
+                            khaltiViewModel.startPayment(
+                                amount = amountPaisa,
+                                purchaseOrderId = orderId,
+                                purchaseOrderName = vehicleName
+                            ) { config ->
+                                if (config == null) {
+                                    Toast.makeText(
+                                        context,
+                                        "Unable to start payment",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    return@startPayment
+                                }
+
+                                val khalti = Khalti.init(
+                                    context = context,
+                                    config = config,
+                                    onPaymentResult = { result, khalti ->
+                                        khalti.close()
+                                        if (result.status == "Completed" && !paymentHandled) {
+                                            onKhaltiPaymentCompleted(result.payload?.transactionId ?: "")
+
+                                            // Go straight to the dashboard instead of
+                                            // flashing the booking form again while the
+                                            // Firebase write finishes in the background.
+                                            // Clear the whole task so the old Car/Bike
+                                            // search-details trail isn't left behind on
+                                            // the back stack under the new dashboard.
+                                            val dashboardIntent = Intent(context, UserDashboard::class.java)
+                                            dashboardIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                            context.startActivity(dashboardIntent)
+                                        } else if (result.status != "Completed") {
+                                            Toast.makeText(
+                                                context,
+                                                "Payment ${result.status}",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    },
+                                    onMessage = { payload, khalti ->
+                                        if (payload.needsPaymentConfirmation) {
+                                            khalti.verify()
+                                        } else {
+                                            Toast.makeText(context, payload.message, Toast.LENGTH_SHORT).show()
+                                            khalti.close()
+                                        }
+                                    }
+                                )
+                                khalti.open()
+                            }
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
-import com.example.drivesafe.viewmodel.OfferViewModel
+import com.example.drivesafe.viewmodel.NotificationViewModel
 
 class NotificationActivity : ComponentActivity() {
 
@@ -46,13 +46,17 @@ class NotificationActivity : ComponentActivity() {
 fun NotificationBody() {
 
     val context = LocalContext.current
-    val vm: OfferViewModel = viewModel()
+    val notificationVm: NotificationViewModel = viewModel()
 
-    val offers by vm.offers.collectAsState()
-    val isLoading by vm.isLoading.collectAsState()
+    val notifications by notificationVm.notifications.collectAsState()
+    val isLoading by notificationVm.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
-        vm.loadOffers()
+        notificationVm.loadNotifications()
+    }
+
+    val sortedNotifications = remember(notifications) {
+        notifications.sortedByDescending { it.createdAt }
     }
 
     Scaffold(
@@ -104,7 +108,7 @@ fun NotificationBody() {
                         CircularProgressIndicator(color = Color(0xFF00A859))
                     }
 
-                    offers.isEmpty() -> {
+                    sortedNotifications.isEmpty() -> {
                         Text(
                             text = "No notifications yet",
                             color = Color.Gray,
@@ -116,12 +120,12 @@ fun NotificationBody() {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            items(offers) { offer ->
+                            items(sortedNotifications) { notification ->
 
                                 NotificationCard(
-                                    title = "New Offer: ${offer.title}",
-                                    message = "${offer.description} (${offer.discount}% OFF)",
-                                    time = offer.startDate
+                                    title = notification.title,
+                                    message = notification.message,
+                                    time = formatChatTime(notification.createdAt)
                                 )
 
                                 Spacer(modifier = Modifier.height(12.dp))

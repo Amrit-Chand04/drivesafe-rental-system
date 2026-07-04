@@ -5,13 +5,9 @@ import androidx.lifecycle.ViewModel
 import com.example.drivesafe.model.BookingModel
 import com.example.drivesafe.repo.BookingRepo
 import com.example.drivesafe.repo.BookingRepoImpl
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -44,7 +40,29 @@ class BookingViewModel : ViewModel() {
         } else null
     }
 
-    fun validateAndBook(
+    fun validate(
+        fullName: String,
+        phoneNumber: String,
+        pickupLocation: String,
+        pickupDate: String,
+        pickupTime: String,
+        duration: String
+    ): Boolean {
+        val error = when {
+            fullName.isBlank() -> "Enter Full Name"
+            phoneNumber.isBlank() -> "Enter Phone Number"
+            pickupLocation.isBlank() -> "Enter Pickup Location"
+            pickupDate.isBlank() -> "Select Pickup Date"
+            pickupTime.isBlank() -> "Select Pickup Time"
+            duration.isBlank() -> "Enter Duration"
+            else -> null
+        }
+
+        _message.value = error
+        return error == null
+    }
+
+    fun confirmBooking(
         fullName: String,
         phoneNumber: String,
         pickupLocation: String,
@@ -56,53 +74,31 @@ class BookingViewModel : ViewModel() {
         vehicleName: String,
         vehicleImage: String,
         vehiclePrice: String,
-        vehicleNumber: String
+        vehicleNumber: String,
+        transactionRefId: String
     ) {
-        when {
-            fullName.isBlank() -> _message.value = "Enter Full Name"
-            phoneNumber.isBlank() -> _message.value = "Enter Phone Number"
-            pickupLocation.isBlank() -> _message.value = "Enter Pickup Location"
-            pickupDate.isBlank() -> _message.value = "Select Pickup Date"
-            pickupTime.isBlank() -> _message.value = "Select Pickup Time"
-            duration.isBlank() -> _message.value = "Enter Duration"
+        val booking = BookingModel(
+            userId = "",
+            fullName = fullName,
+            phoneNumber = phoneNumber,
+            pickupLocation = pickupLocation,
+            rentalPlan = rentalPlan,
+            pickupDate = pickupDate,
+            pickupTime = pickupTime,
+            duration = duration,
+            vehicleId = vehicleId,
+            vehicleName = vehicleName,
+            vehicleImage = vehicleImage,
+            vehiclePrice = vehiclePrice,
+            vehicleNumber = vehicleNumber,
+            bookingDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date()),
+            status = "PENDING",
+            paymentStatus = "PAID",
+            transactionRefId = transactionRefId
+        )
 
-            else -> {
-                _message.value = "Processing Payment..."
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(2000)
-
-                    _message.value = "Payment Successful"
-
-                    val booking = BookingModel(
-                        userId = "",
-                        fullName = fullName,
-                        phoneNumber = phoneNumber,
-                        pickupLocation = pickupLocation,
-                        rentalPlan = rentalPlan,
-                        pickupDate = pickupDate,
-                        pickupTime = pickupTime,
-                        duration = duration,
-                        vehicleId = vehicleId,
-                        vehicleName = vehicleName,
-                        vehicleImage = vehicleImage,
-                        vehiclePrice = vehiclePrice,
-                        vehicleNumber = vehicleNumber,
-                        bookingDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date()),
-                        status = "PENDING",
-                        paymentStatus = "PAID_FAKE"
-                    )
-
-                    repo.addBooking(booking) { success, msg ->
-
-                        if (success) {
-                            _message.value = "Booking Confirmed"
-                        } else {
-                            _message.value = "Booking failed: $msg"
-                        }
-                    }
-                }
-            }
+        repo.addBooking(booking) { success, msg ->
+            _message.value = if (success) "Booking Confirmed" else "Booking failed: $msg"
         }
     }
 

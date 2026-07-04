@@ -1,7 +1,6 @@
 package com.example.drivesafe.view
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,6 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -23,7 +24,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
+import com.example.drivesafe.viewmodel.UserViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 class SplashActivity : ComponentActivity() {
@@ -37,26 +41,29 @@ class SplashActivity : ComponentActivity() {
 }
 
 @Composable
-fun SplashBody() {
+fun SplashBody(userViewModel: UserViewModel = viewModel()) {
     val context = LocalContext.current
-    val activity = context as Activity
+    val activity = context as? Activity
+
+    val user by userViewModel.user.collectAsState()
 
     LaunchedEffect(Unit) {
-
         delay(3000)
-        val sharedPreferences = context.getSharedPreferences(
-            "User",
-            Context.MODE_PRIVATE
-        )
-        val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn",false)
-        if(isLoggedIn){
 
-        }else{
-            val intent = Intent(context, LoginActivity::class.java)
-            context.startActivity(intent)
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            context.startActivity(Intent(context, LoginActivity::class.java))
+            activity?.finish()
+        } else {
+            userViewModel.loadCurrentUser()
+        }
+    }
+
+    LaunchedEffect(user) {
+        user?.let {
+            val destination = if (it.role == "admin") AdminDashboard::class.java else UserDashboard::class.java
+            context.startActivity(Intent(context, destination))
             activity?.finish()
         }
-
     }
 
     Column(
@@ -88,4 +95,3 @@ fun SplashBody() {
 
     }
 }
-

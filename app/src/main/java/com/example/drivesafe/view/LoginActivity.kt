@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.R
-import com.example.drivesafe.viewmodel.UserViewModel
+import com.example.drivesafe.viewmodel.AuthViewModel
 import com.google.firebase.FirebaseApp
 
 class LoginActivity : ComponentActivity() {
@@ -50,7 +51,7 @@ class LoginActivity : ComponentActivity() {
 fun LoginScreen() {
 
     val context = LocalContext.current
-    val vm: UserViewModel = viewModel()
+    val vm: AuthViewModel = viewModel()
     val message by vm.message.collectAsState()
     val isLoading by vm.loading.collectAsState()
     val user by vm.user.collectAsState()
@@ -94,19 +95,20 @@ fun LoginScreen() {
                 .fillMaxSize()
                 .background(Color(0xFFE8F5E9))
                 .padding(paddingValues)
+                .imePadding()
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Spacer(modifier = Modifier.height(60.dp))
+            Spacer(modifier = Modifier.height(110.dp))
 
             Image(
-                painter = painterResource(id = R.drawable.logo_main),
+                painter = painterResource(id = R.drawable.logo_for_app),
                 contentDescription = "App Logo",
-                modifier = Modifier.size(180.dp)
+                modifier = Modifier.size(116.dp)
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Column(
                 modifier = Modifier
@@ -133,7 +135,7 @@ fun LoginScreen() {
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("email"),
                     placeholder = { Text("Email") },
                     singleLine = true,
                     shape = RoundedCornerShape(15.dp),
@@ -151,7 +153,7 @@ fun LoginScreen() {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("password"),
                     placeholder = { Text("Password") },
                     singleLine = true,
                     visualTransformation =
@@ -208,7 +210,7 @@ fun LoginScreen() {
 
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(58.dp),
+                        .height(58.dp).testTag("login"),
                     shape = RoundedCornerShape(50.dp),
                     colors = ButtonDefaults.elevatedButtonColors(
                         containerColor = Color(0xFF2E7D32),
@@ -238,11 +240,13 @@ fun LoginScreen() {
                         text = "Sign Up",
                         color = Color(0xFF2E7D32),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {
-                            context.startActivity(
-                                Intent(context, SignUpActivity::class.java)
-                            )
-                        }
+                        modifier = Modifier
+                            .testTag("signup")
+                            .clickable {
+                                context.startActivity(
+                                    Intent(context, SignUpActivity::class.java)
+                                )
+                            }
                     )
                 }
             }

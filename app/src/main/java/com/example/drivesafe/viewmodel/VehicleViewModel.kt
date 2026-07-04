@@ -10,9 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class VehicleViewModel(application: Application) : AndroidViewModel(application) {
-
+class VehicleViewModel @JvmOverloads constructor(
+    application: Application,
     private val repo: VehicleRepo = VehicleRepoImpl(application.applicationContext)
+) : AndroidViewModel(application) {
     private val _vehicles = MutableStateFlow<List<VehicleFirebaseModel>>(emptyList())
     val vehicles = _vehicles.asStateFlow()
 

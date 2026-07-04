@@ -5,17 +5,7 @@ import com.example.drivesafe.model.UserWithKyc
 
 interface UserRepo {
 
-    fun register(
-        email: String,
-        password: String,
-        callback: (Boolean, String, String) -> Unit
-    )
 
-    fun login(
-        email: String,
-        password: String,
-        callback: (Boolean, String, UserModel?) -> Unit
-    )
 
     fun sendPasswordResetEmail(
         email: String,

@@ -14,7 +14,10 @@ import com.example.drivesafe.model.VehicleModel
 import com.google.firebase.database.*
 import java.util.concurrent.Executors
 
-class VehicleRepoImpl(private val context: Context) : VehicleRepo {
+class VehicleRepoImpl(
+    private val context: Context,
+    private val notificationRepo: NotificationRepo = NotificationRepoImpl()
+) : VehicleRepo {
 
     private val cloudinary = Cloudinary(
         mapOf(
@@ -82,6 +85,10 @@ class VehicleRepoImpl(private val context: Context) : VehicleRepo {
 
                 vehicleRef.child(vehicleId).setValue(vehicleData)
                     .addOnSuccessListener {
+                        notificationRepo.addNotification(
+                            title = "New Vehicle Added",
+                            message = "${vehicleData.name} (${vehicleData.brand}) has been added to the fleet."
+                        )
                         postResult(callback, true, "Vehicle Added Successfully")
                     }
                     .addOnFailureListener { e ->

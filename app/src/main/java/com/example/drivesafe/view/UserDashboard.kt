@@ -1,5 +1,6 @@
 package com.example.drivesafe.view
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -8,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +44,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,11 +54,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.example.drivesafe.R
 import com.example.drivesafe.ui.theme.DriveSafeTheme
 import android.content.Context
@@ -65,6 +70,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.drivesafe.viewmodel.ChatViewModel
+import com.example.drivesafe.viewmodel.ThemeViewModel
 import com.example.drivesafe.viewmodel.UserViewModel
 import com.example.drivesafe.viewmodel.VehicleViewModel
 
@@ -132,9 +138,27 @@ fun UserDashboardScaffold(
     onItemSelected: (Int) -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
+    val themeViewModel: ThemeViewModel = viewModel()
+    val selectedTheme by themeViewModel.selectedTheme.collectAsState()
+
+    val isDarkTheme = when (selectedTheme) {
+        "Dark" -> true
+        "Light" -> false
+        else -> isSystemInDarkTheme()
+    }
+
+    val backgroundColor = if (isDarkTheme) Color(0xFF121212) else Color(0xFFE8F5E9)
+    val navBarColor = if (isDarkTheme) Color(0xFF1E1E1E) else Color.White
+
+    val view = LocalView.current
+    SideEffect {
+        val window = (view.context as Activity).window
+        WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkTheme
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = Color(0xFFE8F5E9),
+        containerColor = backgroundColor,
 
         bottomBar = {
             NavigationBar(
@@ -142,7 +166,7 @@ fun UserDashboardScaffold(
                     .padding(horizontal = 12.dp, vertical = 10.dp)
                     .clip(RoundedCornerShape(24.dp)),
 
-                containerColor = Color.White,
+                containerColor = navBarColor,
                 tonalElevation = 6.dp
             ) {
 
@@ -268,7 +292,7 @@ fun UserBody(
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(25.dp))
 
         Row(
             modifier = Modifier
@@ -281,7 +305,7 @@ fun UserBody(
                 onValueChange = {text = it},
                 modifier = Modifier.weight(1f),
                 placeholder = {
-                    Text("Search vehicle")
+                    Text("Search by vehicle name")
                 },
                 singleLine = true
             )
@@ -290,12 +314,12 @@ fun UserBody(
 
             ElevatedButton(
                 onClick = {
-                    val brandQuery = text.trim()
+                    val query = text.trim()
 
-                    if (brandQuery.isBlank()) {
+                    if (query.isBlank()) {
                         Toast.makeText(
                             context,
-                            "Please enter a brand name",
+                            "Please enter a brand or vehicle name",
                             Toast.LENGTH_SHORT
                         ).show()
                         return@ElevatedButton
@@ -306,18 +330,19 @@ fun UserBody(
                         val matches = list.filter {
                             (it.type.equals("Car", ignoreCase = true) ||
                                     it.type.equals("Bike", ignoreCase = true)) &&
-                                    it.brand.contains(brandQuery, ignoreCase = true)
+                                    (it.brand.contains(query, ignoreCase = true) ||
+                                            it.name.contains(query, ignoreCase = true))
                         }
 
                         if (matches.isNotEmpty()) {
                             context.startActivity(
                                 Intent(context, BrandSearch::class.java)
-                                    .putExtra("brand", brandQuery)
+                                    .putExtra("brand", query)
                             )
                         } else {
                             Toast.makeText(
                                 context,
-                                "No vehicles found for this brand.",
+                                "No vehicles found.",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }

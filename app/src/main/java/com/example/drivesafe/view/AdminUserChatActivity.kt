@@ -133,6 +133,10 @@ fun AdminUserChatBody(
                 .padding(padding)
         ) {
 
+            val messagesByDay = remember(messages) {
+                messages.groupBy { chatDayKey(it.timestamp) }
+            }
+
             LazyColumn(
                 state = listState,
                 modifier = Modifier
@@ -141,35 +145,37 @@ fun AdminUserChatBody(
                     .padding(horizontal = 12.dp),
                 contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
             ) {
-                item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Today",
-                            modifier = Modifier
-                                .background(
-                                    Color(0xFFEDEDED),
-                                    RoundedCornerShape(12.dp)
-                                )
-                                .padding(horizontal = 14.dp, vertical = 6.dp),
-                            fontSize = 12.sp,
-                            color = Color.DarkGray
-                        )
+                messagesByDay.forEach { (_, dayMessages) ->
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = formatChatDate(dayMessages.first().timestamp),
+                                modifier = Modifier
+                                    .background(
+                                        Color(0xFFEDEDED),
+                                        RoundedCornerShape(12.dp)
+                                    )
+                                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                                fontSize = 12.sp,
+                                color = Color.DarkGray
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
-                items(messages) { msg ->
-                    ChatMessageBubble(
-                        message = msg.message,
-                        senderName = msg.senderName,
-                        time = formatChatTime(msg.timestamp),
-                        isMine = msg.senderRole == "admin",
-                        mineLabel = "Admin"
-                    )
+                    items(dayMessages) { msg ->
+                        ChatMessageBubble(
+                            message = msg.message,
+                            senderName = msg.senderName,
+                            time = formatChatTime(msg.timestamp),
+                            isMine = msg.senderRole == "admin",
+                            mineLabel = "Admin"
+                        )
+                    }
                 }
             }
 

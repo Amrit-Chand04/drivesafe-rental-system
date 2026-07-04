@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -84,13 +85,17 @@ fun OffersScreen() {
                             if (success) vm.loadOffers()
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                    modifier = Modifier.testTag("confirmDeleteButton")
                 ) {
                     Text("Delete", color = Color.White)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
+                TextButton(
+                    onClick = { showDeleteDialog = false },
+                    modifier = Modifier.testTag("cancelDeleteButton")
+                ) {
                     Text("Cancel", color = Color(0xFF00A859))
                 }
             }
@@ -143,7 +148,8 @@ fun OffersScreen() {
                     onClick = { showDialog = true },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A859)),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                    modifier = Modifier.testTag("createOfferButton")
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
@@ -283,7 +289,7 @@ fun CreateOfferDialog(
                     onValueChange = { title = it },
                     label = { Text("Title") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("titleField"),
                     shape = RoundedCornerShape(12.dp),
                     colors = fieldColors
                 )
@@ -295,7 +301,7 @@ fun CreateOfferDialog(
                     onValueChange = { description = it },
                     label = { Text("Description") },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("descriptionField"),
                     shape = RoundedCornerShape(12.dp),
                     colors = fieldColors
                 )
@@ -307,7 +313,7 @@ fun CreateOfferDialog(
                     onValueChange = { if (it.all { ch -> ch.isDigit() }) discount = it },
                     label = { Text("Discount Percentage") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("discountField"),
                     shape = RoundedCornerShape(12.dp),
                     colors = fieldColors
                 )
@@ -366,7 +372,10 @@ fun CreateOfferDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) {
+                    TextButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.testTag("cancelButton")
+                    ) {
                         Text("Cancel", color = Color.Gray)
                     }
 
@@ -390,7 +399,8 @@ fun CreateOfferDialog(
                             }
                         },
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A859))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A859)),
+                        modifier = Modifier.testTag("saveButton")
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
@@ -451,6 +461,7 @@ fun OfferCardItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag("offerCard")
             .clickable { onClick() },
         shape = RoundedCornerShape(18.dp),
         elevation = CardDefaults.cardElevation(4.dp)

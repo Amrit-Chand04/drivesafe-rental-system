@@ -23,6 +23,9 @@ class ChatViewModel(private val repo: ChatRepo = ChatRepoImpl()) : ViewModel() {
     private val _userChatPreview = MutableStateFlow<ChatListModel?>(null)
     val userChatPreview: StateFlow<ChatListModel?> = _userChatPreview.asStateFlow()
 
+    private val _isUserChatPreviewLoading = MutableStateFlow(false)
+    val isUserChatPreviewLoading: StateFlow<Boolean> = _isUserChatPreviewLoading.asStateFlow()
+
     private var messagesChatId: String? = null
     private var chatListLoaded = false
     private var userChatPreviewUserId: String? = null
@@ -50,9 +53,11 @@ class ChatViewModel(private val repo: ChatRepo = ChatRepoImpl()) : ViewModel() {
     fun loadUserChatPreview(userId: String) {
         if (userChatPreviewUserId == userId) return
         userChatPreviewUserId = userId
+        _isUserChatPreviewLoading.value = true
 
         repo.getUserChatPreview(userId) { preview ->
             _userChatPreview.value = preview
+            _isUserChatPreviewLoading.value = false
         }
     }
 

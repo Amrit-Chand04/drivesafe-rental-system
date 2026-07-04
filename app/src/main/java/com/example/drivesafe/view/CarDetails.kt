@@ -3,6 +3,7 @@ package com.example.drivesafe.view
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -311,15 +312,25 @@ fun CarDetailsBody(
 
                         Button(
                             onClick = {
-                                val effectivePrice = if (data.offerPercentage > 0 && data.discountedPrice > 0)
-                                    data.discountedPrice.toString() else data.price
-                                val intent = Intent(context, BookingVehicleActivity::class.java)
-                                intent.putExtra("vehicleId", carId)
-                                intent.putExtra("vehicleName", data.name)
-                                intent.putExtra("vehicleImage", data.vehicleImage)
-                                intent.putExtra("vehiclePrice", effectivePrice)
-                                intent.putExtra("vehicleNumber", data.number)
-                                context.startActivity(intent)
+                                when {
+                                    data.status.equals("Booked", ignoreCase = true) -> {
+                                        Toast.makeText(context, "Booked", Toast.LENGTH_SHORT).show()
+                                    }
+                                    data.status.equals("Maintenance", ignoreCase = true) -> {
+                                        Toast.makeText(context, "Maintenance", Toast.LENGTH_SHORT).show()
+                                    }
+                                    else -> {
+                                        val effectivePrice = if (data.offerPercentage > 0 && data.discountedPrice > 0)
+                                            data.discountedPrice.toString() else data.price
+                                        val intent = Intent(context, BookingVehicleActivity::class.java)
+                                        intent.putExtra("vehicleId", carId)
+                                        intent.putExtra("vehicleName", data.name)
+                                        intent.putExtra("vehicleImage", data.vehicleImage)
+                                        intent.putExtra("vehiclePrice", effectivePrice)
+                                        intent.putExtra("vehicleNumber", data.number)
+                                        context.startActivity(intent)
+                                    }
+                                }
                             },
                             modifier = Modifier
                                 .fillMaxWidth()

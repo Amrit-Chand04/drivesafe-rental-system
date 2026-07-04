@@ -295,7 +295,7 @@ fun BookingCard(
                     contentDescription = booking.vehicleName,
                     modifier = Modifier
                         .width(140.dp)
-                        .height(185.dp)
+                        .height(210.dp)
                         .clip(RoundedCornerShape(18.dp)),
                     contentScale = ContentScale.Crop
                 )

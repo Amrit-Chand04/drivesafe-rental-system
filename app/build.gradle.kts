@@ -40,6 +40,10 @@ android {
 
 dependencies {
 
+    // Khalti native payment SDK (from docs.khalti.com/checkout/android) — published on
+    // Maven Central, so unlike eSewa's SDK, Gradle resolves everything automatically.
+    implementation("com.khalti:checkout-android:0.07.00")
+
     //cloudinary
     implementation("com.cloudinary:cloudinary-android:3.1.2")
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
@@ -72,6 +76,16 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+
+
+    androidTestImplementation("androidx.test:runner:1.2.0")
+    androidTestImplementation("androidx.test:rules:1.2.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
